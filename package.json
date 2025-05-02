@@ -1,0 +1,14 @@
+{
+  "name": "medi-ghor",
+  "version": "1.0.0",
+  "description": "Mern E-commerce project",
+  "main": "server.js",
+  "scripts": {
+    "start": "node backend/server"
+  },
+  "author": "Asif Manowar",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
