@@ -9,12 +9,12 @@ const orderSchema = mongoose.Schema(
     },
     orderItems: [
       {
-        name: { typr: String, required: true },
-        qty: { typr: Number, required: true },
-        image: { typr: String, required: true },
-        price: { typr: Number, required: true },
+        name: { type: String, required: true },
+        qty: { type: Number, required: true },
+        image: { type: String, required: true },
+        price: { type: Number, required: true },
         product: {
-          type: mongoose.Schema.Types > ObjectId,
+          type: mongoose.Schema.Types.ObjectId,
           required: true,
           ref: 'Product',
         },
@@ -73,6 +73,6 @@ const orderSchema = mongoose.Schema(
   }
 );
 
-const orderr = mongoose.model('Order', orderSchema);
+const Order = mongoose.model('Order', orderSchema);
 
 export default Order;
