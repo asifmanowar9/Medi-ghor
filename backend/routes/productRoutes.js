@@ -26,7 +26,8 @@ router.get(
     if (product) {
       res.json(product); // Send the found single product as JSON
     } else {
-      res.status(404).json({ message: 'Product not found' }); // Send a 404 status if the product is not found
+      res.status(404); // Send a 404 status if the product is not found
+      throw new Error('Product not found');
     }
   })
 );
