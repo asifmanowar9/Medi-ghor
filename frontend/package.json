@@ -46,5 +46,18 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "react-jsx": {
+    "runtime": "automatic"
+  },
+  "babel": {
+    "presets": [
+      [
+        "@babel/preset-react",
+        {
+          "runtime": "automatic"
+        }
+      ]
+    ]
   }
 }
