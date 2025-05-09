@@ -1,6 +1,14 @@
 import { CART_ADD_ITEM, CART_REMOVE_ITEM } from '../constants/cartConstants';
 
-export const cartReducer = (state = { cartItems: [] }, action) => {
+// Add this line to load initial state from localStorage
+const cartItemsFromStorage = localStorage.getItem('cartItems')
+  ? JSON.parse(localStorage.getItem('cartItems'))
+  : [];
+
+export const cartReducer = (
+  state = { cartItems: cartItemsFromStorage },
+  action
+) => {
   switch (action.type) {
     case CART_ADD_ITEM:
       const item = action.payload;

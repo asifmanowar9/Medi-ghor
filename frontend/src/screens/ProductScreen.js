@@ -16,7 +16,7 @@ import Message from '../components/Message';
 import { listProductDetails } from '../actions/productActions';
 
 const ProductScreen = () => {
-  const [qty, setQty] = useState(0);
+  const [qty, setQty] = useState(1);
   const navigate = useNavigate(); // Change this line
   const { id } = useParams();
   const dispatch = useDispatch();
