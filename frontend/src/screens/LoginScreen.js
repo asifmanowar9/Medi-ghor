@@ -19,9 +19,11 @@ const LoginScreen = () => {
   const userLogin = useSelector((state) => state.userLogin);
   const { loading, userInfo, error } = userLogin;
 
-  const redirect = location.search
-    ? new URLSearchParams(location.search).get('redirect') || '/'
-    : '/';
+  const redirectParam =
+    new URLSearchParams(location.search).get('redirect') || '/';
+  const redirect = redirectParam.startsWith('/')
+    ? redirectParam
+    : '/' + redirectParam;
 
   useEffect(() => {
     if (userInfo) {

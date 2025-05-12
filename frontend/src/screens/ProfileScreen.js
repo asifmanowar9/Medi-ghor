@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Form, Button, Row, Col } from 'react-bootstrap';
-import { getUserDetails } from '../actions/userActions';
+import { getUserDetails, updateUserProfile } from '../actions/userActions';
 import Message from '../components/Message';
 import Loader from '../components/Loader';
 
@@ -23,15 +23,18 @@ const ProfileScreen = () => {
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
 
+  const userUpdateProfile = useSelector((state) => state.userUpdateProfile);
+  const { success } = userUpdateProfile;
+
   useEffect(() => {
-    if (!user) {
+    if (!userInfo) {
       navigate('/login');
     } else {
-      if (!userInfo || !userInfo.name) {
+      if (!user || !user.name) {
         dispatch(getUserDetails('profile'));
       } else {
-        setName(userInfo.name);
-        setEmail(userInfo.email);
+        setName(user.name);
+        setEmail(user.email);
       }
     }
   }, [dispatch, navigate, user, userInfo]);
@@ -41,6 +44,8 @@ const ProfileScreen = () => {
     if (password !== confirmPassword) {
       setMessage('Passwords do not match');
     } else {
+      dispatch(updateUserProfile({ id: user._id, name, email, password }));
+      //setMessage('Profile updated successfully');
     }
   };
 
@@ -50,6 +55,9 @@ const ProfileScreen = () => {
         <h2>User Profile</h2>
         {message && <Message variant='danger'>{message}</Message>}
         {error && <Message variant='danger'>{error}</Message>}
+        {success && (
+          <Message variant='success'>Profile Updated Successfully</Message>
+        )}
         {loading && <Loader />}
         <Form onSubmit={submitHandler}>
           <Form.Group controlId='name'>
@@ -99,7 +107,7 @@ const ProfileScreen = () => {
       </Col>
       <Col md={9}>
         {' '}
-        <h2>kauhdafusdfu</h2>{' '}
+        <h2>My orders</h2>{' '}
       </Col>
     </Row>
   );
