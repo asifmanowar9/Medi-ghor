@@ -58,8 +58,10 @@ export const savePaymentMethod = (data) => (dispatch) => {
     type: CART_SAVE_PAYMENT_METHOD,
     payload: data,
   });
+
   localStorage.setItem('paymentMethod', JSON.stringify(data));
 };
+
 export const clearCart = () => (dispatch) => {
   dispatch({ type: CART_CLEAR_ITEMS });
   localStorage.removeItem('cartItems');
