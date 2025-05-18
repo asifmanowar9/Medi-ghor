@@ -1,31 +1,34 @@
-version: '3'
-
 services:
+  # MongoDB Service
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  # Backend Service
   backend:
-    build: 
-      context: .
-      dockerfile: Dockerfile
+    build: .
     ports:
       - "5000:5000"
+    depends_on:
+      - mongo
     environment:
       - NODE_ENV=development
       - PORT=5000
-      - MONGO_URI=mongodb+srv://asifpc2022:pass9112@cluster0.rmejezb.mongodb.net/medi-ghor?retryWrites=true&w=majority&appName=Cluster0
+      - MONGO_URI=mongodb://mongo:27017/medi-ghor
       - JWT_SECRET=abc123
-    volumes:
-      - ./:/app
-      - /app/node_modules
 
+  # Frontend Service
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    build: ./frontend
     ports:
       - "3000:3000"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
     depends_on:
       - backend
     environment:
-      - REACT_APP_API_URL=http://backend:5000
+      - REACT_APP_API_URL=http://localhost:5000
+
+volumes:
+  mongo_data:
