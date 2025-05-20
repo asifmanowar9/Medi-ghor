@@ -17,7 +17,8 @@ const PaymentScreen = () => {
     navigate('/shipping');
   }
 
-  const [paymentMethod, setPaymentMethod] = useState('PayPal');
+  // Change default to Stripe
+  const [paymentMethod, setPaymentMethod] = useState('Stripe');
 
   const submitHandler = (e) => {
     e.preventDefault();
@@ -35,25 +36,17 @@ const PaymentScreen = () => {
           <Col>
             <Form.Check
               type='radio'
-              label='PayPal or Credit Card'
-              id='PayPal'
-              name='paymentMethod'
-              value='PayPal'
-              checked
-              onChange={(e) => setPaymentMethod(e.target.value)}
-            ></Form.Check>
-            <Form.Check
-              type='radio'
-              label='Stripe'
+              label='Stripe Credit/Debit Card'
               id='Stripe'
               name='paymentMethod'
               value='Stripe'
+              checked
               onChange={(e) => setPaymentMethod(e.target.value)}
             ></Form.Check>
           </Col>
         </Form.Group>
 
-        <Button type='submit' variant='primary'>
+        <Button type='submit' variant='primary' className='mt-3'>
           Continue
         </Button>
       </Form>
