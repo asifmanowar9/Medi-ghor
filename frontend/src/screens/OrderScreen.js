@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Row, Col, ListGroup, Image, Card } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
-import axios from 'axios';
+// import axios from 'axios';
 import Message from '../components/Message';
 import Loader from '../components/Loader';
-import { getOrderDetails, payOrder } from '../actions/orderActions';
+import { getOrderDetails } from '../actions/orderActions';
 import { ORDER_PAY_RESET } from '../constants/orderConstants';
 import StripeProvider from '../components/StripeProvider';
 import StripeCheckout from '../components/StripeCheckout';
