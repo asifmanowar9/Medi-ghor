@@ -17,6 +17,9 @@ import {
   USER_LIST_SUCCESS,
   USER_LIST_FAIL,
   USER_LIST_RESET,
+  USER_DELETE_FAIL,
+  USER_DELETE_REQUEST,
+  USER_DELETE_SUCCESS,
 } from '../constants/userConstants';
 
 import { ORDER_LIST_MY_RESET } from '../constants/orderConstants';
@@ -201,7 +204,7 @@ export const listUsers = () => async (dispatch, getState) => {
 
 export const deleteUser = (id) => async (dispatch, getState) => {
   try {
-    dispatch({ type: USER_LIST_REQUEST });
+    dispatch({ type: USER_DELETE_REQUEST });
 
     const {
       userLogin: { userInfo },
@@ -215,10 +218,10 @@ export const deleteUser = (id) => async (dispatch, getState) => {
 
     await axios.delete(`/api/users/${id}`, config);
 
-    dispatch({ type: USER_LIST_SUCCESS });
+    dispatch({ type: USER_DELETE_SUCCESS });
   } catch (error) {
     dispatch({
-      type: USER_LIST_FAIL,
+      type: USER_DELETE_FAIL,
       payload:
         error.response && error.response.data.message
           ? error.response.data.message
