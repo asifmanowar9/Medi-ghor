@@ -153,7 +153,7 @@ export const orderDeliverReducer = (state = {}, action) => {
         error: action.payload,
       };
     case ORDER_DELIVER_RESET:
-      return {};
+      return {}; // Reset to initial state
     default:
       return state;
   }

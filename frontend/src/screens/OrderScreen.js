@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Row, Col, ListGroup, Image, Card, Button } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -15,6 +15,7 @@ import StripeCheckout from '../components/StripeCheckout';
 
 const OrderScreen = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   // Keep these selectors
@@ -42,14 +43,37 @@ const OrderScreen = () => {
   }
 
   useEffect(() => {
-    if (!order || successPay || order._id !== id || successDeliver) {
-      dispatch({ type: ORDER_DELIVER_RESET });
-      dispatch({ type: ORDER_PAY_RESET });
+    if (!userInfo) {
+      navigate('/login');
+    }
+    console.log('OrderScreen useEffect - checking conditions:', {
+      hasOrder: !!order,
+      successPay,
+      successDeliver,
+      orderId: id,
+      currentOrderId: order?._id,
+    });
+
+    if (!order || successPay || successDeliver || (order && order._id !== id)) {
+      console.log(
+        'OrderScreen useEffect - resetting and fetching order details'
+      );
+
+      if (successDeliver) {
+        dispatch({ type: ORDER_DELIVER_RESET });
+      }
+
+      if (successPay) {
+        dispatch({ type: ORDER_PAY_RESET });
+      }
+
+      // Then fetch updated order details
       dispatch(getOrderDetails(id));
     }
-  }, [dispatch, id, successPay, order, successDeliver]);
+  }, [dispatch, navigate, userInfo, id, successPay, successDeliver, order]);
 
   const deliverHandler = () => {
+    console.log('Marking order as delivered:', order._id);
     dispatch(deliverOrder(order));
   };
 
@@ -81,7 +105,7 @@ const OrderScreen = () => {
               </p>
               {order.isDelivered ? (
                 <Message variant='success'>
-                  Delivered on {order.deliveredAt}
+                  Delivered on {new Date(order.deliveredAt).toLocaleString()}
                 </Message>
               ) : (
                 <Message variant='danger'>Not Delivered</Message>

@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Button, Table, Row, Col } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import Message from '../components/Message';
 import Loader from '../components/Loader';
+import Paginate from '../components/Paginate';
 import {
   listProducts,
   deleteProduct,
@@ -15,10 +16,13 @@ import { PRODUCT_CREATE_RESET } from '../constants/productConstants';
 const ProductListScreen = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  //const { id } = useParams();
+  const { pageNumber } = useParams(); // Change from { page } to { pageNumber }
+
+  // Convert pageNumber to a number and default to 1 if not provided
+  const page = pageNumber ? Number(pageNumber) : 1;
 
   const productList = useSelector((state) => state.productList);
-  const { loading, error, products } = productList;
+  const { loading, error, products, pages } = productList;
 
   const productDelete = useSelector((state) => state.productDelete);
   const {
@@ -39,15 +43,18 @@ const ProductListScreen = () => {
   const { userInfo } = userLogin;
 
   useEffect(() => {
+    console.log('Page number from params:', page);
+    // console.log('Pages from Redux:', pages);
+
     dispatch({ type: PRODUCT_CREATE_RESET });
-    if (!userInfo.isAdmin) {
+    if (!userInfo || !userInfo.isAdmin) {
       navigate('/login');
     }
 
     if (successCreate) {
       navigate(`/admin/product/${createdProduct._id}/edit`);
     } else {
-      dispatch(listProducts());
+      dispatch(listProducts('', page)); // Pass the page number to listProducts
     }
   }, [
     dispatch,
@@ -56,6 +63,7 @@ const ProductListScreen = () => {
     successDelete,
     successCreate,
     createdProduct,
+    page, // Use page instead of pageNumber
   ]);
 
   const deleteHandler = (id) => {
@@ -148,6 +156,8 @@ const ProductListScreen = () => {
               ))}
             </tbody>
           </Table>
+          <Paginate pages={pages} page={page} isAdmin={true} />{' '}
+          {/* Use page instead of productList.page */}
         </>
       )}
     </>

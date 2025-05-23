@@ -216,17 +216,22 @@ export const deliverOrder = (order) => async (dispatch, getState) => {
       },
     };
 
+    console.log(`Sending delivery request for order ${order._id}`);
+
     const { data } = await axios.put(
       `/api/orders/${order._id}/deliver`,
-      {},
+      {}, // Empty body since we're just marking it as delivered
       config
     );
+
+    console.log('Delivery request successful:', data);
 
     dispatch({
       type: ORDER_DELIVER_SUCCESS,
       payload: data,
     });
   } catch (error) {
+    console.error('Error marking order as delivered:', error);
     dispatch({
       type: ORDER_DELIVER_FAIL,
       payload:

@@ -43,10 +43,24 @@ const App = () => {
             />
             <Route path='/admin/productlist' element={<ProductListScreen />} />
             <Route
+              path='/admin/productlist/:pageNumber'
+              element={<ProductListScreen />}
+            />
+            <Route
+              path='/admin/productlist/:keyword/page/:pageNumber'
+              element={<ProductListScreen />}
+            />
+            <Route
               path='/admin/product/:productId/edit'
               element={<ProductEditScreen />}
             />
             <Route path='/admin/orderlist' element={<OrderListScreen />} />
+            <Route path='/search/:keyword' element={<HomeScreen />} />
+            <Route path='/page/:pageNumber' element={<HomeScreen />} />
+            <Route
+              path='/search/:keyword/page/:pageNumber'
+              element={<HomeScreen />}
+            />
             <Route path='/' element={<HomeScreen />} />
           </Routes>
         </Container>

@@ -1,0 +1,29 @@
+.carousel-smaller {
+  max-width: 800px;
+  margin: 0 auto 2rem;
+  height: auto;
+  background: linear-gradient(to right, #f5f7fa, #c3cfe2); /* Subtle blue-gray gradient */
+  border-radius: 10px; /* Rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow */
+}
+
+.carousel-smaller img {
+  max-height: 400px;
+  object-fit: contain;
+}
+
+/* Black text styling */
+.black-text h2 {
+  color: #000 !important;
+  background-color: rgba(255, 255, 255, 0.7);
+  padding: 10px;
+  border-radius: 5px;
+  display: inline-block;
+}
+
+/* Make the carousel container centered */
+.carousel-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
