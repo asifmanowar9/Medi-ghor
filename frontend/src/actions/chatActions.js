@@ -18,7 +18,7 @@ import {
 } from '../constants/chatConstants';
 
 // Create a new chat
-export const createChat = () => async (dispatch, getState) => {
+export const createChat = (title) => async (dispatch, getState) => {
   try {
     dispatch({ type: CHAT_CREATE_REQUEST });
 
@@ -28,25 +28,17 @@ export const createChat = () => async (dispatch, getState) => {
 
     const config = {
       headers: {
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${userInfo.token}`,
       },
     };
 
-    const { data } = await axios.post('/api/chats', {}, config);
+    const { data } = await axios.post('/api/chats', { title }, config);
 
     dispatch({
       type: CHAT_CREATE_SUCCESS,
       payload: data,
     });
-
-    // Save to localStorage
-    const existingChats = JSON.parse(
-      localStorage.getItem('chatHistory') || '[]'
-    );
-    localStorage.setItem(
-      'chatHistory',
-      JSON.stringify([...existingChats, data])
-    );
 
     return data;
   } catch (error) {
@@ -57,11 +49,12 @@ export const createChat = () => async (dispatch, getState) => {
           ? error.response.data.message
           : error.message,
     });
+    throw error;
   }
 };
 
-// Get list of user's chats
-export const listUserChats = () => async (dispatch, getState) => {
+// List user's chats
+export const listChats = () => async (dispatch, getState) => {
   try {
     dispatch({ type: CHAT_LIST_REQUEST });
 
@@ -81,10 +74,9 @@ export const listUserChats = () => async (dispatch, getState) => {
       type: CHAT_LIST_SUCCESS,
       payload: data,
     });
-
-    // Update localStorage with latest chats
-    localStorage.setItem('chatHistory', JSON.stringify(data));
   } catch (error) {
+    console.log('List chats error: ', error);
+    console.log('Error response: ', error.response);
     dispatch({
       type: CHAT_LIST_FAIL,
       payload:
@@ -95,7 +87,7 @@ export const listUserChats = () => async (dispatch, getState) => {
   }
 };
 
-// Get chat details by ID
+// Get chat details
 export const getChatDetails = (id) => async (dispatch, getState) => {
   try {
     dispatch({ type: CHAT_DETAILS_REQUEST });
@@ -117,14 +109,7 @@ export const getChatDetails = (id) => async (dispatch, getState) => {
       payload: data,
     });
 
-    // Update chat in localStorage
-    const existingChats = JSON.parse(
-      localStorage.getItem('chatHistory') || '[]'
-    );
-    const updatedChats = existingChats.map((chat) =>
-      chat._id === data._id ? data : chat
-    );
-    localStorage.setItem('chatHistory', JSON.stringify(updatedChats));
+    return data;
   } catch (error) {
     dispatch({
       type: CHAT_DETAILS_FAIL,
@@ -133,58 +118,54 @@ export const getChatDetails = (id) => async (dispatch, getState) => {
           ? error.response.data.message
           : error.message,
     });
+    throw error;
   }
 };
 
 // Add message to chat
-export const addMessage = (chatId, content) => async (dispatch, getState) => {
-  try {
-    dispatch({ type: CHAT_MESSAGE_ADD_REQUEST });
+export const addMessage =
+  (chatId, messageText, skipAiResponse = false) =>
+  async (dispatch, getState) => {
+    try {
+      dispatch({ type: CHAT_MESSAGE_ADD_REQUEST });
 
-    const {
-      userLogin: { userInfo },
-    } = getState();
+      const {
+        userLogin: { userInfo },
+      } = getState();
 
-    const config = {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userInfo.token}`,
-      },
-    };
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userInfo.token}`,
+        },
+      };
 
-    const { data } = await axios.post(
-      `/api/chats/${chatId}/messages`,
-      { content, sender: 'user' },
-      config
-    );
+      const { data } = await axios.post(
+        `/api/chats/${chatId}/messages`,
+        { content: messageText, skipAiResponse },
+        config
+      );
 
-    dispatch({
-      type: CHAT_MESSAGE_ADD_SUCCESS,
-      payload: data,
-    });
+      dispatch({
+        type: CHAT_MESSAGE_ADD_SUCCESS,
+        payload: data,
+      });
 
-    // Update chat in localStorage
-    const existingChats = JSON.parse(
-      localStorage.getItem('chatHistory') || '[]'
-    );
-    const updatedChats = existingChats.map((chat) =>
-      chat._id === data._id ? data : chat
-    );
-    localStorage.setItem('chatHistory', JSON.stringify(updatedChats));
+      return data;
+    } catch (error) {
+      console.error('Add message error:', error);
+      dispatch({
+        type: CHAT_MESSAGE_ADD_FAIL,
+        payload:
+          error.response && error.response.data.message
+            ? error.response.data.message
+            : error.message,
+      });
+      throw error;
+    }
+  };
 
-    return data;
-  } catch (error) {
-    dispatch({
-      type: CHAT_MESSAGE_ADD_FAIL,
-      payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message,
-    });
-  }
-};
-
-// Analyze test report image
+// Analyze image using Gemini API
 export const analyzeImage = (formData) => async (dispatch, getState) => {
   try {
     dispatch({ type: CHAT_IMAGE_ANALYZE_REQUEST });
@@ -209,6 +190,8 @@ export const analyzeImage = (formData) => async (dispatch, getState) => {
 
     return data;
   } catch (error) {
+    console.error('Image analysis error:', error);
+
     dispatch({
       type: CHAT_IMAGE_ANALYZE_FAIL,
       payload:
@@ -216,5 +199,8 @@ export const analyzeImage = (formData) => async (dispatch, getState) => {
           ? error.response.data.message
           : error.message,
     });
+    throw error;
   }
 };
+
+export const listUserChats = listChats; // Add this alias for backward compatibility

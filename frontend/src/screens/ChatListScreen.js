@@ -5,7 +5,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import Message from '../components/Message';
 import Loader from '../components/Loader';
 import { listUserChats, createChat } from '../actions/chatActions';
-import { formatDistanceToNow } from 'date-fns';
 
 const ChatListScreen = () => {
   const dispatch = useDispatch();
@@ -14,11 +13,17 @@ const ChatListScreen = () => {
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
 
-  const chatList = useSelector((state) => state.chatList);
-  const { loading, error, chats } = chatList;
+  // Use a default empty object for chatList if it's undefined
+  const chatList = useSelector((state) => state.chatList) || {
+    loading: false,
+    error: null,
+    chats: [],
+  };
+  const { loading, error, chats = [] } = chatList;
 
-  const chatCreate = useSelector((state) => state.chatCreate);
-  const { success: successCreate, chat: createdChat } = chatCreate;
+  // Use a default empty object for chatCreate if it's undefined
+  const chatCreate = useSelector((state) => state.chatCreate) || {};
+  const { success: successCreate = false } = chatCreate;
 
   useEffect(() => {
     if (!userInfo) {
@@ -36,13 +41,19 @@ const ChatListScreen = () => {
     });
   };
 
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+  };
+
   return (
     <>
       <Row className='align-items-center'>
         <Col>
           <h1>Test Report Analysis</h1>
         </Col>
-        <Col className='text-right'>
+        <Col className='text-end'>
           <Button className='my-3' onClick={createChatHandler}>
             <i className='fas fa-plus'></i> New Analysis
           </Button>
@@ -54,7 +65,7 @@ const ChatListScreen = () => {
         <Message variant='danger'>{error}</Message>
       ) : (
         <>
-          {chats.length === 0 ? (
+          {!chats || chats.length === 0 ? (
             <Message>
               No test report analyses yet.{' '}
               <Button variant='primary' onClick={createChatHandler}>
@@ -76,13 +87,9 @@ const ChatListScreen = () => {
                 {chats.map((chat) => (
                   <tr key={chat._id}>
                     <td>{chat._id}</td>
-                    <td>{chat.title}</td>
-                    <td>
-                      {formatDistanceToNow(new Date(chat.createdAt), {
-                        addSuffix: true,
-                      })}
-                    </td>
-                    <td>{chat.messages.length}</td>
+                    <td>{chat.title || 'New Analysis'}</td>
+                    <td>{formatDate(chat.createdAt)}</td>
+                    <td>{chat.messages ? chat.messages.length : 0}</td>
                     <td>
                       <Link to={`/chat/${chat._id}`}>
                         <Button variant='light' className='btn-sm'>

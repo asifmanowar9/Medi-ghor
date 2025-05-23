@@ -1,8 +1,8 @@
 import asyncHandler from 'express-async-handler';
 import Chat from '../models/chatModel.js';
 import path from 'path';
-import fs from 'fs';
 import { fileURLToPath } from 'url';
+import { analyzeTestReport } from '../config/geminiConfig.js';
 
 // @desc    Create a new chat
 // @route   POST /api/chats
@@ -39,15 +39,24 @@ const getChatById = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Add message to chat
-// @route   POST /api/chats/:id/messages
-// @access  Private
+// Fix the addMessageToChat function
 const addMessageToChat = asyncHandler(async (req, res) => {
-  const { content, sender } = req.body;
+  const { content } = req.body;
+  const sender = req.body.sender || 'user'; // Default to 'user' if not specified
 
-  const chat = await Chat.findById(req.params.id);
+  try {
+    const chat = await Chat.findById(req.params.id);
 
-  if (chat && chat.user.toString() === req.user._id.toString()) {
+    if (!chat) {
+      res.status(404);
+      throw new Error('Chat not found');
+    }
+
+    if (chat.user.toString() !== req.user._id.toString()) {
+      res.status(401);
+      throw new Error('Not authorized');
+    }
+
     const newMessage = {
       content,
       sender,
@@ -56,8 +65,8 @@ const addMessageToChat = asyncHandler(async (req, res) => {
     chat.messages.push(newMessage);
     await chat.save();
 
-    // Generate AI response
-    if (sender === 'user') {
+    // Generate AI response only if user sent a message and it's not part of an automated process
+    if (sender === 'user' && !req.body.skipAiResponse) {
       const aiResponse = {
         content:
           'I have received your message. How can I help you with your test report?',
@@ -69,9 +78,9 @@ const addMessageToChat = asyncHandler(async (req, res) => {
     }
 
     res.json(chat);
-  } else {
-    res.status(404);
-    throw new Error('Chat not found or not authorized');
+  } catch (error) {
+    console.error('Error adding message to chat:', error);
+    res.status(500).send(`Error adding message: ${error.message}`);
   }
 });
 
@@ -84,51 +93,34 @@ const analyzeImage = asyncHandler(async (req, res) => {
     throw new Error('No image uploaded');
   }
 
-  // In a real implementation, you would send the image to an AI service
-  // Here we'll simulate an AI response
+  try {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const imagePath = req.file.path;
 
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
+    console.log(
+      `Processing image: ${req.file.originalname}, path: ${imagePath}`
+    );
 
-  const imagePath = path.join(__dirname, '../../uploads', req.file.filename);
+    // Call Gemini 2.5 API to analyze the image
+    const result = await analyzeTestReport(imagePath, req.file.mimetype);
 
-  // Simulate AI analyzing the image
-  // In a real implementation, call an AI API here (e.g., Google Cloud Vision, Azure AI, etc.)
-  const simulatedAnalysis = {
-    reportType: 'Blood Test',
-    findings: [
-      { name: 'Hemoglobin', value: '14.2 g/dL', status: 'Normal' },
-      { name: 'White Blood Cells', value: '7,500 /μL', status: 'Normal' },
-      { name: 'Platelets', value: '250,000 /μL', status: 'Normal' },
-      { name: 'Cholesterol', value: '190 mg/dL', status: 'Normal' },
-    ],
-    summary:
-      'All values appear to be within normal ranges. This blood test suggests normal health indicators with no abnormal values detected.',
-  };
-
-  // Create a formatted response
-  const analysisText = `
-## Test Report Analysis
-
-**Report Type**: ${simulatedAnalysis.reportType}
-
-### Key Findings:
-${simulatedAnalysis.findings
-  .map((item) => `- **${item.name}**: ${item.value} (${item.status})`)
-  .join('\n')}
-
-### Summary:
-${simulatedAnalysis.summary}
-
-*Note: This is an AI-generated analysis and should not replace professional medical advice. Please consult with your healthcare provider for proper interpretation of these results.*
-  `;
-
-  res.json({
-    success: true,
-    message: 'Image analyzed successfully',
-    analysis: analysisText,
-    imageUrl: `/uploads/${req.file.filename}`,
-  });
+    if (result.success) {
+      res.json({
+        success: true,
+        message: 'Image analyzed successfully',
+        analysis: result.analysis,
+        imageUrl: `/uploads/test-report-images/${path.basename(req.file.path)}`,
+      });
+    } else {
+      res.status(500);
+      throw new Error(result.error || 'Failed to analyze image');
+    }
+  } catch (error) {
+    console.error('Error in analyzeImage controller:', error);
+    res.status(500);
+    throw new Error(`Image analysis failed: ${error.message}`);
+  }
 });
 
 export {
