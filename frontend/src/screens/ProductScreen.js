@@ -32,6 +32,17 @@ const ProductScreen = () => {
     navigate(`/cart/${id}?qty=${qty}`); // Change history.push to navigate
   };
 
+  // In your render function, fix the image path:
+  const imagePath =
+    product.image &&
+    (product.image.startsWith('http')
+      ? product.image
+      : product.image.startsWith('/uploads')
+      ? product.image
+      : product.image.startsWith('/images')
+      ? product.image
+      : `/uploads/${product.image}`);
+
   return (
     <>
       <Link className='btn btn-light my-3' to='/'>
@@ -44,7 +55,7 @@ const ProductScreen = () => {
       ) : (
         <Row>
           <Col md={6}>
-            <Image src={product.image} alt={product.name} fluid />
+            <Image src={imagePath} alt={product.name} fluid />
           </Col>
           <Col md={3}>
             <ListGroup variant='flush'>

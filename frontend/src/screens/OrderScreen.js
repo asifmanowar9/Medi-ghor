@@ -1,15 +1,17 @@
 import React, { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Row, Col, ListGroup, Image, Card } from 'react-bootstrap';
+import { Row, Col, ListGroup, Image, Card, Button } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
-// import axios from 'axios';
+
 import Message from '../components/Message';
 import Loader from '../components/Loader';
-import { getOrderDetails } from '../actions/orderActions';
-import { ORDER_PAY_RESET } from '../constants/orderConstants';
+import { getOrderDetails, deliverOrder } from '../actions/orderActions';
+import {
+  ORDER_PAY_RESET,
+  ORDER_DELIVER_RESET,
+} from '../constants/orderConstants';
 import StripeProvider from '../components/StripeProvider';
 import StripeCheckout from '../components/StripeCheckout';
-// Remove PayPal import
 
 const OrderScreen = () => {
   const { id } = useParams();
@@ -21,6 +23,12 @@ const OrderScreen = () => {
 
   const orderPay = useSelector((state) => state.orderPay);
   const { loading: loadingPay, success: successPay } = orderPay;
+
+  const orderDeliver = useSelector((state) => state.orderDeliver);
+  const { loading: loadingDeliver, success: successDeliver } = orderDeliver;
+
+  const userLogin = useSelector((state) => state.userLogin);
+  const { userInfo } = userLogin;
 
   if (!loading && order) {
     const addDecimals = (num) => {
@@ -34,11 +42,16 @@ const OrderScreen = () => {
   }
 
   useEffect(() => {
-    if (!order || successPay || order._id !== id) {
+    if (!order || successPay || order._id !== id || successDeliver) {
+      dispatch({ type: ORDER_DELIVER_RESET });
       dispatch({ type: ORDER_PAY_RESET });
       dispatch(getOrderDetails(id));
     }
-  }, [dispatch, id, successPay, order]);
+  }, [dispatch, id, successPay, order, successDeliver]);
+
+  const deliverHandler = () => {
+    dispatch(deliverOrder(order));
+  };
 
   if (loading) return <Loader />;
   if (error) return <Message variant='danger'>{error}</Message>;
@@ -101,7 +114,15 @@ const OrderScreen = () => {
                       <Row>
                         <Col md={1}>
                           <Image
-                            src={item.image}
+                            src={
+                              item.image.startsWith('http')
+                                ? item.image
+                                : item.image.startsWith('/uploads')
+                                ? item.image
+                                : item.image.startsWith('/images')
+                                ? item.image
+                                : `/uploads/${item.image}`
+                            }
                             alt={item.name}
                             fluid
                             rounded
@@ -165,6 +186,22 @@ const OrderScreen = () => {
                   </StripeProvider>
                 </ListGroup.Item>
               )}
+              {loadingDeliver && <Loader />}
+              {userInfo &&
+                userInfo.isAdmin &&
+                order.isPaid &&
+                !order.isDelivered && (
+                  <ListGroup.Item>
+                    {loadingDeliver && <Loader />}
+                    <Button
+                      type='button'
+                      className='btn btn-block'
+                      onClick={deliverHandler}
+                    >
+                      Mark As Delivered
+                    </Button>
+                  </ListGroup.Item>
+                )}
             </ListGroup>
           </Card>
         </Col>

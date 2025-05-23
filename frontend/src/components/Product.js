@@ -4,10 +4,21 @@ import { Card } from 'react-bootstrap';
 import Rating from './Rating';
 
 const Product = ({ product }) => {
+  // Fix the image path handling:
+  const imagePath =
+    product.image &&
+    (product.image.startsWith('http')
+      ? product.image // Use as is if it's an absolute URL
+      : product.image.startsWith('/uploads')
+      ? product.image // Use as is if it already has /uploads prefix
+      : product.image.startsWith('/images')
+      ? product.image // Use as is if it already has /images prefix (from demo data)
+      : `/uploads/${product.image}`); // Add /uploads prefix for relative paths
+
   return (
     <Card className='my-3 p-3 rounded'>
       <Link to={`/product/${product._id}`}>
-        <Card.Img src={product.image} variant='top' />
+        <Card.Img src={imagePath} variant='top' />
       </Link>
 
       <Card.Body>

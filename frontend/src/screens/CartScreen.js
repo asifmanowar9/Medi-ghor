@@ -41,6 +41,14 @@ const CartScreen = () => {
     navigate('/login?redirect=shipping');
   };
 
+  // Update the image source logic:
+  const getImagePath = (image) => {
+    if (image.startsWith('http')) return image;
+    if (image.startsWith('/uploads')) return image;
+    if (image.startsWith('/images')) return image;
+    return `/uploads/${image}`;
+  };
+
   return (
     <Row>
       <Col md={8}>
@@ -55,7 +63,12 @@ const CartScreen = () => {
               <ListGroup.Item key={item.product}>
                 <Row>
                   <Col md={2}>
-                    <Image src={item.image} alt={item.name} fluid rounded />
+                    <Image
+                      src={getImagePath(item.image)}
+                      alt={item.name}
+                      fluid
+                      rounded
+                    />
                   </Col>
                   <Col md={3}>
                     <Link to={`/product/${item.product}`}>{item.name}</Link>
@@ -66,7 +79,9 @@ const CartScreen = () => {
                       as='select'
                       value={item.qty}
                       onChange={(e) =>
-                        dispatch(addToCart(item.product, Number(e.target.value)))
+                        dispatch(
+                          addToCart(item.product, Number(e.target.value))
+                        )
                       }
                     >
                       {[...Array(item.countInStock).keys()].map((x) => (

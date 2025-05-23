@@ -86,7 +86,15 @@ const PlaceOrderScreen = () => {
                       <Row>
                         <Col md={1}>
                           <Image
-                            src={item.image}
+                            src={
+                              item.image.startsWith('http')
+                                ? item.image
+                                : item.image.startsWith('/uploads')
+                                ? item.image
+                                : item.image.startsWith('/images')
+                                ? item.image
+                                : `/uploads/${item.image}`
+                            }
                             alt={item.name}
                             fluid
                             rounded
