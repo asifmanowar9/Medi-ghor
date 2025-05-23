@@ -12,6 +12,7 @@ import userRoutes from './routes/userRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 import stripeRoutes from './routes/stripeRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
+import chatRoutes from './routes/chatRoutes.js'; // Add this line
 
 dotenv.config();
 
@@ -20,10 +21,10 @@ connectDB();
 const app = express();
 
 if (process.env.NODE_ENV === 'development') {
-  app.use(morgan('dev')); // Logging middleware for development
+  app.use(morgan('dev'));
 }
 
-app.use(express.json()); // for parsing application/json
+app.use(express.json());
 
 app.get('/', (req, res) => {
   res.send('API is running...');
@@ -34,15 +35,16 @@ app.use('/api/users', userRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/stripe', stripeRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/chats', chatRoutes); // Add this line
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-app.use('/uploads', express.static(path.join(__dirname, '../uploads'))); // Serve static files from the uploads directory
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use(
   '/images',
   express.static(path.join(__dirname, '../frontend/public/images'))
-); // Serve static images from the 'frontend/public/images' directory
+);
 
 app.get('/api/config/stripe', (req, res) => {
   res.send({ publishableKey: process.env.STRIPE_PUBLISHABLE_KEY });

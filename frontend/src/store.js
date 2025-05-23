@@ -1,6 +1,5 @@
-import { createStore, combineReducers, applyMiddleware } from 'redux';
-import { thunk } from 'redux-thunk';
-import { composeWithDevTools } from 'redux-devtools-extension';
+import { configureStore, combineReducers } from '@reduxjs/toolkit';
+import thunk from 'redux-thunk';
 import {
   productListReducer,
   productDetailsReducer,
@@ -27,7 +26,14 @@ import {
   orderListMyReducer,
   orderListReducer,
   orderDeliverReducer,
-} from './reducers/orderReducer';
+} from './reducers/orderReducers';
+import {
+  chatCreateReducer,
+  chatListReducer,
+  chatDetailsReducer,
+  chatMessageAddReducer,
+  chatImageAnalyzeReducer,
+} from './reducers/chatReducers';
 
 const reducer = combineReducers({
   productList: productListReducer,
@@ -42,15 +48,20 @@ const reducer = combineReducers({
   userRegister: userRegisterReducer,
   userDetails: userDetailsReducer,
   userUpdateProfile: userUpdateProfileReducer,
+  userList: userListReducer,
   userDelete: userDeleteReducer,
   userUpdate: userUpdateReducer,
-  userList: userListReducer,
   orderCreate: orderCreateReducer,
   orderDetails: orderDetailsReducer,
   orderPay: orderPayReducer,
   orderListMy: orderListMyReducer,
   orderList: orderListReducer,
   orderDeliver: orderDeliverReducer,
+  chatCreate: chatCreateReducer,
+  chatList: chatListReducer,
+  chatDetails: chatDetailsReducer,
+  chatMessageAdd: chatMessageAddReducer,
+  chatImageAnalyze: chatImageAnalyzeReducer,
 });
 
 const cartItemsFromStorage = localStorage.getItem('cartItems')
@@ -65,25 +76,26 @@ const shippingAddressFromStorage = localStorage.getItem('shippingAddress')
   ? JSON.parse(localStorage.getItem('shippingAddress'))
   : {};
 
-const paymentMethodFromStorage = localStorage.getItem('paymentMethod')
-  ? JSON.parse(localStorage.getItem('paymentMethod'))
-  : '';
+const chatHistoryFromStorage = localStorage.getItem('chatHistory')
+  ? JSON.parse(localStorage.getItem('chatHistory'))
+  : [];
 
 const initialState = {
   cart: {
     cartItems: cartItemsFromStorage,
     shippingAddress: shippingAddressFromStorage,
-    paymentMethod: paymentMethodFromStorage,
   },
   userLogin: { userInfo: userInfoFromStorage },
+  chatList: { chats: chatHistoryFromStorage },
 };
 
 const middleware = [thunk];
 
-const store = createStore(
+const store = configureStore({
   reducer,
-  initialState,
-  composeWithDevTools(applyMiddleware(...middleware))
-);
+  preloadedState: initialState,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(middleware),
+});
 
 export default store;

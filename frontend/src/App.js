@@ -18,6 +18,8 @@ import UserEditScreen from './screens/UserEditScreen';
 import ProductListScreen from './screens/ProductListScreen';
 import ProductEditScreen from './screens/ProductEditScreen';
 import OrderListScreen from './screens/OrderListScreen';
+import ChatListScreen from './screens/ChatListScreen';
+import ChatScreen from './screens/ChatScreen';
 
 const App = () => {
   return (
@@ -61,6 +63,8 @@ const App = () => {
               path='/search/:keyword/page/:pageNumber'
               element={<HomeScreen />}
             />
+            <Route path='/chats' element={<ChatListScreen />} />
+            <Route path='/chat/:id' element={<ChatScreen />} />
             <Route path='/' element={<HomeScreen />} />
           </Routes>
         </Container>

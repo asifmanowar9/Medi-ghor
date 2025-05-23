@@ -17,23 +17,23 @@ const Header = () => {
 
   return (
     <header>
-      <Navbar
-        bg='dark'
-        variant='dark'
-        expand='lg'
-        //className='bg-body-tertiary'
-        collapseOnSelect
-      >
+      <Navbar bg='dark' variant='dark' expand='lg' collapseOnSelect>
         <Container>
           <LinkContainer to='/'>
             <Navbar.Brand>Medi-ghor</Navbar.Brand>
           </LinkContainer>
           <Navbar.Toggle aria-controls='basic-navbar-nav' />
           <Navbar.Collapse id='basic-navbar-nav'>
-            {/* <Route render={() => <SearchBox />} /> */}
             <SearchBox />
 
             <Nav className='ms-auto'>
+              {userInfo && (
+                <LinkContainer to='/chats'>
+                  <Nav.Link>
+                    <i className='fas fa-file-medical-alt'></i> Test Reports
+                  </Nav.Link>
+                </LinkContainer>
+              )}
               <LinkContainer to='/cart'>
                 <Nav.Link>
                   <i className='fas fa-shopping-cart'></i> Cart
