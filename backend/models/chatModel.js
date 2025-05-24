@@ -5,14 +5,21 @@ const messageSchema = mongoose.Schema(
     sender: {
       type: String,
       required: true,
-      enum: ['user', 'ai'],
     },
     content: {
       type: String,
-      required: true,
+      default: '', // Default to empty string
     },
-    image: {
+    imageUrl: {
       type: String,
+    },
+    isAnalysis: {
+      type: Boolean,
+      default: false,
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now,
     },
   },
   {
@@ -27,7 +34,29 @@ const chatSchema = mongoose.Schema(
       required: true,
       ref: 'User',
     },
-    messages: [messageSchema],
+    messages: [
+      {
+        sender: {
+          type: String,
+          required: true,
+        },
+        content: {
+          type: String,
+          default: '',
+        },
+        imageUrl: {
+          type: String,
+        },
+        isAnalysis: {
+          type: Boolean,
+          default: false,
+        },
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
     title: {
       type: String,
       default: 'New Test Report Analysis',

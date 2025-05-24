@@ -54,4 +54,20 @@ const uploadTestReport = multer({
   },
 });
 
+// Ensure the directory exists at startup
+const ensureDirectoriesExist = () => {
+  if (!fs.existsSync(testReportUploadPath)) {
+    try {
+      fs.mkdirSync(testReportUploadPath, { recursive: true });
+      console.log(
+        `Created test report upload directory: ${testReportUploadPath}`
+      );
+    } catch (error) {
+      console.error('Failed to create test report upload directory:', error);
+    }
+  }
+};
+
+ensureDirectoriesExist();
+
 export { uploadTestReport };

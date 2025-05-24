@@ -34,6 +34,7 @@ import {
   chatDetailsReducer,
   chatMessageAddReducer,
   chatImageAnalyzeReducer,
+  aiResponseWaitingReducer,
 } from './reducers/chatReducers';
 
 const reducer = combineReducers({
@@ -63,6 +64,7 @@ const reducer = combineReducers({
   chatDetails: chatDetailsReducer,
   chatMessageAdd: chatMessageAddReducer,
   chatImageAnalyze: chatImageAnalyzeReducer,
+  aiResponseWaiting: aiResponseWaitingReducer,
 });
 
 const cartItemsFromStorage = localStorage.getItem('cartItems')

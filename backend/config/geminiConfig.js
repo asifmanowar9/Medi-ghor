@@ -18,12 +18,15 @@ const genAI = new GoogleGenerativeAI(apiKey);
 // Create a helper function to analyze medical test reports
 export const analyzeTestReport = async (imagePath, imageType) => {
   try {
-    console.log('Starting test report analysis with Gemini 1.5 Pro...');
+    console.log('Starting test report analysis with Gemini...');
     console.log('Image path:', imagePath);
     console.log('Image type:', imageType);
 
-    // Use Gemini 1.5 Pro model instead of gemini-pro-vision
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
+    // Use the updated model names for Gemini API
+    const models = [
+      { name: 'gemini-1.5-pro-vision', maxRetries: 2 }, // Updated model name
+      { name: 'gemini-1.5-flash-vision', maxRetries: 2 }, // Fallback model
+    ];
 
     // Read the image file
     const fs = await import('fs/promises');
@@ -49,73 +52,101 @@ export const analyzeTestReport = async (imagePath, imageType) => {
       Format your response using markdown with headers and tables where appropriate.
     `;
 
-    console.log('Sending request to Gemini 1.5 Pro API...');
+    let lastError = null;
 
-    // Generate content with retries
-    let attempts = 0;
-    const maxAttempts = 2;
+    // Try each model in sequence until we get a successful response or run out of models
+    for (const modelConfig of models) {
+      const { name, maxRetries } = modelConfig;
+      console.log(`Trying model: ${name}`);
 
-    while (attempts < maxAttempts) {
-      try {
-        console.log(`API attempt ${attempts + 1}/${maxAttempts}`);
+      // Get model
+      const model = genAI.getGenerativeModel({ model: name });
 
-        const result = await model.generateContent([
-          prompt,
-          {
-            inlineData: {
-              data: imageBase64,
-              mimeType: imageType,
+      // Try this model with retries and exponential backoff
+      let attempt = 1;
+
+      while (attempt <= maxRetries) {
+        try {
+          console.log(`${name} - Attempt ${attempt}/${maxRetries}`);
+
+          // If this is a retry and we hit rate limits last time, add exponential backoff
+          if (attempt > 1 && lastError?.status === 429) {
+            const backoffTime = Math.pow(2, attempt - 1) * 1000; // 1s, 2s, 4s, etc.
+            console.log(`Rate limit hit. Backing off for ${backoffTime}ms`);
+            await new Promise((resolve) => setTimeout(resolve, backoffTime));
+          }
+
+          // Make the API call
+          const result = await model.generateContent([
+            prompt,
+            {
+              inlineData: {
+                data: imageBase64,
+                mimeType: imageType,
+              },
             },
-          },
-        ]);
+          ]);
 
-        const response = await result.response;
-        const analysis = response.text();
+          const response = await result.response;
+          const analysis = response.text();
 
-        console.log('Successfully received analysis from Gemini 1.5 Pro');
+          console.log(`Successfully received analysis from ${name}`);
 
-        return {
-          success: true,
-          analysis,
-        };
-      } catch (apiError) {
-        attempts++;
-        console.error(`API attempt ${attempts} failed:`, apiError);
+          return {
+            success: true,
+            analysis,
+            model: name,
+          };
+        } catch (error) {
+          lastError = error;
+          console.error(`${name} attempt ${attempt} failed:`, error.message);
 
-        if (attempts >= maxAttempts) {
-          throw apiError;
+          // If this is a model not found error, break immediately (no point retrying)
+          if (error?.status === 404) {
+            console.log(
+              `Model ${name} not found or not supported. Trying next model.`
+            );
+            break;
+          }
+
+          // Handle rate limit and other errors
+          if (error?.status === 429) {
+            console.log('Rate limit error detected');
+
+            // If there are explicit retry delay instructions from the API, use those
+            const retryInfo = error.errorDetails?.find((d) =>
+              d['@type']?.includes('RetryInfo')
+            );
+
+            if (retryInfo?.retryDelay) {
+              const delaySeconds = parseInt(
+                retryInfo.retryDelay.replace('s', '')
+              );
+              if (!isNaN(delaySeconds)) {
+                const delayMs = (delaySeconds + 1) * 1000; // Add 1 second buffer
+                console.log(
+                  `API suggests waiting ${delaySeconds}s, waiting ${delayMs}ms`
+                );
+                await new Promise((resolve) => setTimeout(resolve, delayMs));
+              }
+            }
+          }
+
+          attempt++;
         }
-
-        // Wait before retrying
-        await new Promise((r) => setTimeout(r, 1000));
       }
+
+      // If we get here, we've exhausted retries for this model, continue to next model
+      console.log(
+        `Failed all ${maxRetries} attempts with ${name}, trying next model if available`
+      );
     }
+
+    // If we get here, all models and retries failed
+    throw new Error('All API attempts failed');
   } catch (error) {
     console.error('Gemini API error:', error);
-
-    // Provide a detailed fallback response for better user experience
-    return {
-      success: false,
-      error: error.message,
-      analysis: `
-# Medical Test Report Analysis
-
-I apologize, but I couldn't properly analyze this medical test report image. This could be due to:
-
-1. The image may not be clear enough
-2. The format might not be recognizable
-3. There might be technical difficulties with the analysis service
-
-## Recommendations
-
-- Try uploading a clearer image with better lighting
-- Ensure the entire report is visible in the frame
-- Make sure text in the image is readable
-- You can also try cropping the image to focus on just the test results
-
-If you continue to have issues, please consult with your healthcare provider directly for interpretation of your test results.
-      `,
-    };
+    throw error; // Let the controller handle the error
   }
 };
 

@@ -124,10 +124,18 @@ export const getChatDetails = (id) => async (dispatch, getState) => {
 
 // Add message to chat
 export const addMessage =
-  (chatId, messageText, skipAiResponse = false) =>
+  (chatId, messageText, skipAiResponse = false, isAnalysis = false) =>
   async (dispatch, getState) => {
     try {
       dispatch({ type: CHAT_MESSAGE_ADD_REQUEST });
+
+      // Set a flag to show "AI is typing" indicator
+      if (!skipAiResponse) {
+        dispatch({
+          type: 'AI_RESPONSE_WAITING',
+          payload: true,
+        });
+      }
 
       const {
         userLogin: { userInfo },
@@ -142,18 +150,39 @@ export const addMessage =
 
       const { data } = await axios.post(
         `/api/chats/${chatId}/messages`,
-        { content: messageText, skipAiResponse },
+        { content: messageText, skipAiResponse, isAnalysis },
         config
       );
+
+      // Remove the "AI is typing" indicator
+      if (!skipAiResponse) {
+        dispatch({
+          type: 'AI_RESPONSE_WAITING',
+          payload: false,
+        });
+      }
 
       dispatch({
         type: CHAT_MESSAGE_ADD_SUCCESS,
         payload: data,
       });
 
+      // Also update chat details to make sure the messages are up to date
+      dispatch({
+        type: CHAT_DETAILS_SUCCESS,
+        payload: data,
+      });
+
       return data;
     } catch (error) {
       console.error('Add message error:', error);
+
+      // Remove the "AI is typing" indicator on error
+      dispatch({
+        type: 'AI_RESPONSE_WAITING',
+        payload: false,
+      });
+
       dispatch({
         type: CHAT_MESSAGE_ADD_FAIL,
         payload:
@@ -166,41 +195,45 @@ export const addMessage =
   };
 
 // Analyze image using Gemini API
-export const analyzeImage = (formData) => async (dispatch, getState) => {
-  try {
-    dispatch({ type: CHAT_IMAGE_ANALYZE_REQUEST });
+export const analyzeImage =
+  (formData, chatId) => async (dispatch, getState) => {
+    try {
+      dispatch({ type: CHAT_IMAGE_ANALYZE_REQUEST });
 
-    const {
-      userLogin: { userInfo },
-    } = getState();
+      const {
+        userLogin: { userInfo },
+      } = getState();
 
-    const config = {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        Authorization: `Bearer ${userInfo.token}`,
-      },
-    };
+      const config = {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${userInfo.token}`,
+        },
+        params: {
+          chatId: chatId, // Add chat ID as a parameter
+        },
+      };
 
-    const { data } = await axios.post('/api/chats/analyze', formData, config);
+      const { data } = await axios.post('/api/chats/analyze', formData, config);
 
-    dispatch({
-      type: CHAT_IMAGE_ANALYZE_SUCCESS,
-      payload: data,
-    });
+      dispatch({
+        type: CHAT_IMAGE_ANALYZE_SUCCESS,
+        payload: data,
+      });
 
-    return data;
-  } catch (error) {
-    console.error('Image analysis error:', error);
+      return data;
+    } catch (error) {
+      console.error('Image analysis error:', error);
 
-    dispatch({
-      type: CHAT_IMAGE_ANALYZE_FAIL,
-      payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message,
-    });
-    throw error;
-  }
-};
+      dispatch({
+        type: CHAT_IMAGE_ANALYZE_FAIL,
+        payload:
+          error.response && error.response.data.message
+            ? error.response.data.message
+            : error.message,
+      });
+      throw error;
+    }
+  };
 
 export const listUserChats = listChats; // Add this alias for backward compatibility

@@ -96,6 +96,30 @@ if (!fs.existsSync(testReportDir)) {
   console.log(`Created directory: ${testReportDir}`);
 }
 
+// Simple scheduler to avoid rate limits by spacing out requests
+let lastRequestTime = 0;
+const minRequestInterval = 5000; // 5 seconds between each API call
+
+app.use('/api/chats/analyze', (req, res, next) => {
+  const now = Date.now();
+  const timeSinceLastRequest = now - lastRequestTime;
+
+  if (timeSinceLastRequest < minRequestInterval) {
+    const waitTime = minRequestInterval - timeSinceLastRequest;
+    console.log(
+      `Rate limiting: Waiting ${waitTime}ms before processing next request`
+    );
+
+    setTimeout(() => {
+      lastRequestTime = Date.now();
+      next();
+    }, waitTime);
+  } else {
+    lastRequestTime = now;
+    next();
+  }
+});
+
 app.listen(
   PORT,
   console.log(

@@ -1,8 +1,9 @@
 import asyncHandler from 'express-async-handler';
 import Chat from '../models/chatModel.js';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { analyzeTestReport } from '../config/geminiConfig.js';
+import { analyzeTestReportWithOCR } from '../config/ocrSpaceConfig.js';
+import { generateMedicalResponse } from '../config/medicalChatConfig.js';
 
 // @desc    Create a new chat
 // @route   POST /api/chats
@@ -39,42 +40,80 @@ const getChatById = asyncHandler(async (req, res) => {
   }
 });
 
-// Fix the addMessageToChat function
+// Modify the addMessageToChat validation
+
 const addMessageToChat = asyncHandler(async (req, res) => {
-  const { content } = req.body;
-  const sender = req.body.sender || 'user'; // Default to 'user' if not specified
-
   try {
-    const chat = await Chat.findById(req.params.id);
+    const chatId = req.params.id;
+    const { content, skipAiResponse, isAnalysis } = req.body;
+    const sender = 'user';
 
+    // Modified validation to allow empty strings or spaces
+    if (content === undefined) {
+      res.status(400);
+      throw new Error('Message content is required');
+    }
+
+    const chat = await Chat.findOne({ _id: chatId, user: req.user._id });
     if (!chat) {
       res.status(404);
       throw new Error('Chat not found');
     }
 
-    if (chat.user.toString() !== req.user._id.toString()) {
-      res.status(401);
-      throw new Error('Not authorized');
-    }
-
-    const newMessage = {
-      content,
+    // Add user message with proper content (even if empty)
+    const userMessage = {
+      content: content || '', // Accept empty content for image messages
       sender,
+      isAnalysis: false,
     };
 
-    chat.messages.push(newMessage);
+    chat.messages.push(userMessage);
     await chat.save();
 
-    // Generate AI response only if user sent a message and it's not part of an automated process
-    if (sender === 'user' && !req.body.skipAiResponse) {
-      const aiResponse = {
-        content:
-          'I have received your message. How can I help you with your test report?',
-        sender: 'ai',
-      };
+    // Generate AI response if needed
+    if (sender === 'user' && !skipAiResponse) {
+      try {
+        // Use our medical chat response generator
+        const aiResponseContent = await generateMedicalResponse(
+          content || '',
+          chat.messages
+        );
 
-      chat.messages.push(aiResponse);
-      await chat.save();
+        const aiResponse = {
+          content: aiResponseContent,
+          sender: 'ai',
+          isAnalysis: isAnalysis || false, // Add isAnalysis flag from request
+        };
+
+        chat.messages.push(aiResponse);
+        await chat.save();
+      } catch (aiError) {
+        console.error('Error generating AI response:', aiError);
+
+        // Create a more informative fallback response
+        let fallbackMessage =
+          "I apologize, but I'm currently experiencing technical difficulties. ";
+
+        // If it's a 404 error (model not found)
+        if (aiError.status === 404) {
+          fallbackMessage += 'The AI model is currently unavailable. ';
+        }
+        // If it's a rate limit error
+        else if (aiError.status === 429) {
+          fallbackMessage += "I'm receiving too many requests right now. ";
+        }
+
+        fallbackMessage +=
+          'Please try uploading a medical test report for analysis using the clip button, which uses a different processing method.';
+
+        const fallbackResponse = {
+          content: fallbackMessage,
+          sender: 'ai',
+        };
+
+        chat.messages.push(fallbackResponse);
+        await chat.save();
+      }
     }
 
     res.json(chat);
@@ -84,9 +123,8 @@ const addMessageToChat = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Analyze test report image
-// @route   POST /api/chats/analyze
-// @access  Private
+// Update the analyzeImage controller with better error handling
+
 const analyzeImage = asyncHandler(async (req, res) => {
   if (!req.file) {
     res.status(400);
@@ -94,32 +132,85 @@ const analyzeImage = asyncHandler(async (req, res) => {
   }
 
   try {
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
     const imagePath = req.file.path;
-
+    const imageUrl = `/uploads/test-report-images/${path.basename(
+      req.file.path
+    )}`;
     console.log(
       `Processing image: ${req.file.originalname}, path: ${imagePath}`
     );
 
-    // Call Gemini 2.5 API to analyze the image
-    const result = await analyzeTestReport(imagePath, req.file.mimetype);
+    // Update the last user message to include the image URL
+    try {
+      // Find the chat containing the last message about the upload
+      const chatId = req.query.chatId;
+      if (!chatId) {
+        console.warn('No chatId provided in query parameters');
+      } else {
+        const chat = await Chat.findById(chatId);
+        if (chat && chat.messages.length > 0) {
+          // Get the last message
+          const lastMessage = chat.messages[chat.messages.length - 1];
+          if (lastMessage.sender === 'user') {
+            // Update it to include the image URL
+            lastMessage.imageUrl = imageUrl;
+            await chat.save();
+            console.log('Updated message with image URL:', imageUrl);
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Error updating message with image URL:', err);
+      // Continue with analysis even if this fails
+    }
 
-    if (result.success) {
-      res.json({
+    // First try with OCR.Space
+    try {
+      console.log('Using OCR.Space for image analysis...');
+      const result = await analyzeTestReportWithOCR(imagePath);
+
+      return res.json({
         success: true,
-        message: 'Image analyzed successfully',
+        message: 'Image analyzed successfully with OCR.Space',
         analysis: result.analysis,
-        imageUrl: `/uploads/test-report-images/${path.basename(req.file.path)}`,
+        imageUrl: imageUrl,
+        model: 'ocr-space',
+        confidence: result.confidence,
       });
-    } else {
-      res.status(500);
-      throw new Error(result.error || 'Failed to analyze image');
+    } catch (ocrError) {
+      console.error('OCR.Space analysis failed:', ocrError);
+
+      // Fall back to Gemini API if OCR.Space fails
+      try {
+        console.log('Falling back to Gemini API...');
+        const result = await analyzeTestReport(imagePath, req.file.mimetype);
+
+        return res.json({
+          success: true,
+          message: 'Image analyzed successfully with Gemini API',
+          analysis: result.analysis,
+          imageUrl: imageUrl,
+          model: result.model || 'gemini',
+        });
+      } catch (geminiError) {
+        console.error('Gemini API analysis failed:', geminiError);
+
+        // If both OCR.Space and Gemini fail, return a user-friendly error
+        res.status(500).json({
+          success: false,
+          message: 'Analysis failed with both OCR and AI services',
+          error:
+            'Unable to analyze the provided image. Please try again with a clearer image.',
+        });
+      }
     }
   } catch (error) {
     console.error('Error in analyzeImage controller:', error);
-    res.status(500);
-    throw new Error(`Image analysis failed: ${error.message}`);
+    res.status(500).json({
+      success: false,
+      message: 'Analysis failed',
+      error: error.message || 'Unknown error',
+    });
   }
 });
 

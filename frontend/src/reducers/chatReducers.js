@@ -88,3 +88,12 @@ export const chatImageAnalyzeReducer = (state = {}, action) => {
       return state;
   }
 };
+
+export const aiResponseWaitingReducer = (state = false, action) => {
+  switch (action.type) {
+    case 'AI_RESPONSE_WAITING':
+      return action.payload;
+    default:
+      return state;
+  }
+};
