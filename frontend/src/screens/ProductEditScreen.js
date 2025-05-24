@@ -37,6 +37,12 @@ const ProductEditScreen = () => {
   const { userInfo } = userLogin;
 
   useEffect(() => {
+    // Check if user is authorized
+    if (!userInfo || !userInfo.isAdmin) {
+      navigate('/login');
+      return;
+    }
+
     if (successUpdate) {
       dispatch({ type: PRODUCT_UPDATE_RESET });
       navigate('/admin/productlist');
@@ -53,7 +59,7 @@ const ProductEditScreen = () => {
         setCountInStock(product.countInStock);
       }
     }
-  }, [product, dispatch, productId, successUpdate, navigate]);
+  }, [product, dispatch, productId, successUpdate, navigate, userInfo]);
 
   const uploadFileHandler = async (e) => {
     const file = e.target.files[0];
@@ -90,8 +96,13 @@ const ProductEditScreen = () => {
         countInStock,
       })
     );
-    // navigate('/admin/productlist');
+    // Don't navigate here - let the useEffect handle it based on successUpdate
   };
+
+  // Explicit handler for the "Go Back" button
+  // const goBackHandler = () => {
+  //   navigate('/admin/productlist');
+  // };
 
   return (
     <>
@@ -107,9 +118,6 @@ const ProductEditScreen = () => {
         ) : error ? (
           <Message variant='danger'>{error}</Message>
         ) : (
-          // <>
-          // <Message variant='success'>User updated successfully</Message>
-          // </>
           <Form onSubmit={submitHandler}>
             <Form.Group controlId='name'>
               <Form.Label>Name</Form.Label>

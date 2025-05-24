@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { Button, Table, Row, Col } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import Message from '../components/Message';
@@ -16,7 +16,8 @@ import { PRODUCT_CREATE_RESET } from '../constants/productConstants';
 const ProductListScreen = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { pageNumber } = useParams(); // Change from { page } to { pageNumber }
+  const location = useLocation();
+  const { pageNumber } = useParams();
 
   // Convert pageNumber to a number and default to 1 if not provided
   const page = pageNumber ? Number(pageNumber) : 1;
@@ -43,19 +44,23 @@ const ProductListScreen = () => {
   const { userInfo } = userLogin;
 
   useEffect(() => {
-    console.log('Page number from params:', page);
-    // console.log('Pages from Redux:', pages);
-
+    // Reset product create if needed
     dispatch({ type: PRODUCT_CREATE_RESET });
+
+    // Check authentication and admin status
     if (!userInfo || !userInfo.isAdmin) {
       navigate('/login');
+      return;
     }
 
+    // Handle navigation after product creation
     if (successCreate) {
       navigate(`/admin/product/${createdProduct._id}/edit`);
-    } else {
-      dispatch(listProducts('', page)); // Pass the page number to listProducts
+      return;
     }
+
+    // Otherwise, load the product list for the current page
+    dispatch(listProducts('', page));
   }, [
     dispatch,
     navigate,
@@ -63,16 +68,23 @@ const ProductListScreen = () => {
     successDelete,
     successCreate,
     createdProduct,
-    page, // Use page instead of pageNumber
+    page,
   ]);
 
   const deleteHandler = (id) => {
-    if (window.confirm('Are you sure?')) {
-      dispatch(deleteProduct(id));
+    if (window.confirm('Are you sure you want to delete this product?')) {
+      dispatch(deleteProduct(id))
+        .then(() => {
+          // After successful deletion, reload the current page
+          dispatch(listProducts('', page));
+        })
+        .catch((error) => {
+          console.error('Delete failed:', error);
+        });
     }
   };
 
-  const CreateProductHandler = () => {
+  const createProductHandler = () => {
     dispatch(createProduct());
   };
 
@@ -82,17 +94,19 @@ const ProductListScreen = () => {
         <Col>
           <h1>Products</h1>
         </Col>
-        <Col className='text-right'>
-          <Button className='my-3' onClick={CreateProductHandler}>
+        <Col className='text-end'>
+          <Button className='my-3' onClick={createProductHandler}>
             <i className='fas fa-plus'></i> Create Product
           </Button>
         </Col>
       </Row>
+
       {loadingDelete && <Loader />}
       {errorDelete && <Message variant='danger'>{errorDelete}</Message>}
 
       {loadingCreate && <Loader />}
       {errorCreate && <Message variant='danger'>{errorCreate}</Message>}
+
       {loading ? (
         <Loader />
       ) : error ? (
@@ -108,7 +122,7 @@ const ProductListScreen = () => {
                 <th>CATEGORY</th>
                 <th>BRAND</th>
                 <th>COUNT IN STOCK</th>
-                <th></th>
+                <th>ACTIONS</th>
               </tr>
             </thead>
             <tbody>
@@ -116,37 +130,19 @@ const ProductListScreen = () => {
                 <tr key={product._id}>
                   <td>{product._id}</td>
                   <td>{product.name}</td>
-                  <td>{product.price}</td>
+                  <td>${product.price}</td>
                   <td>{product.category}</td>
                   <td>{product.brand}</td>
                   <td>{product.countInStock}</td>
-                  <td>
+                  <td className='d-flex justify-content-between'>
                     <LinkContainer to={`/admin/product/${product._id}/edit`}>
-                      <Button variant='light'>
+                      <Button variant='light' className='btn-sm'>
                         <i className='fas fa-edit'></i>
                       </Button>
                     </LinkContainer>
-                  </td>
-                  {/* <td>
-                    {user.isAdmin ? (
-                      <i
-                        className='fas fa-check'
-                        style={{ color: 'green' }}
-                      ></i>
-                    ) : (
-                      <i className='fas fa-times' style={{ color: 'red' }}></i>
-                    )}
-                  </td>
-                  <td>
-                    <LinkContainer to={`/admin/user/${user._id}/edit`}>
-                      <Button variant='light'>
-                        <i className='fas fa-edit'></i>
-                      </Button>
-                    </LinkContainer>
-                  </td> */}
-                  <td>
                     <Button
                       variant='danger'
+                      className='btn-sm'
                       onClick={() => deleteHandler(product._id)}
                     >
                       <i className='fas fa-trash'></i>
@@ -156,8 +152,7 @@ const ProductListScreen = () => {
               ))}
             </tbody>
           </Table>
-          <Paginate pages={pages} page={page} isAdmin={true} />{' '}
-          {/* Use page instead of productList.page */}
+          <Paginate pages={pages} page={page} isAdmin={true} />
         </>
       )}
     </>

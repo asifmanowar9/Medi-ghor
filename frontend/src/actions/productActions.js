@@ -87,6 +87,8 @@ export const deleteProduct = (id) => async (dispatch, getState) => {
     await axios.delete(`/api/products/${id}`, config);
 
     dispatch({ type: PRODUCT_DELETE_SUCCESS });
+    // Return a resolved promise for chaining
+    return Promise.resolve();
   } catch (error) {
     dispatch({
       type: PRODUCT_DELETE_FAIL,
@@ -95,6 +97,8 @@ export const deleteProduct = (id) => async (dispatch, getState) => {
           ? error.response.data.message
           : error.message,
     });
+    // Return a rejected promise for error handling
+    return Promise.reject(error);
   }
 };
 
@@ -154,6 +158,9 @@ export const updateProduct = (product) => async (dispatch, getState) => {
       type: PRODUCT_UPDATE_SUCCESS,
       payload: data,
     });
+
+    // Return a resolved promise for chaining
+    return Promise.resolve(data);
   } catch (error) {
     dispatch({
       type: PRODUCT_UPDATE_FAIL,
@@ -162,6 +169,9 @@ export const updateProduct = (product) => async (dispatch, getState) => {
           ? error.response.data.message
           : error.message,
     });
+
+    // Return a rejected promise for error handling
+    return Promise.reject(error);
   }
 };
 
