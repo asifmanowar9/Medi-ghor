@@ -67,27 +67,49 @@ const reducer = combineReducers({
   aiResponseWaiting: aiResponseWaitingReducer,
 });
 
-const cartItemsFromStorage = localStorage.getItem('cartItems')
-  ? JSON.parse(localStorage.getItem('cartItems'))
-  : [];
+// const cartItemsFromStorage = localStorage.getItem('cartItems')
+//   ? JSON.parse(localStorage.getItem('cartItems'))
+//   : [];
 
 const userInfoFromStorage = localStorage.getItem('userInfo')
   ? JSON.parse(localStorage.getItem('userInfo'))
   : null;
 
-const shippingAddressFromStorage = localStorage.getItem('shippingAddress')
-  ? JSON.parse(localStorage.getItem('shippingAddress'))
-  : {};
+// const shippingAddressFromStorage = localStorage.getItem('shippingAddress')
+//   ? JSON.parse(localStorage.getItem('shippingAddress'))
+//   : {};
 
-const paymentMethodFromStorage = localStorage.getItem('paymentMethod')
-  ? JSON.parse(localStorage.getItem('paymentMethod'))
-  : '';
+// const paymentMethodFromStorage = localStorage.getItem('paymentMethod')
+//   ? JSON.parse(localStorage.getItem('paymentMethod'))
+//   : '';
+
+// Get user-specific cart data
+const getUserSpecificCartData = (userInfo) => {
+  const userId = userInfo ? userInfo._id : 'guest';
+
+  const cartItems = localStorage.getItem(`cartItems_${userId}`)
+    ? JSON.parse(localStorage.getItem(`cartItems_${userId}`))
+    : [];
+
+  const shippingAddress = localStorage.getItem(`shippingAddress_${userId}`)
+    ? JSON.parse(localStorage.getItem(`shippingAddress_${userId}`))
+    : {};
+
+  const paymentMethod = localStorage.getItem(`paymentMethod_${userId}`)
+    ? JSON.parse(localStorage.getItem(`paymentMethod_${userId}`))
+    : '';
+
+  return { cartItems, shippingAddress, paymentMethod };
+};
+
+const { cartItems, shippingAddress, paymentMethod } =
+  getUserSpecificCartData(userInfoFromStorage);
 
 const initialState = {
   cart: {
-    cartItems: cartItemsFromStorage,
-    shippingAddress: shippingAddressFromStorage,
-    paymentMethod: paymentMethodFromStorage,
+    cartItems: cartItems,
+    shippingAddress: shippingAddress,
+    paymentMethod: paymentMethod,
   },
   userLogin: { userInfo: userInfoFromStorage },
 };

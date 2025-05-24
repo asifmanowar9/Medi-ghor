@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Row, Col, ListGroup, Image, Card, Button } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
@@ -10,13 +10,13 @@ import {
   ORDER_PAY_RESET,
   ORDER_DELIVER_RESET,
 } from '../constants/orderConstants';
-import StripeProvider from '../components/StripeProvider';
-import StripeCheckout from '../components/StripeCheckout';
+import StripeCheckoutModal from '../components/StripeCheckoutModal';
 
 const OrderScreen = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   // Keep these selectors
   const orderDetails = useSelector((state) => state.orderDetails);
@@ -31,55 +31,36 @@ const OrderScreen = () => {
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
 
-  if (!loading && order) {
-    const addDecimals = (num) => {
-      return (Math.round(num * 100) / 100).toFixed(2);
-    };
-
-    // Calculate prices
-    order.itemsPrice = addDecimals(
-      order.orderItems.reduce((acc, item) => acc + item.price * item.qty, 0)
-    );
-  }
-
   useEffect(() => {
     if (!userInfo) {
       navigate('/login');
     }
-    console.log('OrderScreen useEffect - checking conditions:', {
-      hasOrder: !!order,
-      successPay,
-      successDeliver,
-      orderId: id,
-      currentOrderId: order?._id,
-    });
 
-    if (!order || successPay || successDeliver || (order && order._id !== id)) {
-      console.log(
-        'OrderScreen useEffect - resetting and fetching order details'
-      );
-
-      if (successDeliver) {
-        dispatch({ type: ORDER_DELIVER_RESET });
-      }
-
-      if (successPay) {
-        dispatch({ type: ORDER_PAY_RESET });
-      }
-
-      // Then fetch updated order details
+    if (!order || successPay || successDeliver || order._id !== id) {
+      dispatch({ type: ORDER_PAY_RESET });
+      dispatch({ type: ORDER_DELIVER_RESET });
       dispatch(getOrderDetails(id));
     }
-  }, [dispatch, navigate, userInfo, id, successPay, successDeliver, order]);
+  }, [dispatch, navigate, order, id, successPay, successDeliver, userInfo]);
 
   const deliverHandler = () => {
-    console.log('Marking order as delivered:', order._id);
     dispatch(deliverOrder(order));
   };
 
-  if (loading) return <Loader />;
-  if (error) return <Message variant='danger'>{error}</Message>;
-  if (!order) return <Message>Order not found</Message>;
+  if (loading) {
+    return <Loader />;
+  }
+
+  if (error) {
+    return <Message variant='danger'>{error}</Message>;
+  }
+
+  // Ensure the order object has itemsPrice with a default value if missing
+  const itemsPrice =
+    order.itemsPrice ||
+    order.orderItems
+      .reduce((acc, item) => acc + item.price * item.qty, 0)
+      .toFixed(2);
 
   return (
     <>
@@ -120,7 +101,9 @@ const OrderScreen = () => {
                 {order.paymentMethod}
               </p>
               {order.isPaid ? (
-                <Message variant='success'>Paid on {order.paidAt}</Message>
+                <Message variant='success'>
+                  Paid on {new Date(order.paidAt).toLocaleString()}
+                </Message>
               ) : (
                 <Message variant='danger'>Not Paid</Message>
               )}
@@ -158,7 +141,8 @@ const OrderScreen = () => {
                           </Link>
                         </Col>
                         <Col md={4}>
-                          {item.qty} x ${item.price} = ${item.qty * item.price}
+                          {item.qty} x BDT{item.price} = BDT
+                          {(item.qty * item.price).toFixed(2)}
                         </Col>
                       </Row>
                     </ListGroup.Item>
@@ -177,46 +161,51 @@ const OrderScreen = () => {
               <ListGroup.Item>
                 <Row>
                   <Col>Items</Col>
-                  <Col>${order.itemsPrice}</Col>
+                  <Col>BDT{itemsPrice}</Col>
                 </Row>
               </ListGroup.Item>
               <ListGroup.Item>
                 <Row>
                   <Col>Shipping</Col>
-                  <Col>${order.shippingPrice}</Col>
+                  <Col>BDT{order.shippingPrice}</Col>
                 </Row>
               </ListGroup.Item>
               <ListGroup.Item>
                 <Row>
                   <Col>Tax</Col>
-                  <Col>${order.taxPrice}</Col>
+                  <Col>BDT{order.taxPrice}</Col>
                 </Row>
               </ListGroup.Item>
               <ListGroup.Item>
                 <Row>
                   <Col>Total</Col>
-                  <Col>${order.totalPrice}</Col>
+                  <Col>BDT{order.totalPrice}</Col>
                 </Row>
               </ListGroup.Item>
-              {/* Payment section - Only Stripe */}
+
+              {/* Replace the inline Stripe component with a button to show the modal */}
               {!order.isPaid && (
                 <ListGroup.Item>
-                  {loadingPay && <Loader />}
-                  <StripeProvider>
-                    <StripeCheckout
-                      orderId={order._id}
-                      totalPrice={order.totalPrice}
-                    />
-                  </StripeProvider>
+                  {loadingPay ? (
+                    <Loader />
+                  ) : (
+                    <Button
+                      type='button'
+                      className='btn btn-primary btn-block'
+                      onClick={() => setShowPaymentModal(true)}
+                    >
+                      Pay Now
+                    </Button>
+                  )}
                 </ListGroup.Item>
               )}
+
               {loadingDeliver && <Loader />}
               {userInfo &&
                 userInfo.isAdmin &&
                 order.isPaid &&
                 !order.isDelivered && (
                   <ListGroup.Item>
-                    {loadingDeliver && <Loader />}
                     <Button
                       type='button'
                       className='btn btn-block'
@@ -230,6 +219,14 @@ const OrderScreen = () => {
           </Card>
         </Col>
       </Row>
+
+      {/* Stripe Checkout Modal */}
+      <StripeCheckoutModal
+        show={showPaymentModal}
+        onClose={() => setShowPaymentModal(false)}
+        orderId={order._id}
+        totalPrice={order.totalPrice}
+      />
     </>
   );
 };

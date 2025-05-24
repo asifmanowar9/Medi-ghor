@@ -12,12 +12,14 @@ import {
 } from 'react-bootstrap';
 import Message from '../components/Message';
 import { addToCart, removeFromCart } from '../actions/cartActions';
+import { useCartAuth } from '../hooks/useCartAuth';
 
 const CartScreen = () => {
   const { id: productId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const userInfo = useCartAuth();
 
   // Parse quantity from URL search params
   const qty = new URLSearchParams(location.search).get('qty')
@@ -73,7 +75,7 @@ const CartScreen = () => {
                   <Col md={3}>
                     <Link to={`/product/${item.product}`}>{item.name}</Link>
                   </Col>
-                  <Col md={2}>${item.price}</Col>
+                  <Col md={2}>BDT{item.price}</Col>
                   <Col md={2}>
                     <Form.Control
                       as='select'
@@ -114,7 +116,7 @@ const CartScreen = () => {
                 Subtotal ({cartItems.reduce((acc, item) => acc + item.qty, 0)})
                 items
               </h2>
-              $
+              BDT
               {cartItems
                 .reduce((acc, item) => acc + item.qty * item.price, 0)
                 .toFixed(2)}

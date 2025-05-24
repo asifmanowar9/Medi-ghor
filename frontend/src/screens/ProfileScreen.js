@@ -8,6 +8,7 @@ import Message from '../components/Message';
 import Loader from '../components/Loader';
 import { listMyOrders } from '../actions/orderActions';
 import { USER_UPDATE_PROFILE_RESET } from '../constants/userConstants';
+import { InputGroup } from 'react-bootstrap';
 
 const ProfileScreen = () => {
   const [name, setName] = useState('');
@@ -15,6 +16,8 @@ const ProfileScreen = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -86,25 +89,50 @@ const ProfileScreen = () => {
               onChange={(e) => setEmail(e.target.value)}
             ></Form.Control>
           </Form.Group>
-
           <Form.Group controlId='password' className='mt-3'>
             <Form.Label>Password</Form.Label>
-            <Form.Control
-              type='password'
-              placeholder='Enter password'
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            ></Form.Control>
+            <InputGroup>
+              <Form.Control
+                type={showPassword ? 'text' : 'password'}
+                placeholder='Enter password'
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              ></Form.Control>
+              <Button
+                variant='outline-secondary'
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                <i
+                  className={showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'}
+                ></i>
+              </Button>
+            </InputGroup>
           </Form.Group>
 
           <Form.Group controlId='confirmPassword' className='mt-3'>
             <Form.Label>Confirm Password</Form.Label>
-            <Form.Control
-              type='password'
-              placeholder='Confirm password'
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-            ></Form.Control>
+            <InputGroup>
+              <Form.Control
+                type={showConfirmPassword ? 'text' : 'password'}
+                placeholder='Confirm password'
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              ></Form.Control>
+              <Button
+                variant='outline-secondary'
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                aria-label={
+                  showConfirmPassword ? 'Hide password' : 'Show password'
+                }
+              >
+                <i
+                  className={
+                    showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye'
+                  }
+                ></i>
+              </Button>
+            </InputGroup>
           </Form.Group>
 
           <Button type='submit' variant='primary' className='mt-3'>
@@ -113,8 +141,7 @@ const ProfileScreen = () => {
         </Form>
       </Col>
       <Col md={9}>
-        {' '}
-        <h2>My orders</h2>{' '}
+        <h2>My orders</h2>
         {loadingOrders ? (
           <Loader />
         ) : errorOrders ? (

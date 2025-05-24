@@ -1,9 +1,15 @@
 import asyncHandler from 'express-async-handler';
 import Order from '../models/orderModel.js';
+import User from '../models/userModel.js'; // Add this import
+import transporter from '../config/emailConfig.js';
+import {
+  sendOrderConfirmationEmail,
+  sendOrderDeliveredEmail,
+} from '../config/emailConfig.js';
 
-// @description  Fetch all orders
-// @route        Get /api/orders
-//@access        private
+// @description  Create new order
+// @route        POST /api/orders
+// @access       private
 const addOrderItems = asyncHandler(async (req, res) => {
   const {
     orderItems,
@@ -20,9 +26,10 @@ const addOrderItems = asyncHandler(async (req, res) => {
     throw new Error('No order items');
     return;
   } else {
+    // Create the new order
     const order = new Order({
       orderItems,
-      user: req.user._id, // Add the user ID from the authenticated request
+      user: req.user._id,
       shippingAddress,
       paymentMethod,
       itemsPrice,
@@ -31,7 +38,32 @@ const addOrderItems = asyncHandler(async (req, res) => {
       totalPrice,
     });
 
+    // Save the order to the database
     const createdOrder = await order.save();
+
+    // Fetch the user details for the email
+    const user = await User.findById(req.user._id);
+
+    // Prepare the order object for email with user details
+    const orderWithUser = {
+      ...createdOrder._doc,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+    };
+
+    // Send confirmation email (non-blocking)
+    sendOrderConfirmationEmail(orderWithUser).then((sent) => {
+      if (sent) {
+        console.log(`Order confirmation email sent to ${user.email}`);
+      } else {
+        console.log(`Failed to send order confirmation email to ${user.email}`);
+      }
+    });
+
+    // Return the created order
     res.status(201).json(createdOrder);
   }
 });
@@ -57,9 +89,11 @@ const getOrderById = asyncHandler(async (req, res) => {
 // @description  Update order to paid
 // @route        PUT /api/orders/:id/pay
 //@access        private
-
 const updateOrderToPaid = asyncHandler(async (req, res) => {
-  const order = await Order.findById(req.params.id);
+  const order = await Order.findById(req.params.id).populate(
+    'user',
+    'name email'
+  );
 
   if (order) {
     order.isPaid = true;
@@ -74,6 +108,61 @@ const updateOrderToPaid = asyncHandler(async (req, res) => {
     };
 
     const updatedOrder = await order.save();
+
+    // Send payment confirmation email
+    const emailConfig = {
+      subject: `Medi-ghor - Payment Confirmed for Order #${order._id}`,
+      heading: 'Payment Confirmed',
+      message: `Your payment for order #${order._id} has been confirmed. We'll process your order shortly.`,
+    };
+
+    // Create a HTML email template for payment confirmation
+    const mailOptions = {
+      from: `"Medi-ghor" <${process.env.EMAIL_USER}>`,
+      to: order.user.email,
+      subject: emailConfig.subject,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background-color: #4a90e2; color: white; padding: 20px; text-align: center;">
+            <h1>${emailConfig.heading}</h1>
+            <p>Order #${order._id}</p>
+          </div>
+          
+          <div style="padding: 20px; border: 1px solid #ddd; background-color: #f9f9f9;">
+            <h2>Payment Confirmation</h2>
+            <p>Dear ${order.user.name},</p>
+            <p>${emailConfig.message}</p>
+            
+            <p>Payment Details:</p>
+            <ul>
+              <li>Amount: $${order.totalPrice.toFixed(2)}</li>
+              <li>Payment Method: ${order.paymentMethod}</li>
+              <li>Transaction ID: ${order.paymentResult.id}</li>
+              <li>Date: ${new Date(order.paidAt).toLocaleString()}</li>
+            </ul>
+            
+            <p>Your order will be processed and shipped soon. You'll receive another email when your order is on its way.</p>
+            
+            <p>Thank you for shopping with Medi-ghor!</p>
+          </div>
+          
+          <div style="background-color: #f2f2f2; padding: 15px; text-align: center; margin-top: 20px;">
+            <p>© ${new Date().getFullYear()} Medi-ghor. All rights reserved.</p>
+          </div>
+        </div>
+      `,
+    };
+
+    // Send the email using the transporter
+
+    transporter
+      .sendMail(mailOptions)
+      .then((info) =>
+        console.log('Payment confirmation email sent:', info.messageId)
+      )
+      .catch((err) =>
+        console.error('Error sending payment confirmation email:', err)
+      );
 
     res.json(updatedOrder);
   } else {
@@ -111,15 +200,31 @@ const getOrders = asyncHandler(async (req, res) => {
 
 // @description  Update order to delivered
 // @route        PUT /api/orders/:id/deliver
-//@access        private/admin
+// @access       private/admin
 const updateOrderToDelivered = asyncHandler(async (req, res) => {
-  const order = await Order.findById(req.params.id);
+  const order = await Order.findById(req.params.id).populate(
+    'user',
+    'name email'
+  );
 
   if (order) {
     order.isDelivered = true;
     order.deliveredAt = Date.now();
 
     const updatedOrder = await order.save();
+
+    // Send delivery confirmation email
+    sendOrderDeliveredEmail(updatedOrder).then((sent) => {
+      if (sent) {
+        console.log(
+          `Order delivery confirmation email sent to ${order.user.email}`
+        );
+      } else {
+        console.log(
+          `Failed to send order delivery email to ${order.user.email}`
+        );
+      }
+    });
 
     res.json(updatedOrder);
   } else {

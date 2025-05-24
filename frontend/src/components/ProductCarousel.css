@@ -2,7 +2,7 @@
   max-width: 800px;
   margin: 0 auto 2rem;
   height: auto;
-  background: linear-gradient(to right, #f5f7fa, #c3cfe2); /* Subtle blue-gray gradient */
+  background: linear-gradient(to right, #f5f7fa, #c8d3d6); /* Subtle blue-gray gradient */
   border-radius: 10px; /* Rounded corners */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow */
 }

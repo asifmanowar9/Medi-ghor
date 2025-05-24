@@ -19,8 +19,19 @@ const StripeProvider = ({ children }) => {
     getStripeApiKey();
   }, []);
 
+  const stripeOptions = {
+    fonts: [
+      {
+        cssSrc:
+          'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap',
+      },
+    ],
+  };
+
   return stripeApiKey ? (
-    <Elements stripe={loadStripe(stripeApiKey)}>{children}</Elements>
+    <Elements stripe={loadStripe(stripeApiKey)} options={stripeOptions}>
+      {children}
+    </Elements>
   ) : (
     <Loader />
   );

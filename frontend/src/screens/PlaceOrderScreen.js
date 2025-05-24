@@ -23,7 +23,7 @@ const PlaceOrderScreen = () => {
   );
 
   cart.shippingAddress = cart.shippingAddress ? cart.shippingAddress : {};
-  cart.shippingPrice = addDecimals(cart.itemsPrice > 100 ? 0 : 10);
+  cart.shippingPrice = addDecimals(cart.itemsPrice > 999 ? 0 : 100);
   cart.taxPrice = addDecimals(Number(cart.itemsPrice) * 0.15);
 
   cart.totalPrice = addDecimals(
@@ -106,7 +106,7 @@ const PlaceOrderScreen = () => {
                           </Link>
                         </Col>
                         <Col md={4}>
-                          {item.qty} x ${item.price} = $
+                          {item.qty} x BDT{item.price} = BDT
                           {(item.qty * item.price).toFixed(2)}
                         </Col>
                       </Row>
@@ -128,28 +128,28 @@ const PlaceOrderScreen = () => {
               <ListGroup.Item>
                 <Row>
                   <Col>Items</Col>
-                  <Col>${cart.itemsPrice}</Col>
+                  <Col>BDT{cart.itemsPrice}</Col>
                 </Row>
               </ListGroup.Item>
 
               <ListGroup.Item>
                 <Row>
                   <Col>Shipping</Col>
-                  <Col>${cart.shippingPrice}</Col>
+                  <Col>BDT{cart.shippingPrice}</Col>
                 </Row>
               </ListGroup.Item>
 
               <ListGroup.Item>
                 <Row>
                   <Col>Tax</Col>
-                  <Col>${cart.taxPrice}</Col>
+                  <Col>BDT{cart.taxPrice}</Col>
                 </Row>
               </ListGroup.Item>
 
               <ListGroup.Item>
                 <Row>
                   <Col>Total</Col>
-                  <Col>${cart.totalPrice}</Col>
+                  <Col>BDT{cart.totalPrice}</Col>
                 </Row>
               </ListGroup.Item>
               <ListGroup.Item>

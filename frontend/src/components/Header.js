@@ -27,18 +27,22 @@ const Header = () => {
             <SearchBox />
 
             <Nav className='ms-auto'>
-              {userInfo && (
-                <LinkContainer to='/chats'>
-                  <Nav.Link>
-                    <i className='fas fa-file-medical-alt'></i> Test Reports
-                  </Nav.Link>
-                </LinkContainer>
-              )}
+              {/* Always show Test Reports link, but redirect to login if not logged in */}
+              <LinkContainer
+                to={userInfo ? '/chats' : '/login?redirect=/chats'}
+              >
+                <Nav.Link>
+                  <i className='fas fa-file-medical-alt'></i> Ai Test Reports
+                  Analysis
+                </Nav.Link>
+              </LinkContainer>
+
               <LinkContainer to='/cart'>
                 <Nav.Link>
                   <i className='fas fa-shopping-cart'></i> Cart
                 </Nav.Link>
               </LinkContainer>
+
               {userInfo ? (
                 <NavDropdown title={userInfo.name} id='username'>
                   <LinkContainer to='/profile'>
@@ -55,6 +59,7 @@ const Header = () => {
                   </Nav.Link>
                 </LinkContainer>
               )}
+
               {userInfo && userInfo.isAdmin && (
                 <NavDropdown title='Admin' id='adminmenu'>
                   <LinkContainer to='/admin/userlist'>

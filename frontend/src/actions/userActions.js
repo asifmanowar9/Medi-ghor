@@ -26,12 +26,16 @@ import {
 } from '../constants/userConstants';
 
 import { ORDER_LIST_MY_RESET } from '../constants/orderConstants';
+import { CART_ADD_ITEM, CART_CLEAR_ITEMS } from '../constants/cartConstants';
+import { loadUserCart, clearCart } from '../actions/cartActions';
 
 import axios from 'axios';
 
 export const login = (email, password) => async (dispatch) => {
   try {
-    dispatch({ type: USER_LOGIN_REQUEST });
+    dispatch({
+      type: USER_LOGIN_REQUEST,
+    });
 
     const config = {
       headers: {
@@ -49,7 +53,11 @@ export const login = (email, password) => async (dispatch) => {
       type: USER_LOGIN_SUCCESS,
       payload: data,
     });
+
     localStorage.setItem('userInfo', JSON.stringify(data));
+
+    // Load this user's cart after successful login
+    dispatch(loadUserCart());
   } catch (error) {
     dispatch({
       type: USER_LOGIN_FAIL,
@@ -61,14 +69,34 @@ export const login = (email, password) => async (dispatch) => {
   }
 };
 
-export const logout = () => (dispatch) => {
+export const logout = () => (dispatch, getState) => {
+  // Save guest cart if there are items in it before logging out
+  const {
+    cart: { cartItems },
+  } = getState();
+  if (cartItems.length > 0) {
+    localStorage.setItem('cartItems_guest', JSON.stringify(cartItems));
+  }
+
   localStorage.removeItem('userInfo');
-  dispatch({ type: USER_LOGOUT, payload: {} });
-  // dispatch({ type: USER_LOGOUT });
+  dispatch({ type: USER_LOGOUT });
   dispatch({ type: USER_DETAILS_RESET });
   dispatch({ type: ORDER_LIST_MY_RESET });
   dispatch({ type: USER_LIST_RESET });
-  // document.location.href = '/login';
+
+  // Clear the cart and load guest cart if exists
+  dispatch(clearCart());
+  const guestCartItems = localStorage.getItem('cartItems_guest')
+    ? JSON.parse(localStorage.getItem('cartItems_guest'))
+    : [];
+
+  if (guestCartItems.length > 0) {
+    dispatch({
+      type: CART_ADD_ITEM,
+      payload: { cartItems: guestCartItems },
+      isFullReplace: true,
+    });
+  }
 };
 
 export const register = (name, email, password) => async (dispatch) => {

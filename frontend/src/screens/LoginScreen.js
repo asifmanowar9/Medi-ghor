@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Form, Button, Row, Col } from 'react-bootstrap';
+import { Form, Button, Row, Col, InputGroup } from 'react-bootstrap';
 import { login } from '../actions/userActions';
 import Message from '../components/Message';
 import Loader from '../components/Loader';
@@ -11,6 +11,8 @@ const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState(null);
+  const [showPasswordHelp, setShowPasswordHelp] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -40,6 +42,10 @@ const LoginScreen = () => {
     }
   };
 
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
+
   return (
     <FormContainer>
       <h1>Sign In</h1>
@@ -58,13 +64,40 @@ const LoginScreen = () => {
         </Form.Group>
 
         <Form.Group controlId='password' className='mt-3'>
-          <Form.Label>Password</Form.Label>
-          <Form.Control
-            type='password'
-            placeholder='Enter password'
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          ></Form.Control>
+          <Form.Label>
+            Password{' '}
+            <span
+              className='ms-1 text-primary'
+              style={{ cursor: 'pointer', fontSize: '0.8rem' }}
+              onClick={() => setShowPasswordHelp(!showPasswordHelp)}
+            >
+              <i className='fas fa-info-circle'></i> Password Help
+            </span>
+          </Form.Label>
+          <InputGroup>
+            <Form.Control
+              type={showPassword ? 'text' : 'password'}
+              placeholder='Enter password'
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            ></Form.Control>
+            <Button
+              variant='outline-secondary'
+              onClick={toggleShowPassword}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+            >
+              <i
+                className={showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'}
+              ></i>
+            </Button>
+          </InputGroup>
+          {showPasswordHelp && (
+            <Form.Text className='text-muted'>
+              Remember: Your password should contain at least one uppercase
+              letter, one lowercase letter, one number, and one special
+              character.
+            </Form.Text>
+          )}
         </Form.Group>
 
         <Button type='submit' variant='primary' className='mt-3'>
