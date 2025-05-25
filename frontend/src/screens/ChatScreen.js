@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import {
   Row,
   Col,
@@ -14,7 +14,7 @@ import {
   ProgressBar,
   Modal,
 } from 'react-bootstrap';
-import { FaPaperclip, FaPaperPlane } from 'react-icons/fa';
+import { FaPaperclip, FaPaperPlane, FaArrowLeft } from 'react-icons/fa';
 import Message from '../components/Message';
 import { getChatDetails } from '../actions/chatActions';
 import { addMessage } from '../actions/chatActions';
@@ -602,214 +602,225 @@ const ChatScreen = () => {
   };
 
   return (
-    <div className='chat-container'>
-      <Card className='chat-card'>
-        <Card.Header className='d-flex justify-content-between align-items-center'>
-          <h2>Medical Test Report Analysis</h2>
-          {usedModel && (
-            <div className='d-flex align-items-center'>
-              <ModelInfoBadge modelName={usedModel} />
-              {ocrConfidence !== null && (
-                <span
-                  className={`badge ${
-                    ocrConfidence > 85
-                      ? 'bg-success'
-                      : ocrConfidence > 70
-                      ? 'bg-warning'
-                      : 'bg-danger'
-                  } ms-2`}
-                >
-                  {ocrConfidence}% confidence
-                </span>
-              )}
-            </div>
-          )}
-        </Card.Header>
+    <>
+      {/* Go Back Link */}
+      <Link to='/chats' className='btn btn-light mb-3'>
+        <FaArrowLeft className='me-2' /> Back to Chats
+      </Link>
 
-        <div className='messages-container'>
-          {loading ? (
-            <div className='text-center p-4'>
-              <Spinner animation='border' />
-            </div>
-          ) : error ? (
-            <div className='p-3'>
-              <Message variant='danger'>{error}</Message>
-            </div>
-          ) : (
-            <ListGroup variant='flush' className='chat-messages'>
-              {/* Initial system message */}
-              <ListGroup.Item className='ai-message'>
-                <strong>AI Assistant</strong>
-                <div className='message-content'>
-                  <p>
-                    Welcome to the Medical Test Report Analysis service. Upload
-                    images of your medical test reports for analysis.
-                  </p>
-                </div>
-              </ListGroup.Item>
+      <div className='chat-container'>
+        <Card className='chat-card'>
+          <Card.Header className='d-flex justify-content-between align-items-center'>
+            <h2>Medical Test Report Analysis</h2>
+            {usedModel && (
+              <div className='d-flex align-items-center'>
+                <ModelInfoBadge modelName={usedModel} />
+                {ocrConfidence !== null && (
+                  <span
+                    className={`badge ${
+                      ocrConfidence > 85
+                        ? 'bg-success'
+                        : ocrConfidence > 70
+                        ? 'bg-warning'
+                        : 'bg-danger'
+                    } ms-2`}
+                  >
+                    {ocrConfidence}% confidence
+                  </span>
+                )}
+              </div>
+            )}
+          </Card.Header>
 
-              {/* Chat messages with enhanced display for AI analysis responses */}
-              {chat.messages &&
-                chat.messages.map((msg, index) => (
-                  <ChatMessage key={index} message={msg} />
-                ))}
-
-              {/* AI typing indicator */}
-              {waitingForAIResponse && (
+          <div className='messages-container'>
+            {loading ? (
+              <div className='text-center p-4'>
+                <Spinner animation='border' />
+              </div>
+            ) : error ? (
+              <div className='p-3'>
+                <Message variant='danger'>{error}</Message>
+              </div>
+            ) : (
+              <ListGroup variant='flush' className='chat-messages'>
+                {/* Initial system message */}
                 <ListGroup.Item className='ai-message'>
                   <strong>AI Assistant</strong>
                   <div className='message-content'>
-                    <div className='typing-indicator'>
-                      <span></span>
-                      <span></span>
-                      <span></span>
+                    <p>
+                      Welcome to the Medical Test Report Analysis service.
+                      Upload images of your medical test reports for analysis.
+                    </p>
+                  </div>
+                </ListGroup.Item>
+
+                {/* Chat messages with enhanced display for AI analysis responses */}
+                {chat.messages &&
+                  chat.messages.map((msg, index) => (
+                    <ChatMessage key={index} message={msg} />
+                  ))}
+
+                {/* AI typing indicator */}
+                {waitingForAIResponse && (
+                  <ListGroup.Item className='ai-message'>
+                    <strong>AI Assistant</strong>
+                    <div className='message-content'>
+                      <div className='typing-indicator'>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                      </div>
                     </div>
-                  </div>
-                </ListGroup.Item>
-              )}
+                  </ListGroup.Item>
+                )}
 
-              {/* Loading indicators */}
-              {loadingAddMessage && (
-                <ListGroup.Item className='text-center p-2'>
-                  <Spinner animation='border' size='sm' /> Sending message...
-                </ListGroup.Item>
-              )}
+                {/* Loading indicators */}
+                {loadingAddMessage && (
+                  <ListGroup.Item className='text-center p-2'>
+                    <Spinner animation='border' size='sm' /> Sending message...
+                  </ListGroup.Item>
+                )}
 
-              {/* Analysis specific loading indicator */}
-              {loadingAnalysis && (
-                <ListGroup.Item className='ai-message p-2'>
-                  <strong>AI Assistant</strong>
-                  <div className='message-content'>
-                    <div className='d-flex align-items-center'>
-                      <Spinner animation='border' size='sm' className='mr-2' />
-                      <span>
-                        Processing your medical test report. This may take a
-                        moment depending on the complexity...
-                      </span>
+                {/* Analysis specific loading indicator */}
+                {loadingAnalysis && (
+                  <ListGroup.Item className='ai-message p-2'>
+                    <strong>AI Assistant</strong>
+                    <div className='message-content'>
+                      <div className='d-flex align-items-center'>
+                        <Spinner
+                          animation='border'
+                          size='sm'
+                          className='mr-2'
+                        />
+                        <span>
+                          Processing your medical test report. This may take a
+                          moment depending on the complexity...
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                </ListGroup.Item>
-              )}
+                  </ListGroup.Item>
+                )}
 
-              {/* Analysis progress bar */}
-              {uploadingImage && analysisProgress > 0 && (
-                <ListGroup.Item className='p-2'>
-                  <div className='mb-1 small text-muted'>
-                    {analysisProgress < 40 && 'Preparing report...'}
-                    {analysisProgress >= 40 &&
-                      analysisProgress < 75 &&
-                      'Analyzing medical data...'}
-                    {analysisProgress >= 75 && 'Finalizing results...'}
-                  </div>
-                  <ProgressBar
-                    animated
-                    now={analysisProgress}
-                    label={`${analysisProgress}%`}
-                    variant={analysisProgress < 100 ? 'info' : 'success'}
+                {/* Analysis progress bar */}
+                {uploadingImage && analysisProgress > 0 && (
+                  <ListGroup.Item className='p-2'>
+                    <div className='mb-1 small text-muted'>
+                      {analysisProgress < 40 && 'Preparing report...'}
+                      {analysisProgress >= 40 &&
+                        analysisProgress < 75 &&
+                        'Analyzing medical data...'}
+                      {analysisProgress >= 75 && 'Finalizing results...'}
+                    </div>
+                    <ProgressBar
+                      animated
+                      now={analysisProgress}
+                      label={`${analysisProgress}%`}
+                      variant={analysisProgress < 100 ? 'info' : 'success'}
+                    />
+                  </ListGroup.Item>
+                )}
+
+                {/* Analysis completion indicator with animation */}
+                {analysisLoaded && (
+                  <ListGroup.Item className='text-center p-3'>
+                    <div className='analysis-complete-indicator'>
+                      <div className='checkmark-circle'>
+                        <div className='checkmark-stem'></div>
+                        <div className='checkmark-kick'></div>
+                      </div>
+                      <div>Analysis Complete!</div>
+                      {usedModel && (
+                        <small className='text-muted mt-2 d-block'>
+                          Analyzed with{' '}
+                          {usedModel === 'ocr-space' ? 'OCR.Space' : usedModel}
+                        </small>
+                      )}
+                    </div>
+                  </ListGroup.Item>
+                )}
+
+                {/* Image preview with potential analysis */}
+                {previewImage && (
+                  <ListGroup.Item className='p-2'>
+                    <small className='text-muted'>Test Report Image:</small>
+                    <div className='text-center'>
+                      <Image
+                        src={previewImage}
+                        alt='Preview'
+                        fluid
+                        className='preview-image'
+                      />
+                    </div>
+                  </ListGroup.Item>
+                )}
+
+                {/* Error message */}
+                {errorMessage && (
+                  <ListGroup.Item className='p-2'>
+                    <Alert variant='danger' className='mb-0 py-2'>
+                      {errorMessage}
+                    </Alert>
+                  </ListGroup.Item>
+                )}
+
+                {/* Reference for scrolling */}
+                <div ref={messagesEndRef} />
+              </ListGroup>
+            )}
+          </div>
+
+          <Card.Footer>
+            <Form onSubmit={submitMessageHandler}>
+              <Row className='align-items-center'>
+                <Col xs={9} md={10}>
+                  <Form.Control
+                    type='text'
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder='Type your message here...'
+                    disabled={uploadingImage || loadingAddMessage}
                   />
-                </ListGroup.Item>
-              )}
-
-              {/* Analysis completion indicator with animation */}
-              {analysisLoaded && (
-                <ListGroup.Item className='text-center p-3'>
-                  <div className='analysis-complete-indicator'>
-                    <div className='checkmark-circle'>
-                      <div className='checkmark-stem'></div>
-                      <div className='checkmark-kick'></div>
-                    </div>
-                    <div>Analysis Complete!</div>
-                    {usedModel && (
-                      <small className='text-muted mt-2 d-block'>
-                        Analyzed with{' '}
-                        {usedModel === 'ocr-space' ? 'OCR.Space' : usedModel}
-                      </small>
-                    )}
-                  </div>
-                </ListGroup.Item>
-              )}
-
-              {/* Image preview with potential analysis */}
-              {previewImage && (
-                <ListGroup.Item className='p-2'>
-                  <small className='text-muted'>Test Report Image:</small>
-                  <div className='text-center'>
-                    <Image
-                      src={previewImage}
-                      alt='Preview'
-                      fluid
-                      className='preview-image'
+                </Col>
+                <Col xs={3} md={2} className='d-flex'>
+                  <div className='upload-btn-wrapper'>
+                    <Button
+                      variant='outline-secondary'
+                      size='bg-sm'
+                      disabled={uploadingImage || loadingAddMessage}
+                    >
+                      <FaPaperclip />
+                    </Button>
+                    <input
+                      type='file'
+                      onChange={uploadFileHandler}
+                      disabled={uploadingImage || loadingAddMessage}
+                      accept='image/*'
                     />
                   </div>
-                </ListGroup.Item>
-              )}
-
-              {/* Error message */}
-              {errorMessage && (
-                <ListGroup.Item className='p-2'>
-                  <Alert variant='danger' className='mb-0 py-2'>
-                    {errorMessage}
-                  </Alert>
-                </ListGroup.Item>
-              )}
-
-              {/* Reference for scrolling */}
-              <div ref={messagesEndRef} />
-            </ListGroup>
-          )}
-        </div>
-
-        <Card.Footer>
-          <Form onSubmit={submitMessageHandler}>
-            <Row className='align-items-center'>
-              <Col xs={9} md={10}>
-                <Form.Control
-                  type='text'
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  placeholder='Type your message here...'
-                  disabled={uploadingImage || loadingAddMessage}
-                />
-              </Col>
-              <Col xs={3} md={2} className='d-flex'>
-                <div className='upload-btn-wrapper'>
                   <Button
-                    variant='outline-secondary'
+                    type='submit'
+                    variant='primary'
                     size='bg-sm'
-                    disabled={uploadingImage || loadingAddMessage}
+                    disabled={
+                      !message.trim() || uploadingImage || loadingAddMessage
+                    }
                   >
-                    <FaPaperclip />
+                    <FaPaperPlane />
                   </Button>
-                  <input
-                    type='file'
-                    onChange={uploadFileHandler}
-                    disabled={uploadingImage || loadingAddMessage}
-                    accept='image/*'
-                  />
-                </div>
-                <Button
-                  type='submit'
-                  variant='primary'
-                  size='bg-sm'
-                  disabled={
-                    !message.trim() || uploadingImage || loadingAddMessage
-                  }
-                >
-                  <FaPaperPlane />
-                </Button>
-              </Col>
-            </Row>
-          </Form>
-        </Card.Footer>
-      </Card>
+                </Col>
+              </Row>
+            </Form>
+          </Card.Footer>
+        </Card>
 
-      {/* Image viewer modal */}
-      <ImageViewerModal
-        show={showImageModal}
-        onHide={() => setShowImageModal(false)}
-        imageUrl={modalImage}
-      />
-    </div>
+        {/* Image viewer modal */}
+        <ImageViewerModal
+          show={showImageModal}
+          onHide={() => setShowImageModal(false)}
+          imageUrl={modalImage}
+        />
+      </div>
+    </>
   );
 };
 

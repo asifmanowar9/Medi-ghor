@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Message from '../components/Message';
 import Loader from '../components/Loader';
 import { listUserChats, createChat } from '../actions/chatActions';
+import { FaArrowLeft } from 'react-icons/fa';
 
 const ChatListScreen = () => {
   const dispatch = useDispatch();
@@ -49,6 +50,11 @@ const ChatListScreen = () => {
 
   return (
     <>
+      {/* Go Back Link */}
+      <Link to='/' className='btn btn-light my-3'>
+        <FaArrowLeft className='me-2' /> Go Back
+      </Link>
+
       <Row className='align-items-center'>
         <Col>
           <h1>Test Report Analysis</h1>
