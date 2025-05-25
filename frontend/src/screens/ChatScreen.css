@@ -1,6 +1,6 @@
 /* Main chat container */
 .chat-container {
-  height: calc(100vh - 140px); /* Adjust based on your navbar/footer height */
+  height: calc(100vh - 140px);
   padding: 0;
   display: flex;
   flex-direction: column;
@@ -8,39 +8,42 @@
   margin: 0 auto;
 }
 
-/* Main chat card */
+/* Main chat card - Updated with darker background */
 .chat-card {
   height: 100%;
   display: flex;
   flex-direction: column;
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  background-color: #2d3436; /* Darker background */
 }
 
-/* Header styling */
+/* Header styling - Updated with darker background */
 .chat-card .card-header {
   padding: 15px;
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #dee2e6;
+  background-color: #222831; /* Darker background */
+  border-bottom: 1px solid #393e46;
+  color: #eeeeee; /* Lighter text for dark background */
 }
 
 .chat-card .card-header h2 {
   font-size: 1.25rem;
   margin: 0;
+  color: #eeeeee; /* Lighter text for dark background */
 }
 
-/* Messages container - this is the scrollable area */
+/* Messages container - Updated with darker background */
 .messages-container {
   flex: 1;
   overflow-y: auto;
   padding: 0;
-  background-color: #fff;
+  background-color: #2d3436; /* Darker background */
   display: flex;
   flex-direction: column;
 }
 
-/* Chat messages list */
+/* Chat messages list - Keeping same */
 .chat-messages {
   padding: 0;
   margin: 0;
@@ -48,47 +51,85 @@
   width: 100%;
 }
 
-/* Individual message items */
+/* Individual message items - Keeping same */
 .chat-messages .list-group-item {
   border: none;
-  border-radius: 0;
+  border-radius: 8px;
   padding: 10px 15px;
-  margin: 5px 0;
-  border-bottom: 1px solid #f0f0f0;
+  margin: 10px 15px;
+  max-width: 80%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
-/* Message styling */
-.message-content {
-  overflow-wrap: break-word;
-  word-wrap: break-word;
-  padding: 8px 0;
-  width: 100%;
-}
-
-/* User vs AI message styling */
+/* User message styling */
 .user-message {
-  background-color: #f0f8ff;
-  border-left: 3px solid #007bff;
+  background-color: #1e272e; /* Slightly darker */
+  color: white;
+  margin-left: auto !important;
+  border-top-right-radius: 0 !important;
+  text-align: right;
 }
 
+.user-message strong {
+  display: block;
+  font-size: 0.8rem;
+  margin-bottom: 4px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.user-message .message-content {
+  color: white;
+}
+
+/* AI message styling */
 .ai-message {
-  background-color: #f8f9fa;
-  border-left: 3px solid #28a745;
+  background-color: #393e46; /* Darker background */
+  color: #eeeeee; /* Lighter text */
+  margin-right: auto !important;
+  border-top-left-radius: 0 !important;
+  text-align: left;
+  border-left: none !important;
 }
 
-/* Footer with input */
+.ai-message strong {
+  display: block;
+  font-size: 0.8rem;
+  margin-bottom: 4px;
+  color: #b2bec3; /* Lighter color to stand out on dark background */
+}
+
+/* Analysis message specific styling */
+.ai-message.analysis-message {
+  background-color: #2c3e50; /* Darker background for analysis */
+  border-left: none !important;
+  border-bottom-left-radius: 10px;
+  border-top-left-radius: 0 !important;
+}
+
+/* Footer with input - Updated with darker background */
 .chat-card .card-footer {
   padding: 10px;
-  background-color: #fff;
-  border-top: 1px solid #dee2e6;
+  background-color: #222831; /* Darker background */
+  border-top: 1px solid #393e46;
 }
 
-/* Upload button styling */
+/* Upload button styling - Keeping same */
 .upload-btn-wrapper {
   position: relative;
   overflow: hidden;
   display: inline-block;
   margin-right: 10px;
+}
+
+.upload-btn-wrapper .btn {
+  transition: all 0.3s ease;
+}
+
+.upload-btn-wrapper .btn:hover {
+  background-color: #0069d9;
+  border-color: #0062cc;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .upload-btn-wrapper input[type=file] {
@@ -101,7 +142,38 @@
   cursor: pointer;
 }
 
-/* Preview images */
+/* Add cursor pointer when hovering over the button area */
+.upload-btn-wrapper:hover {
+  cursor: pointer;
+}
+
+/* Enhanced file upload button styling */
+.upload-btn-wrapper .file-upload-btn {
+  transition: all 0.3s ease;
+}
+
+.upload-btn-wrapper .file-upload-btn:hover {
+  background-color: #6c757d;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Make the button appear disabled when functionality is disabled */
+.upload-btn-wrapper input[type=file]:disabled + .file-upload-btn {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+/* Make sure the hover effect doesn't apply when functionality is disabled */
+.upload-btn-wrapper input[type=file]:disabled + .file-upload-btn:hover {
+  background-color: transparent;
+  color: #6c757d;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Preview images - Keeping same */
 .preview-image {
   border: 1px solid #ddd;
   border-radius: 4px;
@@ -116,20 +188,23 @@
   margin: 5px 0;
 }
 
-/* Markdown styling with compact design */
+/* Markdown styling with compact design - Adding darker text */
 .message-content h1 {
   font-size: 1.4rem;
   margin: 0.5rem 0;
+  color: #212529; /* Dark text color */
 }
 
 .message-content h2 {
   font-size: 1.2rem;
   margin: 0.4rem 0;
+  color: #212529; /* Dark text color */
 }
 
 .message-content h3 {
   font-size: 1rem;
   margin: 0.3rem 0;
+  color: #212529; /* Dark text color */
 }
 
 .message-content table {
@@ -137,12 +212,14 @@
   margin: 8px 0;
   width: 100%;
   font-size: 0.9rem;
+  color: #212529; /* Dark text color */
 }
 
 .message-content th, 
 .message-content td {
   border: 1px solid #ddd;
   padding: 6px;
+  color: #212529; /* Dark text color */
 }
 
 .message-content th {
@@ -150,12 +227,13 @@
   text-align: left;
 }
 
-/* Add these styles for the analysis completion animation */
+/* Analysis completion animation - Keeping same */
 .analysis-complete-indicator {
   text-align: center;
   padding: 10px;
 }
 
+/* Keeping animations the same */
 .checkmark-circle {
   width: 50px;
   height: 50px;
@@ -206,7 +284,7 @@
   100% { opacity: 1; width: 15px; }
 }
 
-/* Add these styles for the typing indicator */
+/* Typing indicator - Keeping same */
 .typing-indicator {
   display: inline-flex;
   align-items: center;
@@ -249,7 +327,7 @@
   }
 }
 
-/* Message images improved styling */
+/* Message images styling - Keeping same */
 .message-image-container {
   position: relative;
   max-width: 100%;
@@ -273,20 +351,46 @@
   transform: scale(1.01);
 }
 
-/* Make user and AI message images align differently */
+/* Image alignment - Keeping same */
 .user-message .message-image-container {
   margin-left: auto;
   margin-right: 0;
-  max-width: 80%;
+  max-width: 100%;
+  text-align: right;
 }
 
 .ai-message .message-image-container {
   margin-right: auto;
   margin-left: 0;
-  max-width: 80%;
+  max-width: 100%;
+  text-align: left;
 }
 
-/* Responsive design for mobile devices */
+/* Fix image button alignment */
+.user-message .image-actions {
+  text-align: right;
+}
+
+.ai-message .image-actions {
+  text-align: left;
+}
+
+/* Fix content alignment */
+.message-content p {
+  margin-bottom: 0.5rem;
+  text-align: inherit;
+}
+
+/* Fix markdown content alignment in user messages */
+.user-message .message-content > * {
+  text-align: right;
+}
+
+.ai-message .message-content > * {
+  text-align: left;
+}
+
+/* Responsive design - Keeping same */
 @media (max-width: 768px) {
   .message-image {
     max-height: 200px;
@@ -298,225 +402,127 @@
   }
 }
 
-/* Card header with model info */
+/* Card header - Adding darker text */
 .card-header {
   border-bottom: 1px solid rgba(0,0,0,0.125);
 }
 
 .card-header .badge {
   font-size: 0.75rem;
+  color: #212529; /* Dark text color */
 }
 
-/* Analysis message styling */
+/* Analysis message styling - Adding darker text */
 .ai-message.analysis-message {
   background-color: #f8f9fa;
   border-left: 3px solid #17a2b8;
+  color: #212529; /* Dark text color */
 }
 
-/* Typing indicator */
-.typing-indicator {
-  display: inline-flex;
-  align-items: center;
-  padding: 6px 12px;
-  background: #e6e6e6;
-  border-radius: 15px;
-}
-
-.typing-indicator span {
-  height: 8px;
-  width: 8px;
-  background: #3b5998;
-  display: block;
-  border-radius: 50%;
-  opacity: 0.4;
-  margin: 0 2px;
-  animation: pulse 1.5s infinite ease-in-out;
-}
-
-.typing-indicator span:nth-child(1) {
-  animation-delay: 0s;
-}
-
-.typing-indicator span:nth-child(2) {
-  animation-delay: 0.2s;
-}
-
-.typing-indicator span:nth-child(3) {
-  animation-delay: 0.4s;
-}
-
-@keyframes pulse {
-  0%, 60%, 100% {
-    transform: scale(1);
-    opacity: 0.4;
-  }
-  30% {
-    transform: scale(1.5);
-    opacity: 0.6;
-  }
-}
-
-/* Update these styles for the non-collapsible analysis card */
-
+/* Analysis card styles - Updated with darker background */
 .analysis-card {
-  border: 1px solid #e0e0e0;
+  border: 1px solid #393e46;
   border-radius: 8px;
   overflow: hidden;
   margin-top: 8px;
-  background-color: #f9f9f9;
+  background-color: #2d3436; /* Darker background */
+  text-align: left;
 }
 
 .analysis-header {
   padding: 10px 15px;
-  background-color: #f0f0f0;
-  border-bottom: 1px solid #e0e0e0;
+  background-color: #222831; /* Darker background */
+  border-bottom: 1px solid #393e46;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  color: #eeeeee; /* Lighter text for dark background */
 }
 
 .analysis-header .model-info {
-  color: #6c757d;
+  color: #b2bec3; /* Lighter color to stand out on dark background */
   font-size: 0.85rem;
 }
 
 .analysis-content {
   padding: 15px;
-  background-color: #fff;
+  background-color: #2d3436; /* Darker background */
+  color: #eeeeee; /* Lighter text for dark background */
 }
 
-/* Style tables in markdown output */
+/* Tables in analysis - Updated with darker background */
 .analysis-content table {
   border-collapse: collapse;
   width: 100%;
   margin-bottom: 1rem;
   font-size: 0.9rem;
+  color: #eeeeee; /* Lighter text for dark background */
 }
 
 .analysis-content th,
 .analysis-content td {
-  border: 1px solid #dee2e6;
+  border: 1px solid #393e46;
   padding: 8px;
+  color: #eeeeee; /* Lighter text for dark background */
 }
 
 .analysis-content th {
-  background-color: #f8f9fa;
+  background-color: #222831; /* Darker background */
+  text-align: left;
 }
 
-/* Style headers in analysis */
-.analysis-content h1 {
-  font-size: 1.5rem;
-  margin-top: 0;
-}
-
-.analysis-content h2 {
-  font-size: 1.25rem;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 5px;
-  margin-top: 20px;
-}
-
-.analysis-content h3 {
-  font-size: 1.1rem;
-}
-
-/* Style lists */
-.analysis-content ul,
-.analysis-content ol {
-  padding-left: 20px;
-}
-
-/* Add these styles to improve readability of specific sections */
-
+/* Specific sections - Adding darker text */
 .analysis-content section {
   margin-bottom: 15px;
+  color: #212529; /* Dark text color */
 }
 
 .analysis-content .report-summary {
-  background-color: #f8f9fa;
+  background-color: #2c3e50; /* Darker background */
   padding: 10px;
   border-left: 3px solid #17a2b8;
   margin-bottom: 15px;
+  color: #eeeeee; /* Lighter text for dark background */
 }
 
 .analysis-content .abnormal-values {
-  background-color: #fff8f8;
+  background-color: #482c3d; /* Darker red background */
   padding: 10px;
   border-left: 3px solid #dc3545;
   margin-bottom: 15px;
+  color: #eeeeee; /* Lighter text for dark background */
 }
 
 .analysis-content .recommendations {
-  background-color: #f0fff4;
+  background-color: #2c4a3d; /* Darker green background */
   padding: 10px;
   border-left: 3px solid #28a745;
   margin-bottom: 15px;
+  color: #eeeeee; /* Lighter text for dark background */
 }
 
-/* Improve overall message styling */
-.ai-message.analysis-message {
-  background-color: #f8f9fa;
-  border-left: 3px solid #17a2b8;
-}
-
-/* Make sure the analysis message takes proper width */
-.ai-message.analysis-message .message-content {
-  width: 100%;
-}
-
-/* Add these styles for the image viewer modal */
-
+/* Image viewer modal - Updated with darker background */
 .image-viewer-modal .modal-content {
-  background-color: #f8f9fa;
+  background-color: #2d3436; /* Darker background */
   border: none;
   border-radius: 8px;
   overflow: hidden;
 }
 
 .image-viewer-modal .modal-header {
-  background-color: #17a2b8;
+  background-color: #222831; /* Darker background */
   color: white;
   padding: 10px 15px;
   border-bottom: none;
 }
 
-.image-viewer-modal .modal-title {
-  font-size: 1.2rem;
-}
-
-/* Add these styles for the zoom functionality */
-
-.zoom-level {
-  color: white;
-  font-size: 0.9rem;
-  font-weight: bold;
-}
-
-.image-viewer-container {
-  background-color: #222;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  max-height: 80vh;
-  overflow: hidden;
-  position: relative;
-  user-select: none;
-}
-
-.full-size-image {
-  max-height: 80vh;
-  max-width: 100%;
-  object-fit: contain;
-  transform-origin: center;
-}
-
 .image-viewer-modal .modal-footer {
   border-top: none;
   padding: 10px 15px;
-  background-color: #f8f9fa;
+  background-color: #222831; /* Darker background */
 }
 
-/* Add zoom functionality on hover */
+/* Hover functionality - Keeping same */
 .image-viewer-container:hover .full-size-image {
   cursor: zoom-in;
 }

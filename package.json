@@ -34,6 +34,7 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-markdown": "^10.1.0",
+    "sharp": "^0.34.2",
     "stripe": "^18.1.0"
   },
   "devDependencies": {

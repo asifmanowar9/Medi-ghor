@@ -195,12 +195,22 @@ const analyzeImage = asyncHandler(async (req, res) => {
       } catch (geminiError) {
         console.error('Gemini API analysis failed:', geminiError);
 
-        // If both OCR.Space and Gemini fail, return a user-friendly error
-        res.status(500).json({
-          success: false,
-          message: 'Analysis failed with both OCR and AI services',
-          error:
-            'Unable to analyze the provided image. Please try again with a clearer image.',
+        // If both services fail, return a more helpful error message to the user
+        // along with a fallback analysis based on image attributes
+        const imageStats = await getImageStats(imagePath);
+        const fallbackAnalysis = generateFallbackAnalysis(
+          imageStats,
+          req.file.originalname
+        );
+
+        return res.json({
+          success: true, // Return success so client can display the fallback
+          message:
+            'Image analysis services unavailable, providing basic analysis',
+          analysis: fallbackAnalysis,
+          imageUrl: imageUrl,
+          model: 'fallback',
+          confidence: 40, // Low confidence for fallback
         });
       }
     }

@@ -7,8 +7,10 @@ import {
   analyzeImage,
 } from '../controllers/chatController.js';
 import { protect } from '../middleWare/authMiddleware.js';
-import { upload } from '../middleWare/uploadMiddleware.js';
-import { uploadTestReport } from '../middleWare/testReportUploadMiddleware.js';
+import {
+  uploadTestReport,
+  compressImage,
+} from '../middleWare/testReportUploadMiddleware.js';
 
 const router = express.Router();
 
@@ -21,8 +23,14 @@ router.get('/test', (req, res) => {
 router.route('/').post(protect, createChat).get(protect, getUserChats);
 router.route('/:id').get(protect, getChatById);
 router.route('/:id/messages').post(protect, addMessageToChat);
-router
-  .route('/analyze')
-  .post(protect, uploadTestReport.single('image'), analyzeImage);
+
+// Add compression middleware between file upload and analysis
+router.post(
+  '/analyze',
+  protect,
+  uploadTestReport.single('image'),
+  compressImage,
+  analyzeImage
+);
 
 export default router;

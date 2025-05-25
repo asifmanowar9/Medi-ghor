@@ -75,11 +75,32 @@ const ChatScreen = () => {
   }, [dispatch, navigate, chatId, userInfo]);
 
   useEffect(() => {
-    // Scroll to bottom when messages change
-    if (messagesEndRef.current && chat.messages) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    // Scroll to bottom when messages change or when initially loading
+    if (messagesEndRef.current && !loading) {
+      // Add a slight delay to ensure all content is rendered before scrolling
+      setTimeout(() => {
+        messagesEndRef.current.scrollIntoView({
+          behavior: 'smooth',
+          block: 'end',
+        });
+      }, 300);
     }
-  }, [chat.messages]);
+  }, [chat.messages, loading]);
+
+  // Add a new useEffect to handle initial page load scroll
+  useEffect(() => {
+    // Force scroll to bottom on initial chat load
+    if (!loading && chat.messages && chat.messages.length > 0) {
+      setTimeout(() => {
+        if (messagesEndRef.current) {
+          messagesEndRef.current.scrollIntoView({
+            behavior: 'smooth',
+            block: 'end',
+          });
+        }
+      }, 500);
+    }
+  }, [chat, loading]);
 
   // Reset analysis progress when uploadingImage changes to false
   useEffect(() => {
@@ -257,10 +278,25 @@ const ChatScreen = () => {
         setUploadingImage(false);
       })
       .finally(() => {
+        // Only reset the uploading state after a longer delay
+        // to ensure all UI elements are properly displayed
         setTimeout(() => {
           setUploadingImage(false);
-        }, 1000);
+        }, 2000); // Increased from 1000ms to 2000ms
       });
+  };
+
+  // Add this helper function near the top of your component
+  const formatImageUrl = (url) => {
+    if (!url) return '';
+
+    // If it's already an absolute URL or starts with / (server path), use as is
+    if (url.startsWith('http') || url.startsWith('/')) {
+      return url;
+    }
+
+    // Otherwise, add the uploads prefix
+    return `/uploads/${url}`;
   };
 
   // Update the renderMessageContent function to use the modal
@@ -370,6 +406,14 @@ const ChatScreen = () => {
     const messageClass = isUser ? 'user-message' : 'ai-message';
     const isAnalysis = !isUser && message.isAnalysis;
 
+    // Check if the message has an image URL
+    const hasImage = message.imageUrl && message.imageUrl.trim() !== '';
+    // Check if the message has content
+    const hasContent =
+      message.content &&
+      message.content.trim() !== '' &&
+      message.content.trim() !== ' ';
+
     return (
       <ListGroup.Item
         className={
@@ -378,16 +422,16 @@ const ChatScreen = () => {
       >
         <strong>{isUser ? userInfo.name : 'AI Assistant'}</strong>
         <div className='message-content'>
-          {/* Display image if present */}
-          {message.imageUrl && (
+          {/* Always display image if present, regardless of content */}
+          {hasImage && (
             <div className='message-image-container mb-2'>
               <Image
-                src={message.imageUrl}
+                src={formatImageUrl(message.imageUrl)}
                 alt='Medical Report'
                 fluid
                 className='message-image'
                 onClick={() => {
-                  setModalImage(message.imageUrl);
+                  setModalImage(formatImageUrl(message.imageUrl));
                   setShowImageModal(true);
                 }}
               />
@@ -396,7 +440,7 @@ const ChatScreen = () => {
                   variant='link'
                   size='sm'
                   onClick={() => {
-                    setModalImage(message.imageUrl);
+                    setModalImage(formatImageUrl(message.imageUrl));
                     setShowImageModal(true);
                   }}
                   className='mt-1'
@@ -412,11 +456,13 @@ const ChatScreen = () => {
             // Use the updated non-collapsible analysis card
             <AnalysisResultCard content={message.content} />
           ) : (
-            // Display regular messages as usual
-            message.content &&
-            message.content.trim() !== ' ' && (
-              <ReactMarkdown>{null}</ReactMarkdown>
-            )
+            // Only render content if it exists and isn't just whitespace
+            hasContent && <ReactMarkdown>{message.content}</ReactMarkdown>
+          )}
+
+          {/* Show a placeholder if neither content nor image exists */}
+          {!hasContent && !hasImage && (
+            <em className='text-muted'>Empty message</em>
           )}
         </div>
       </ListGroup.Item>
@@ -729,7 +775,7 @@ const ChatScreen = () => {
                 <div className='upload-btn-wrapper'>
                   <Button
                     variant='outline-secondary'
-                    size='sm'
+                    size='bg-sm'
                     disabled={uploadingImage || loadingAddMessage}
                   >
                     <FaPaperclip />
@@ -744,7 +790,7 @@ const ChatScreen = () => {
                 <Button
                   type='submit'
                   variant='primary'
-                  size='sm'
+                  size='bg-sm'
                   disabled={
                     !message.trim() || uploadingImage || loadingAddMessage
                   }
