@@ -56,8 +56,10 @@ const ChatScreen = () => {
   const chatImageAnalyze = useSelector((state) => state.chatImageAnalyze) || {};
   const {
     loading: loadingAnalysis = false,
-    analysis = null,
-    imageUrl = null,
+    // eslint-disable-next-line no-unused-vars
+    _analysis = null,
+    // eslint-disable-next-line no-unused-vars
+    _imageUrl = null,
   } = chatImageAnalyze;
 
   // Get AI response waiting state

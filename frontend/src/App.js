@@ -1,5 +1,12 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  createBrowserRouter,
+  createRoutesFromElements,
+  RouterProvider,
+} from 'react-router-dom';
 import { Container } from 'react-bootstrap';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -21,57 +28,105 @@ import OrderListScreen from './screens/OrderListScreen';
 import ChatListScreen from './screens/ChatListScreen';
 import ChatScreen from './screens/ChatScreen';
 
+// Current approach (with warnings)
+// const App = () => {
+//   return (
+//     <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+//       <Header />
+//       <main className='py-3'>
+//         <Container>
+//           <Routes>
+//             <Route path='/order/:id' element={<OrderScreen />} />
+//             <Route path='/placeorder' element={<PlaceOrderScreen />} />
+//             <Route path='/payment' element={<PaymentScreen />} />
+//             <Route path='/shipping' element={<ShippingScreen />} />
+//             <Route path='/profile' element={<ProfileScreen />} />
+//             <Route path='/register' element={<RegisterScreen />} />
+//             <Route path='/login' element={<LoginScreen />} />
+//             <Route path='/product/:id' element={<ProductScreen />} />
+//             <Route path='/cart' element={<CartScreen />} />
+//             <Route path='/cart/:id' element={<CartScreen />} />
+//             <Route path='/admin/userlist' element={<UserListScreen />} />
+//             <Route
+//               path='/admin/user/:userId/edit'
+//               element={<UserEditScreen />}
+//             />
+//             <Route path='/admin/productlist' element={<ProductListScreen />} />
+//             <Route
+//               path='/admin/productlist/:pageNumber'
+//               element={<ProductListScreen />}
+//             />
+//             <Route
+//               path='/admin/productlist/:keyword/page/:pageNumber'
+//               element={<ProductListScreen />}
+//             />
+//             <Route
+//               path='/admin/product/:productId/edit'
+//               element={<ProductEditScreen />}
+//             />
+//             <Route path='/admin/orderlist' element={<OrderListScreen />} />
+//             <Route path='/search/:keyword' element={<HomeScreen />} />
+//             <Route path='/page/:pageNumber' element={<HomeScreen />} />
+//             <Route
+//               path='/search/:keyword/page/:pageNumber'
+//               element={<HomeScreen />}
+//             />
+//             <Route path='/chats' element={<ChatListScreen />} />
+//             <Route path='/chat/:id' element={<ChatScreen />} />
+//             <Route path='/' element={<HomeScreen />} />
+//           </Routes>
+//         </Container>
+//       </main>
+//       <Footer />
+//     </Router>
+//   );
+// };
+
+// OR use the new createBrowserRouter API (recommended long-term solution)
+const router = createBrowserRouter(
+  createRoutesFromElements(
+    <>
+      <Route path='/order/:id' element={<OrderScreen />} />
+      <Route path='/placeorder' element={<PlaceOrderScreen />} />
+      <Route path='/payment' element={<PaymentScreen />} />
+      <Route path='/shipping' element={<ShippingScreen />} />
+      <Route path='/profile' element={<ProfileScreen />} />
+      <Route path='/register' element={<RegisterScreen />} />
+      <Route path='/login' element={<LoginScreen />} />
+      <Route path='/product/:id' element={<ProductScreen />} />
+      <Route path='/cart' element={<CartScreen />} />
+      <Route path='/cart/:id' element={<CartScreen />} />
+      <Route path='/admin/userlist' element={<UserListScreen />} />
+      <Route path='/admin/user/:userId/edit' element={<UserEditScreen />} />
+      <Route path='/admin/productlist' element={<ProductListScreen />} />
+      <Route
+        path='/admin/productlist/:pageNumber'
+        element={<ProductListScreen />}
+      />
+      <Route
+        path='/admin/productlist/:keyword/page/:pageNumber'
+        element={<ProductListScreen />}
+      />
+      <Route
+        path='/admin/product/:productId/edit'
+        element={<ProductEditScreen />}
+      />
+      <Route path='/admin/orderlist' element={<OrderListScreen />} />
+      <Route path='/search/:keyword' element={<HomeScreen />} />
+      <Route path='/page/:pageNumber' element={<HomeScreen />} />
+      <Route
+        path='/search/:keyword/page/:pageNumber'
+        element={<HomeScreen />}
+      />
+      <Route path='/chats' element={<ChatListScreen />} />
+      <Route path='/chat/:id' element={<ChatScreen />} />
+      <Route path='/' element={<HomeScreen />} />
+    </>
+  )
+);
+
 const App = () => {
-  return (
-    <Router>
-      <Header />
-      <main className='py-3'>
-        <Container>
-          <Routes>
-            <Route path='/order/:id' element={<OrderScreen />} />
-            <Route path='/placeorder' element={<PlaceOrderScreen />} />
-            <Route path='/payment' element={<PaymentScreen />} />
-            <Route path='/shipping' element={<ShippingScreen />} />
-            <Route path='/profile' element={<ProfileScreen />} />
-            <Route path='/register' element={<RegisterScreen />} />
-            <Route path='/login' element={<LoginScreen />} />
-            <Route path='/product/:id' element={<ProductScreen />} />
-            <Route path='/cart' element={<CartScreen />} />
-            <Route path='/cart/:id' element={<CartScreen />} />
-            <Route path='/admin/userlist' element={<UserListScreen />} />
-            <Route
-              path='/admin/user/:userId/edit'
-              element={<UserEditScreen />}
-            />
-            <Route path='/admin/productlist' element={<ProductListScreen />} />
-            <Route
-              path='/admin/productlist/:pageNumber'
-              element={<ProductListScreen />}
-            />
-            <Route
-              path='/admin/productlist/:keyword/page/:pageNumber'
-              element={<ProductListScreen />}
-            />
-            <Route
-              path='/admin/product/:productId/edit'
-              element={<ProductEditScreen />}
-            />
-            <Route path='/admin/orderlist' element={<OrderListScreen />} />
-            <Route path='/search/:keyword' element={<HomeScreen />} />
-            <Route path='/page/:pageNumber' element={<HomeScreen />} />
-            <Route
-              path='/search/:keyword/page/:pageNumber'
-              element={<HomeScreen />}
-            />
-            <Route path='/chats' element={<ChatListScreen />} />
-            <Route path='/chat/:id' element={<ChatScreen />} />
-            <Route path='/' element={<HomeScreen />} />
-          </Routes>
-        </Container>
-      </main>
-      <Footer />
-    </Router>
-  );
+  return <RouterProvider router={router} />;
 };
 
 export default App;
