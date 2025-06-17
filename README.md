@@ -26,22 +26,17 @@ Medi-ghor is a comprehensive e-pharmacy solution that allows users to browse, pu
 
 ## Installation
 
-1. Clone the repository:
+1. Clone the repository: git clone https://github.com/asifmanowar9/Medi-ghor.git
 
-git clone https://github.com/asifmanowar9/Medi-ghor.git
+2. Install dependencies: cd Medi-ghor npm install
 
-2. Install dependencies:
-cd Medi-ghor npm install
-
-3. Start the development server:
-npm start
-
+3. Start the development server: npm start
 
 4. Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
 ## Screenshots
 
-(Add screenshots here)
+(screenshots will be added here)
 
 ## Future Enhancements
 
@@ -50,10 +45,6 @@ npm start
 - Product recommendations
 - Mobile applications for iOS and Android
 - Subscription service for regular medication
-
-## License
-
-[MIT](https://choosealicense.com/licenses/mit/)
 
 ## Contact
 
