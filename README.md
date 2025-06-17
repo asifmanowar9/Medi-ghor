@@ -1,106 +1,62 @@
 # Medi-ghor
 
-An e-commerce platform with medical test report analysis capabilities powered by AI.
-
-![Medi-ghor Screenshot](screenshot.png)
+An online medicine shopping platform built with React.js and MongoDB.
 
 ## Overview
 
-Medi-ghor is a full-stack MERN application that combines e-commerce functionality for medical products with advanced AI-powered medical test report analysis. The platform allows users to:
-
-- Browse and purchase medical products
-- Upload medical test reports for AI analysis
-- Chat with an AI assistant about health concerns
-- Manage their orders and profile
-
-For administrators, the platform provides:
-
-- Product management (create, update, delete)
-- User management
-- Order management
-- Access to analytics
-
-## Tech Stack
-
-### Frontend
-
-- React.js
-- Redux for state management
-- React Bootstrap for UI components
-- React Router for navigation
-- Axios for API requests
-
-### Backend
-
-- Node.js
-- Express.js
-- MongoDB with Mongoose
-- JWT for authentication
-
-### AI Features
-
-- Google Gemini AI integration for medical report analysis
-- OCR.Space API for text extraction from images
-- Custom medical data processing pipeline
+Medi-ghor is a comprehensive e-pharmacy solution that allows users to browse, purchase, and order pharmaceutical products online. The platform aims to make healthcare products more accessible while providing a seamless shopping experience.
 
 ## Features
 
-### E-Commerce
+- **User Authentication**: Secure signup and login functionality
+- **Product Catalog**: Browse medications by categories
+- **Search**: Find products quickly using the search feature
+- **Shopping Cart**: Add items to cart and manage quantities
+- **Checkout Process**: Simple and secure ordering system
+- **Order History**: Track past orders and their status
+- **Responsive Design**: Optimized experience across desktop and mobile devices
 
-- Product catalog with search and pagination
-- Product details with reviews
-- Shopping cart functionality
-- Secure checkout process
-- Order history and tracking
+## Technology Stack
 
-### Medical Test Analysis
-
-- Upload test reports as images
-- AI-powered OCR to extract data from reports
-- Detailed analysis of medical test values
-- Identification of abnormal values
-- Medical recommendations based on results
-
-### Chat Interface
-
-- Real-time chat with AI assistant
-- Medical image analysis within chat
-- Collapsible analysis results
-- Support for different AI models (Gemini, OCR.Space)
-- Confidence indicators for analysis results
-
-### User Management
-
-- User registration and authentication
-- Profile management
-- Order history
-- Address management
-
-### Admin Dashboard
-
-- Product management (CRUD operations)
-- User management
-- Order management
-- Sales analytics
+- **Frontend**: React.js, CSS
+- **Backend**: Node.js, Express.js
+- **Database**: MongoDB
+- **State Management**: React Context API
+- **Routing**: React Router
 
 ## Installation
 
-### Prerequisites
-
-- Node.js (v14+)
-- MongoDB
-- npm or yarn
-
-### Setup
-
 1. Clone the repository:
 
-```bash
-git clone https://github.com/yourusername/medi-ghor.git
-cd medi-ghor
+git clone https://github.com/asifmanowar9/Medi-ghor.git
 
-npm install
-cd frontend
-npm install
-cd ..
-```
+2. Install dependencies:
+cd Medi-ghor npm install
+
+3. Start the development server:
+npm start
+
+
+4. Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+
+## Screenshots
+
+(Add screenshots here)
+
+## Future Enhancements
+
+- Prescription management system
+- Advanced search with filtering options
+- Product recommendations
+- Mobile applications for iOS and Android
+- Subscription service for regular medication
+
+## License
+
+[MIT](https://choosealicense.com/licenses/mit/)
+
+## Contact
+
+Asif Manowar - [GitHub](https://github.com/asifmanowar9)
+
+Project Link: [https://github.com/asifmanowar9/Medi-ghor](https://github.com/asifmanowar9/Medi-ghor)
