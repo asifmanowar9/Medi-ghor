@@ -1,4 +1,4 @@
 === Path-to-RegExp Debug ===
-Attempting to patch: d:\Medi-ghor\node_modules\path-to-regexp\dist\index.js
+Attempting to patch: D:\Medi-ghor\node_modules\path-to-regexp\dist\index.js
 File found, patching...
 Successfully patched file

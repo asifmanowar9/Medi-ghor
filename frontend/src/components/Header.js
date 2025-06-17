@@ -27,12 +27,19 @@ const Header = () => {
             <SearchBox />
 
             <Nav className='ms-auto'>
-              {/* Always show Test Reports link, but redirect to login if not logged in */}
+              {/* FIX: Properly separate pathname and search params */}
               <LinkContainer
-                to={userInfo ? '/chats' : '/login?redirect=/chats'}
+                to={
+                  userInfo
+                    ? '/chats'
+                    : {
+                        pathname: '/login',
+                        search: '?redirect=/chats',
+                      }
+                }
               >
                 <Nav.Link>
-                  <i className='fas fa-file-medical-alt'></i> Ai Test Reports
+                  <i className='fas fa-file-medical-alt'></i> AI Test Reports
                   Analysis
                 </Nav.Link>
               </LinkContainer>
@@ -55,11 +62,10 @@ const Header = () => {
               ) : (
                 <LinkContainer to='/login'>
                   <Nav.Link>
-                    <i className='fas fa-user'></i>Sign In
+                    <i className='fas fa-user'></i> Sign In
                   </Nav.Link>
                 </LinkContainer>
               )}
-
               {userInfo && userInfo.isAdmin && (
                 <NavDropdown title='Admin' id='adminmenu'>
                   <LinkContainer to='/admin/userlist'>

@@ -1,5 +1,13 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import dotenv from 'dotenv';
+// Add this import at the top with more complete fetch API components
+import fetch, { Headers, Request, Response } from 'node-fetch';
+
+// Make all fetch API components globally available
+globalThis.fetch = fetch;
+globalThis.Headers = Headers;
+globalThis.Request = Request;
+globalThis.Response = Response;
 
 // Ensure environment variables are loaded
 dotenv.config();

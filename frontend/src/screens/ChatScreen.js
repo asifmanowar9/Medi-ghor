@@ -634,7 +634,7 @@ const ChatScreen = () => {
             )}
           </Card.Header>
 
-          <div className='messages-container'>
+          <div className='messages-container' id='messages-container'>
             {loading ? (
               <div className='text-center p-4'>
                 <Spinner animation='border' />
