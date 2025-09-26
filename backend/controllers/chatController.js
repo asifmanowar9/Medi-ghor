@@ -123,46 +123,52 @@ const addMessageToChat = asyncHandler(async (req, res) => {
   }
 });
 
-// Update the analyzeImage controller with better error handling
+// Update the analyzeImage function to properly handle uploaded files
 
-const analyzeImage = asyncHandler(async (req, res) => {
-  if (!req.file) {
-    res.status(400);
-    throw new Error('No image uploaded');
-  }
-
+const analyzeImage = async (req, res) => {
   try {
-    const imagePath = req.file.path;
-    const imageUrl = `/uploads/test-report-images/${path.basename(
-      req.file.path
-    )}`;
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'No image file provided',
+      });
+    }
+
+    const chatId = req.query.chatId;
+    if (!chatId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Chat ID is required',
+      });
+    }
+
     console.log(
-      `Processing image: ${req.file.originalname}, path: ${imagePath}`
+      `Processing image: ${req.file.originalname}, path: ${req.file.path}`
     );
 
-    // Update the last user message to include the image URL
-    try {
-      // Find the chat containing the last message about the upload
-      const chatId = req.query.chatId;
-      if (!chatId) {
-        console.warn('No chatId provided in query parameters');
-      } else {
-        const chat = await Chat.findById(chatId);
-        if (chat && chat.messages.length > 0) {
-          // Get the last message
-          const lastMessage = chat.messages[chat.messages.length - 1];
-          if (lastMessage.sender === 'user') {
-            // Update it to include the image URL
-            lastMessage.imageUrl = imageUrl;
-            await chat.save();
-            console.log('Updated message with image URL:', imageUrl);
-          }
-        }
-      }
-    } catch (err) {
-      console.error('Error updating message with image URL:', err);
-      // Continue with analysis even if this fails
+    // Create image URL path for storage in the database
+    const imageUrl = `/uploads/test-report-images/${req.file.filename}`;
+    const imagePath = req.file.path;
+
+    // Update the chat with the image URL
+    const chat = await Chat.findById(chatId);
+    if (!chat) {
+      return res.status(404).json({
+        success: false,
+        message: 'Chat not found',
+      });
     }
+
+    // Store the image URL in the chat
+    const userMessage = {
+      sender: 'user',
+      content: ' ', // Empty content for image-only message
+      imageUrl: imageUrl,
+    };
+
+    chat.messages.push(userMessage);
+    await chat.save();
+    console.log(`Updated message with image URL: ${imageUrl}`);
 
     // First try with OCR.Space
     try {
@@ -175,12 +181,12 @@ const analyzeImage = asyncHandler(async (req, res) => {
         analysis: result.analysis,
         imageUrl: imageUrl,
         model: 'ocr-space',
-        confidence: result.confidence,
+        confidence: result.confidence || 85,
       });
     } catch (ocrError) {
-      console.error('OCR.Space analysis failed:', ocrError);
+      console.error('OCR.Space API error:', ocrError);
 
-      // Fall back to Gemini API if OCR.Space fails
+      // Fall back to Gemini API
       try {
         console.log('Falling back to Gemini API...');
         const result = await analyzeTestReport(imagePath, req.file.mimetype);
@@ -195,8 +201,10 @@ const analyzeImage = asyncHandler(async (req, res) => {
       } catch (geminiError) {
         console.error('Gemini API analysis failed:', geminiError);
 
-        // If both services fail, return a more helpful error message to the user
-        // along with a fallback analysis based on image attributes
+        // Generate a simple fallback analysis
+        const { getImageStats, generateFallbackAnalysis } = await import(
+          '../utils/fallbackAnalysis.js'
+        );
         const imageStats = await getImageStats(imagePath);
         const fallbackAnalysis = generateFallbackAnalysis(
           imageStats,
@@ -204,25 +212,24 @@ const analyzeImage = asyncHandler(async (req, res) => {
         );
 
         return res.json({
-          success: true, // Return success so client can display the fallback
-          message:
-            'Image analysis services unavailable, providing basic analysis',
+          success: true,
+          message: 'Using fallback analysis due to service unavailability',
           analysis: fallbackAnalysis,
           imageUrl: imageUrl,
           model: 'fallback',
-          confidence: 40, // Low confidence for fallback
+          confidence: 40,
         });
       }
     }
   } catch (error) {
-    console.error('Error in analyzeImage controller:', error);
+    console.error('Error in analyzeImage:', error);
     res.status(500).json({
       success: false,
-      message: 'Analysis failed',
-      error: error.message || 'Unknown error',
+      message: 'Error analyzing image',
+      error: error.message,
     });
   }
-});
+};
 
 export {
   createChat,
