@@ -22,17 +22,29 @@ import {
   PRODUCT_TOP_REQUEST,
   PRODUCT_TOP_SUCCESS,
   PRODUCT_TOP_FAIL,
+  PRODUCT_FEATURED_REQUEST,
+  PRODUCT_FEATURED_SUCCESS,
+  PRODUCT_FEATURED_FAIL,
+  PRODUCT_FLASH_SALE_REQUEST,
+  PRODUCT_FLASH_SALE_SUCCESS,
+  PRODUCT_FLASH_SALE_FAIL,
+  PRODUCT_BEST_SELLERS_REQUEST,
+  PRODUCT_BEST_SELLERS_SUCCESS,
+  PRODUCT_BEST_SELLERS_FAIL,
 } from '../constants/productConstants';
 
 export const listProducts =
-  (keyword = '', pageNumber = '') =>
+  (keyword = '', pageNumber = '', category = '') =>
   async (dispatch) => {
     try {
       dispatch({ type: PRODUCT_LIST_REQUEST });
 
-      const { data } = await axios.get(
-        `/api/products?keyword=${keyword}&pageNumber=${pageNumber}`
-      );
+      let url = `/api/products?keyword=${keyword}&pageNumber=${pageNumber}`;
+      if (category) {
+        url += `&category=${category}`;
+      }
+
+      const { data } = await axios.get(url);
 
       dispatch({
         type: PRODUCT_LIST_SUCCESS,
@@ -227,3 +239,76 @@ export const listTopProducts = () => async (dispatch) => {
     });
   }
 };
+
+export const listFeaturedProducts =
+  (limit = 6) =>
+  async (dispatch) => {
+    try {
+      dispatch({ type: PRODUCT_FEATURED_REQUEST });
+
+      const { data } = await axios.get(`/api/products/featured?limit=${limit}`);
+
+      dispatch({
+        type: PRODUCT_FEATURED_SUCCESS,
+        payload: data,
+      });
+    } catch (error) {
+      dispatch({
+        type: PRODUCT_FEATURED_FAIL,
+        payload:
+          error.response && error.response.data.message
+            ? error.response.data.message
+            : error.message,
+      });
+    }
+  };
+
+export const listFlashSaleProducts =
+  (limit = 6) =>
+  async (dispatch) => {
+    try {
+      dispatch({ type: PRODUCT_FLASH_SALE_REQUEST });
+
+      const { data } = await axios.get(
+        `/api/products/flash-sale?limit=${limit}`
+      );
+
+      dispatch({
+        type: PRODUCT_FLASH_SALE_SUCCESS,
+        payload: data,
+      });
+    } catch (error) {
+      dispatch({
+        type: PRODUCT_FLASH_SALE_FAIL,
+        payload:
+          error.response && error.response.data.message
+            ? error.response.data.message
+            : error.message,
+      });
+    }
+  };
+
+export const listBestSellerProducts =
+  (limit = 6) =>
+  async (dispatch) => {
+    try {
+      dispatch({ type: PRODUCT_BEST_SELLERS_REQUEST });
+
+      const { data } = await axios.get(
+        `/api/products/best-sellers?limit=${limit}`
+      );
+
+      dispatch({
+        type: PRODUCT_BEST_SELLERS_SUCCESS,
+        payload: data,
+      });
+    } catch (error) {
+      dispatch({
+        type: PRODUCT_BEST_SELLERS_FAIL,
+        payload:
+          error.response && error.response.data.message
+            ? error.response.data.message
+            : error.message,
+      });
+    }
+  };

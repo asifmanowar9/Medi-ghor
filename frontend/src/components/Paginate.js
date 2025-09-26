@@ -3,7 +3,13 @@ import { Pagination } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import { useLocation } from 'react-router-dom';
 
-const Paginate = ({ pages, page, isAdmin = false, keyword = '' }) => {
+const Paginate = ({
+  pages,
+  page,
+  isAdmin = false,
+  keyword = '',
+  category = '',
+}) => {
   const location = useLocation();
 
   return (
@@ -17,6 +23,8 @@ const Paginate = ({ pages, page, isAdmin = false, keyword = '' }) => {
                 ? `/admin/productlist/${x + 1}`
                 : keyword
                 ? `/search/${keyword}/page/${x + 1}`
+                : category
+                ? `/category/${category}/page/${x + 1}`
                 : `/page/${x + 1}`
             }
           >

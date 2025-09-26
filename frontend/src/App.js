@@ -1,8 +1,9 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
-import Header from './components/Header';
+import ModernHeader from './components/ModernHeader';
 import Footer from './components/Footer';
+import './styles/main.css';
 import HomeScreen from './screens/HomeScreen';
 import ProductScreen from './screens/ProductScreen';
 import CartScreen from './screens/CartScreen';
@@ -24,9 +25,9 @@ import ChatScreen from './screens/ChatScreen';
 const App = () => {
   return (
     <Router>
-      <Header />
-      <main className='py-3'>
-        <Container>
+      <ModernHeader />
+      <main>
+        <div className='main-content'>
           <Routes>
             <Route path='/order/:id' element={<OrderScreen />} />
             <Route path='/placeorder' element={<PlaceOrderScreen />} />
@@ -65,9 +66,14 @@ const App = () => {
             />
             <Route path='/chats' element={<ChatListScreen />} />
             <Route path='/chat/:id' element={<ChatScreen />} />
+            <Route path='/category/:categoryName' element={<HomeScreen />} />
+            <Route
+              path='/category/:categoryName/page/:pageNumber'
+              element={<HomeScreen />}
+            />
             <Route path='/' element={<HomeScreen />} />
           </Routes>
-        </Container>
+        </div>
       </main>
       <Footer />
     </Router>

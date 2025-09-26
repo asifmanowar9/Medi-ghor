@@ -36,6 +36,10 @@ import {
   chatImageAnalyzeReducer,
   aiResponseWaitingReducer,
 } from './reducers/chatReducers';
+import { bannerListReducer } from './reducers/bannerReducers';
+import { categoryListReducer } from './reducers/categoryReducers';
+import { brandListReducer } from './reducers/brandReducers';
+import { healthConditionListReducer } from './reducers/healthConditionReducers';
 
 const reducer = combineReducers({
   productList: productListReducer,
@@ -65,6 +69,10 @@ const reducer = combineReducers({
   chatMessageAdd: chatMessageAddReducer,
   chatImageAnalyze: chatImageAnalyzeReducer,
   aiResponseWaiting: aiResponseWaitingReducer,
+  bannerList: bannerListReducer,
+  categoryList: categoryListReducer,
+  brandList: brandListReducer,
+  healthConditionList: healthConditionListReducer,
 });
 
 // const cartItemsFromStorage = localStorage.getItem('cartItems')

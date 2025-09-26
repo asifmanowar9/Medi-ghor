@@ -1,0 +1,68 @@
+const categories = [
+  {
+    name: 'Prescription Medicine',
+    icon: 'fas fa-prescription-bottle-alt',
+    color: '#2E86AB',
+    description: 'Doctor prescribed medicines',
+    productCount: 150,
+    isActive: true,
+  },
+  {
+    name: 'OTC Medicine',
+    icon: 'fas fa-pills',
+    color: '#A23B72',
+    description: 'Over the counter drugs',
+    productCount: 89,
+    isActive: true,
+  },
+  {
+    name: 'Health Supplements',
+    icon: 'fas fa-leaf',
+    color: '#F18F01',
+    description: 'Vitamins & supplements',
+    productCount: 67,
+    isActive: true,
+  },
+  {
+    name: 'Medical Devices',
+    icon: 'fas fa-stethoscope',
+    color: '#E74C3C',
+    description: 'Healthcare equipment',
+    productCount: 34,
+    isActive: true,
+  },
+  {
+    name: 'Personal Care',
+    icon: 'fas fa-soap',
+    color: '#9B59B6',
+    description: 'Daily care products',
+    productCount: 78,
+    isActive: true,
+  },
+  {
+    name: 'Baby Care',
+    icon: 'fas fa-baby',
+    color: '#3498DB',
+    description: 'Mother & baby products',
+    productCount: 45,
+    isActive: true,
+  },
+  {
+    name: 'Diabetes Care',
+    icon: 'fas fa-syringe',
+    color: '#E67E22',
+    description: 'Diabetes management',
+    productCount: 23,
+    isActive: true,
+  },
+  {
+    name: 'Heart Care',
+    icon: 'fas fa-heartbeat',
+    color: '#E91E63',
+    description: 'Cardiovascular health',
+    productCount: 31,
+    isActive: true,
+  },
+];
+
+export default categories;

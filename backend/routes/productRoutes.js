@@ -8,16 +8,25 @@ import {
   updateProduct,
   createProductReview,
   getTopProducts,
+  getFeaturedProducts,
+  getFlashSaleProducts,
+  getBestSellerProducts,
+  getProductsByCategory,
 } from '../controllers/productController.js';
 import { protect, admin } from '../middleWare/authMiddleware.js';
 
 // Recommended route order:
-router.route('/').get(getProducts); // Route to get all products
-router.route('/').post(protect, admin, createProduct); // Route to create a product
+router.route('/').get(getProducts).post(protect, admin, createProduct);
 router.route('/top').get(getTopProducts); // Route to get top rated products - this should come before /:id
-router.route('/:id').get(getProductById); // Route to get a single product by ID
-router.route('/:id').delete(protect, admin, deleteProduct); // Route to delete a product by ID
-router.route('/:id').put(protect, admin, updateProduct); // Route to update a product by ID
+router.route('/featured').get(getFeaturedProducts); // Route to get featured products
+router.route('/flash-sale').get(getFlashSaleProducts); // Route to get flash sale products
+router.route('/best-sellers').get(getBestSellerProducts); // Route to get best seller products
+router.route('/category/:categoryId').get(getProductsByCategory); // Route to get products by category
+router
+  .route('/:id')
+  .get(getProductById)
+  .delete(protect, admin, deleteProduct)
+  .put(protect, admin, updateProduct);
 router.route('/:id/reviews').post(protect, createProductReview); // Route to create a product review
 
 export default router;

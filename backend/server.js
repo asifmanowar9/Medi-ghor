@@ -15,6 +15,10 @@ import orderRoutes from './routes/orderRoutes.js';
 import stripeRoutes from './routes/stripeRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
+import bannerRoutes from './routes/bannerRoutes.js';
+import categoryRoutes from './routes/categoryRoutes.js';
+import brandRoutes from './routes/brandRoutes.js';
+import healthConditionRoutes from './routes/healthConditionRoutes.js';
 
 dotenv.config();
 
@@ -55,6 +59,10 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/stripe', stripeRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/chats', chatRoutes);
+app.use('/api/banners', bannerRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/brands', brandRoutes);
+app.use('/api/health-conditions', healthConditionRoutes);
 
 // Serve static files
 const __filename = fileURLToPath(import.meta.url);

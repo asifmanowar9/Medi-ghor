@@ -76,6 +76,20 @@ a:hover .product-title strong {
   margin-bottom: 0;
 }
 
+/* Price link styling */
+.product-card-body a {
+  text-decoration: none;
+}
+
+.product-card-body a h3 {
+  color: #000000; /* Keep price text black */
+  transition: color 0.2s ease;
+}
+
+.product-card-body a:hover h3 {
+  color: #007bff; /* Blue color on hover */
+}
+
 /* Add this style for the rating/reviews text */
 .product-card-body .rating-text {
   color: #2d3436; /* Darker text color for reviews */
