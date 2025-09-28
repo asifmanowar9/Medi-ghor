@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { Row, Col, ListGroup, Image, Card, Button } from 'react-bootstrap';
+import {
+  Row,
+  Col,
+  Image,
+  Card,
+  Button,
+  Badge,
+  Container,
+} from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 
 import Message from '../components/Message';
@@ -11,6 +19,7 @@ import {
   ORDER_DELIVER_RESET,
 } from '../constants/orderConstants';
 import StripeCheckoutModal from '../components/StripeCheckoutModal';
+import './OrderScreen.css';
 
 const OrderScreen = () => {
   const { id } = useParams();
@@ -18,7 +27,6 @@ const OrderScreen = () => {
   const dispatch = useDispatch();
   const [showPaymentModal, setShowPaymentModal] = useState(false);
 
-  // Keep these selectors
   const orderDetails = useSelector((state) => state.orderDetails);
   const { order, loading, error } = orderDetails;
 
@@ -47,175 +55,505 @@ const OrderScreen = () => {
     dispatch(deliverOrder(order));
   };
 
+  const getOrderStatus = () => {
+    if (order.isPaid && order.isDelivered) {
+      return {
+        status: 'Completed',
+        variant: 'success',
+        icon: 'fas fa-check-circle',
+      };
+    } else if (order.isPaid && !order.isDelivered) {
+      return { status: 'Processing', variant: 'warning', icon: 'fas fa-clock' };
+    } else {
+      return {
+        status: 'Pending Payment',
+        variant: 'danger',
+        icon: 'fas fa-exclamation-circle',
+      };
+    }
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
   if (loading) {
-    return <Loader />;
+    return (
+      <Container fluid className='py-4'>
+        <Loader />
+      </Container>
+    );
   }
 
   if (error) {
-    return <Message variant='danger'>{error}</Message>;
+    return (
+      <Container fluid className='py-4'>
+        <Message variant='danger'>{error}</Message>
+      </Container>
+    );
   }
 
-  // Ensure the order object has itemsPrice with a default value if missing
   const itemsPrice =
     order.itemsPrice ||
     order.orderItems
       .reduce((acc, item) => acc + item.price * item.qty, 0)
       .toFixed(2);
 
+  const orderStatus = getOrderStatus();
+
   return (
-    <>
-      <h1>Order {order._id}</h1>
-      <Row>
-        <Col md={8}>
-          <ListGroup variant='flush'>
-            {/* Shipping section */}
-            <ListGroup.Item>
-              <h2>Shipping</h2>
-              <p>
-                <strong>Name: </strong> {order.user.name}
-              </p>
-              <p>
-                <strong>Email: </strong>
-                <a href={`mailto:${order.user.email}`}>{order.user.email}</a>
-              </p>
-              <p>
-                <strong>Address: </strong>
-                {order.shippingAddress.address}, {order.shippingAddress.city}{' '}
-                {order.shippingAddress.postalCode},{' '}
-                {order.shippingAddress.country}
-              </p>
-              {order.isDelivered ? (
-                <Message variant='success'>
-                  Delivered on {new Date(order.deliveredAt).toLocaleString()}
-                </Message>
-              ) : (
-                <Message variant='danger'>Not Delivered</Message>
-              )}
-            </ListGroup.Item>
+    <Container fluid className='py-4'>
+      {/* Header Section */}
+      <div className='mb-4'>
+        <Row className='align-items-center mb-3'>
+          <Col>
+            <div className='d-flex align-items-center gap-3 mb-2'>
+              <Button
+                variant='outline-black'
+                size='sm'
+                onClick={() => navigate(-1)}
+                style={{
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                  color: '#000000ff',
+                }}
+              >
+                <i className='fas fa-arrow-left me-2'></i>
+                Back
+              </Button>
+              <h2 className='text-black mb-0'>Order #{order._id.slice(-8)}</h2>
+              <Badge
+                bg={orderStatus.variant}
+                className='d-flex align-items-center gap-1'
+                style={{
+                  fontSize: '0.85rem',
+                  padding: '0.5rem 1rem',
+                }}
+              >
+                <i className={orderStatus.icon}></i>
+                {orderStatus.status}
+              </Badge>
+            </div>
+            <p className='text-muted mb-0'>
+              <i className='fas fa-calendar me-2'></i>
+              Placed on {formatDate(order.createdAt)}
+            </p>
+          </Col>
+        </Row>
+      </div>
 
-            {/* Payment method section */}
-            <ListGroup.Item>
-              <h2>Payment Method</h2>
-              <p>
-                <strong>Method: </strong>
-                {order.paymentMethod}
-              </p>
-              {order.isPaid ? (
-                <Message variant='success'>
-                  Paid on {new Date(order.paidAt).toLocaleString()}
-                </Message>
-              ) : (
-                <Message variant='danger'>Not Paid</Message>
-              )}
-            </ListGroup.Item>
+      <Row className='g-4'>
+        {/* Left Column - Order Details */}
+        <Col lg={8}>
+          {/* Customer & Shipping Information */}
+          <Card
+            className='order-card mb-4'
+            style={{
+              background: 'rgba(255, 255, 255, 0.05)',
+              backdropFilter: 'blur(15px)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '15px',
+            }}
+          >
+            <Card.Body>
+              <h5 className='text-black mb-3'>
+                <i className='fas fa-shipping-fast me-2'></i>
+                Shipping Information
+              </h5>
+              <Row className='g-3'>
+                <Col md={6}>
+                  <div className='info-section'>
+                    <h6 style={{ color: '#000000' }}>
+                      <i className='fas fa-user me-2'></i>
+                      Customer Details
+                    </h6>
+                    <p className='mb-1' style={{ color: '#000000' }}>
+                      <strong>Name:</strong> {order.user?.name || 'N/A'}
+                    </p>
+                    <p className='mb-0' style={{ color: '#000000' }}>
+                      <strong>Email:</strong>{' '}
+                      <a
+                        href={`mailto:${order.user?.email}`}
+                        style={{ color: '#17a2b8', textDecoration: 'none' }}
+                      >
+                        {order.user?.email || 'N/A'}
+                      </a>
+                    </p>
+                  </div>
+                </Col>
+                <Col md={6}>
+                  <div className='info-section'>
+                    <h6 style={{ color: '#000000' }}>
+                      <i className='fas fa-map-marker-alt me-2'></i>
+                      Delivery Address
+                    </h6>
+                    <p className='mb-0' style={{ color: '#000000' }}>
+                      {order.shippingAddress?.address}
+                      <br />
+                      {order.shippingAddress?.city}{' '}
+                      {order.shippingAddress?.postalCode}
+                      <br />
+                      {order.shippingAddress?.district},{' '}
+                      {order.shippingAddress?.country}
+                    </p>
+                  </div>
+                </Col>
+              </Row>
 
-            {/* Order items section */}
-            <ListGroup.Item>
-              <h2>Order Items</h2>
-              {order.orderItems.length === 0 ? (
-                <Message>Order is empty</Message>
+              {/* Delivery Status */}
+              <div className='mt-3'>
+                <div
+                  className='p-3 rounded'
+                  style={{
+                    background: order.isDelivered
+                      ? 'rgba(40, 167, 69, 0.2)'
+                      : 'rgba(255, 193, 7, 0.2)',
+                    border: `2px solid ${
+                      order.isDelivered ? '#28a745' : '#ffc107'
+                    }`,
+                  }}
+                >
+                  <div className='d-flex align-items-center'>
+                    <i
+                      className={`fas ${
+                        order.isDelivered ? 'fa-check-circle' : 'fa-clock'
+                      } ${
+                        order.isDelivered ? 'text-success' : 'text-warning'
+                      } me-3`}
+                      style={{ fontSize: '1.5rem' }}
+                    ></i>
+                    <div>
+                      <h6
+                        className='mb-1'
+                        style={{
+                          color: order.isDelivered ? '#28a745' : '#856404',
+                          fontWeight: '600',
+                        }}
+                      >
+                        {order.isDelivered ? 'Delivered' : 'Pending Delivery'}
+                      </h6>
+                      <small className='text-muted'>
+                        {order.isDelivered
+                          ? `Delivered on ${formatDate(order.deliveredAt)}`
+                          : 'Your order will be delivered soon'}
+                      </small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Card.Body>
+          </Card>
+
+          {/* Payment Information */}
+          <Card
+            className='order-card mb-4'
+            style={{
+              background: 'rgba(255, 255, 255, 0.05)',
+              backdropFilter: 'blur(15px)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '15px',
+            }}
+          >
+            <Card.Body>
+              <h5 className='text-black mb-3'>
+                <i className='fas fa-credit-card me-2'></i>
+                Payment Information
+              </h5>
+              <Row>
+                <Col md={6}>
+                  <p className='mb-2' style={{ color: '#000000' }}>
+                    <strong>Payment Method:</strong>{' '}
+                    {order.paymentMethod || 'Not specified'}
+                  </p>
+                </Col>
+              </Row>
+
+              {/* Payment Status */}
+              <div
+                className='p-3 rounded'
+                style={{
+                  background: order.isPaid
+                    ? 'rgba(40, 167, 69, 0.2)'
+                    : 'rgba(220, 53, 69, 0.2)',
+                  border: `2px solid ${order.isPaid ? '#28a745' : '#dc3545'}`,
+                }}
+              >
+                <div className='d-flex align-items-center'>
+                  <i
+                    className={`fas ${
+                      order.isPaid ? 'fa-check-circle' : 'fa-times-circle'
+                    } ${order.isPaid ? 'text-success' : 'text-danger'} me-3`}
+                    style={{ fontSize: '1.5rem' }}
+                  ></i>
+                  <div>
+                    <h6
+                      className='mb-1'
+                      style={{
+                        color: order.isPaid ? '#28a745' : '#dc3545',
+                        fontWeight: '600',
+                      }}
+                    >
+                      {order.isPaid ? 'Payment Confirmed' : 'Payment Pending'}
+                    </h6>
+                    <small className='text-muted'>
+                      {order.isPaid
+                        ? `Paid on ${formatDate(order.paidAt)}`
+                        : 'Payment is required to process your order'}
+                    </small>
+                  </div>
+                </div>
+              </div>
+            </Card.Body>
+          </Card>
+
+          {/* Order Items */}
+          <Card
+            className='order-card'
+            style={{
+              background: 'rgba(255, 255, 255, 0.05)',
+              backdropFilter: 'blur(15px)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '15px',
+            }}
+          >
+            <Card.Body>
+              <h5 className='text-black mb-3'>
+                <i className='fas fa-pills me-2'></i>
+                Order Items ({order.orderItems?.length || 0})
+              </h5>
+              {order.orderItems?.length === 0 ? (
+                <div className='text-center py-4'>
+                  <i
+                    className='fas fa-box-open text-muted mb-3'
+                    style={{ fontSize: '3rem' }}
+                  ></i>
+                  <h6 className='text-white'>No items in this order</h6>
+                </div>
               ) : (
-                <ListGroup variant='flush'>
+                <div className='order-items-list'>
                   {order.orderItems.map((item, index) => (
-                    <ListGroup.Item key={index}>
-                      <Row>
-                        <Col md={1}>
-                          <Image
-                            src={
-                              item.image.startsWith('http')
-                                ? item.image
-                                : item.image.startsWith('/uploads')
-                                ? item.image
-                                : item.image.startsWith('/images')
-                                ? item.image
-                                : `/uploads/${item.image}`
-                            }
-                            alt={item.name}
-                            fluid
-                            rounded
-                          />
+                    <div
+                      key={index}
+                      className='order-item-card'
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.05)',
+                        borderRadius: '12px',
+                        padding: '1rem',
+                        marginBottom: '1rem',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        transition: 'all 0.3s ease',
+                      }}
+                    >
+                      <Row className='align-items-center'>
+                        <Col xs={3} md={2}>
+                          <div className='product-image-container'>
+                            <Image
+                              src={
+                                item.image?.startsWith('http')
+                                  ? item.image
+                                  : item.image?.startsWith('/uploads')
+                                  ? item.image
+                                  : item.image?.startsWith('/images')
+                                  ? item.image
+                                  : `/uploads/${item.image}`
+                              }
+                              alt={item.name}
+                              className='product-image'
+                              style={{
+                                width: '60px',
+                                height: '60px',
+                                objectFit: 'cover',
+                                borderRadius: '8px',
+                              }}
+                            />
+                          </div>
                         </Col>
-                        <Col>
-                          <Link to={`/product/${item.product}`}>
-                            {item.name}
-                          </Link>
+                        <Col xs={9} md={6}>
+                          <div>
+                            <Link
+                              to={`/product/${item.product}`}
+                              style={{
+                                color: '#000000',
+                                textDecoration: 'none',
+                                fontWeight: '600',
+                                fontSize: '1rem',
+                              }}
+                              className='product-name-link'
+                            >
+                              {item.name}
+                            </Link>
+                            <div className='mt-1'>
+                              <small className='text-muted'>
+                                <i className='fas fa-tag me-1'></i>
+                                Unit Price: ৳
+                                {parseFloat(item.price).toLocaleString()}
+                              </small>
+                            </div>
+                          </div>
                         </Col>
-                        <Col md={4}>
-                          {item.qty} x BDT{item.price} = BDT
-                          {(item.qty * item.price).toFixed(2)}
+                        <Col xs={12} md={4}>
+                          <div className='text-md-end mt-2 mt-md-0'>
+                            <div style={{ color: '#000000' }}>
+                              <strong>
+                                {item.qty} × ৳
+                                {parseFloat(item.price).toLocaleString()} =
+                                <span
+                                  style={{
+                                    color: '#28a745',
+                                    fontSize: '1.1rem',
+                                  }}
+                                >
+                                  ৳{(item.qty * item.price).toLocaleString()}
+                                </span>
+                              </strong>
+                            </div>
+                            <small className='text-muted'>
+                              Quantity: {item.qty}
+                            </small>
+                          </div>
                         </Col>
                       </Row>
-                    </ListGroup.Item>
+                    </div>
                   ))}
-                </ListGroup>
+                </div>
               )}
-            </ListGroup.Item>
-          </ListGroup>
+            </Card.Body>
+          </Card>
         </Col>
-        <Col md={4}>
-          <Card>
-            <ListGroup variant='flush'>
-              <ListGroup.Item>
-                <h2>Order Summary</h2>
-              </ListGroup.Item>
-              <ListGroup.Item>
-                <Row>
-                  <Col>Items</Col>
-                  <Col>BDT{itemsPrice}</Col>
-                </Row>
-              </ListGroup.Item>
-              <ListGroup.Item>
-                <Row>
-                  <Col>Shipping</Col>
-                  <Col>BDT{order.shippingPrice}</Col>
-                </Row>
-              </ListGroup.Item>
-              <ListGroup.Item>
-                <Row>
-                  <Col>Tax</Col>
-                  <Col>BDT{order.taxPrice}</Col>
-                </Row>
-              </ListGroup.Item>
-              <ListGroup.Item>
-                <Row>
-                  <Col>Total</Col>
-                  <Col>BDT{order.totalPrice}</Col>
-                </Row>
-              </ListGroup.Item>
 
-              {/* Replace the inline Stripe component with a button to show the modal */}
+        {/* Right Column - Order Summary */}
+        <Col lg={4}>
+          <Card
+            className='order-summary-card'
+            style={{
+              background: 'linear-gradient(135deg, #2c3e50, #34495e)',
+              backdropFilter: 'blur(15px)',
+              border: '2px solid #3498db',
+              borderRadius: '15px',
+            }}
+          >
+            <Card.Body>
+              <h5 style={{ color: '#000000', marginBottom: '1.5rem' }}>
+                <i className='fas fa-calculator me-2'></i>
+                Order Summary
+              </h5>
+
+              {/* Price Breakdown */}
+              <div className='price-breakdown mb-4'>
+                <div className='d-flex justify-content-between mb-2'>
+                  <span style={{ color: '#000000' }}>Items Subtotal:</span>
+                  <span style={{ color: '#000000', fontWeight: '500' }}>
+                    ৳{parseFloat(itemsPrice).toLocaleString()}
+                  </span>
+                </div>
+                <div className='d-flex justify-content-between mb-2'>
+                  <span style={{ color: '#000000' }}>Shipping:</span>
+                  <span style={{ color: '#000000', fontWeight: '500' }}>
+                    {parseFloat(order.shippingPrice) === 0 ? (
+                      <span style={{ color: '#28a745' }}>Free</span>
+                    ) : (
+                      `৳${parseFloat(order.shippingPrice).toLocaleString()}`
+                    )}
+                  </span>
+                </div>
+                <div className='d-flex justify-content-between mb-2'>
+                  <span style={{ color: '#000000' }}>Tax:</span>
+                  <span style={{ color: '#000000', fontWeight: '500' }}>
+                    ৳{parseFloat(order.taxPrice || 0).toLocaleString()}
+                  </span>
+                </div>
+                <hr style={{ borderColor: 'rgba(255, 255, 255, 0.2)' }} />
+                <div className='d-flex justify-content-between'>
+                  <span
+                    style={{
+                      color: '#000000',
+                      fontSize: '1.2rem',
+                      fontWeight: '600',
+                    }}
+                  >
+                    Total:
+                  </span>
+                  <span
+                    style={{
+                      color: '#28a745',
+                      fontSize: '1.4rem',
+                      fontWeight: '700',
+                    }}
+                  >
+                    ৳{parseFloat(order.totalPrice).toLocaleString()}
+                  </span>
+                </div>
+              </div>
+
+              {/* Payment Action */}
               {!order.isPaid && (
-                <ListGroup.Item>
+                <div className='mb-3'>
                   {loadingPay ? (
-                    <Loader />
+                    <div className='text-center py-3'>
+                      <Loader />
+                    </div>
                   ) : (
                     <Button
-                      type='button'
-                      className='btn btn-primary btn-block'
+                      className='w-100'
+                      size='lg'
                       onClick={() => setShowPaymentModal(true)}
+                      style={{
+                        background: 'linear-gradient(135deg, #28a745, #20c997)',
+                        border: 'none',
+                        borderRadius: '10px',
+                        padding: '1rem',
+                        fontWeight: '600',
+                        fontSize: '1.1rem',
+                      }}
                     >
-                      Pay Now
+                      <i className='fas fa-credit-card me-2'></i>
+                      Pay Now - ৳{parseFloat(order.totalPrice).toLocaleString()}
                     </Button>
                   )}
-                </ListGroup.Item>
+                </div>
               )}
 
-              {loadingDeliver && <Loader />}
-              {userInfo &&
-                userInfo.isAdmin &&
-                order.isPaid &&
-                !order.isDelivered && (
-                  <ListGroup.Item>
-                    <Button
-                      type='button'
-                      className='btn btn-block'
-                      onClick={deliverHandler}
-                    >
-                      Mark As Delivered
-                    </Button>
-                  </ListGroup.Item>
-                )}
-            </ListGroup>
+              {/* Admin Actions */}
+              {userInfo?.isAdmin && (
+                <div className='admin-actions'>
+                  <h6 style={{ color: '#000000', marginBottom: '1rem' }}>
+                    <i className='fas fa-user-shield me-2'></i>
+                    Admin Actions
+                  </h6>
+                  {order.isPaid && !order.isDelivered && (
+                    <div className='mb-2'>
+                      {loadingDeliver ? (
+                        <div className='text-center py-2'>
+                          <Loader />
+                        </div>
+                      ) : (
+                        <Button
+                          className='w-100'
+                          variant='warning'
+                          onClick={deliverHandler}
+                          style={{
+                            background:
+                              'linear-gradient(135deg, #ffc107, #fd7e14)',
+                            border: 'none',
+                            borderRadius: '8px',
+                            fontWeight: '600',
+                            color: '#000000',
+                          }}
+                        >
+                          <i className='fas fa-truck me-2'></i>
+                          Mark as Delivered
+                        </Button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </Card.Body>
           </Card>
         </Col>
       </Row>
@@ -227,7 +565,7 @@ const OrderScreen = () => {
         orderId={order._id}
         totalPrice={order.totalPrice}
       />
-    </>
+    </Container>
   );
 };
 

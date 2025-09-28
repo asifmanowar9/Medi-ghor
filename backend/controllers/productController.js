@@ -142,18 +142,52 @@ const deleteProduct = asyncHandler(async (req, res) => {
 //@access        private/admin
 
 const createProduct = asyncHandler(async (req, res) => {
-  // const { name, price, description, image, brand, category, countInStock } =
-  //   req.body;
+  const {
+    name,
+    price,
+    description,
+    image,
+    brand,
+    category,
+    countInStock,
+    genericName,
+    dosageForm,
+    strength,
+    manufacturer,
+    prescriptionRequired,
+    isActive,
+    isFeatured,
+  } = req.body;
+
+  // Validate required fields
+  if (!name || !price || !category) {
+    res.status(400);
+    throw new Error('Name, price, and category are required');
+  }
+
+  // Validate category exists
+  const categoryExists = await Category.findById(category);
+  if (!categoryExists) {
+    res.status(400);
+    throw new Error('Invalid category selected');
+  }
 
   const product = new Product({
-    name: 'sample name',
-    user: req.user._id, // Assuming req.user is set by authentication middleware
-    price: 0,
-    description: 'sample description',
-    image: '/image/sample.jpg',
-    brand: 'sample brand',
-    category: 'sample category',
-    countInStock: 0,
+    name,
+    user: req.user._id,
+    price,
+    description: description || '',
+    image: image || '/images/sample.jpg',
+    brand: brand || '',
+    category,
+    countInStock: countInStock || 0,
+    genericName: genericName || '',
+    dosageForm: dosageForm || '',
+    strength: strength || '',
+    manufacturer: manufacturer || '',
+    prescriptionRequired: prescriptionRequired || false,
+    isActive: isActive !== undefined ? isActive : true,
+    isFeatured: isFeatured || false,
     numReviews: 0,
   });
 
@@ -166,8 +200,22 @@ const createProduct = asyncHandler(async (req, res) => {
 //@access        private/admin
 
 const updateProduct = asyncHandler(async (req, res) => {
-  const { name, price, description, image, brand, category, countInStock } =
-    req.body;
+  const {
+    name,
+    price,
+    description,
+    image,
+    brand,
+    category,
+    countInStock,
+    genericName,
+    dosageForm,
+    strength,
+    manufacturer,
+    prescriptionRequired,
+    isActive,
+    isFeatured,
+  } = req.body;
 
   const product = await Product.findById(req.params.id);
 
@@ -179,6 +227,13 @@ const updateProduct = asyncHandler(async (req, res) => {
     product.brand = brand;
     product.category = category;
     product.countInStock = countInStock;
+    product.genericName = genericName || '';
+    product.dosageForm = dosageForm || '';
+    product.strength = strength || '';
+    product.manufacturer = manufacturer || '';
+    product.prescriptionRequired = prescriptionRequired || false;
+    product.isActive = isActive !== undefined ? isActive : true;
+    product.isFeatured = isFeatured || false;
 
     const updatedProduct = await product.save();
     res.json(updatedProduct);

@@ -1,18 +1,24 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useParams, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
+  Container,
   Row,
   Col,
-  ListGroup,
-  Image,
   Card,
   Button,
   Form,
+  Badge,
+  Alert,
+  InputGroup,
+  Modal,
+  ListGroup,
 } from 'react-bootstrap';
 import Message from '../components/Message';
+import Loader from '../components/Loader';
 import { addToCart, removeFromCart } from '../actions/cartActions';
 import { useCartAuth } from '../hooks/useCartAuth';
+import '../styles/CartScreen.css';
 
 const CartScreen = () => {
   const { id: productId } = useParams();
@@ -20,6 +26,11 @@ const CartScreen = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const userInfo = useCartAuth();
+
+  // Local state for modals and interactions
+  const [showRemoveModal, setShowRemoveModal] = useState(false);
+  const [itemToRemove, setItemToRemove] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Parse quantity from URL search params
   const qty = new URLSearchParams(location.search).get('qty')
@@ -35,12 +46,41 @@ const CartScreen = () => {
     }
   }, [dispatch, productId, qty]);
 
-  const removeFromCartHandler = (id) => {
-    dispatch(removeFromCart(id));
+  const handleRemoveConfirmation = (item) => {
+    setItemToRemove(item);
+    setShowRemoveModal(true);
+  };
+
+  const confirmRemoveFromCart = () => {
+    if (itemToRemove) {
+      dispatch(removeFromCart(itemToRemove.product));
+      setShowRemoveModal(false);
+      setItemToRemove(null);
+    }
+  };
+
+  const cancelRemove = () => {
+    setShowRemoveModal(false);
+    setItemToRemove(null);
+  };
+
+  const handleQuantityChange = async (productId, newQty) => {
+    setIsLoading(true);
+    try {
+      await dispatch(addToCart(productId, newQty));
+    } catch (error) {
+      console.error('Error updating quantity:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const checkoutHandler = () => {
     navigate('/login?redirect=shipping');
+  };
+
+  const continueShopping = () => {
+    navigate('/products');
   };
 
   // Update the image source logic:
@@ -51,90 +91,361 @@ const CartScreen = () => {
     return `/uploads/${image}`;
   };
 
+  const subtotal = cartItems.reduce(
+    (acc, item) => acc + item.qty * item.price,
+    0
+  );
+  const totalItems = cartItems.reduce((acc, item) => acc + item.qty, 0);
+
   return (
-    <Row>
-      <Col md={8}>
-        <h1>Shopping Cart</h1>
+    <div className='cart-screen'>
+      <Container fluid className='px-3 px-lg-5'>
+        {/* Page Header */}
+        <div className='cart-header'>
+          <Row className='align-items-center'>
+            <Col>
+              <div className='d-flex align-items-center mb-3'>
+                <Button
+                  variant='outline-secondary'
+                  size='sm'
+                  onClick={() => navigate(-1)}
+                  className='me-3'
+                >
+                  <i
+                    style={{ color: 'white' }}
+                    className='fas fa-arrow-left me-2'
+                  ></i>
+                  <span style={{ color: 'white' }}>Back</span>
+                </Button>
+                <div>
+                  <h1 className='cart-title'>
+                    <i className='fas fa-shopping-cart me-3'></i>
+                    <span style={{ color: 'white' }}>Your Cart</span>
+                  </h1>
+                  <p className='cart-subtitle'>
+                    Review your selected medicines and proceed to checkout
+                  </p>
+                </div>
+              </div>
+            </Col>
+          </Row>
+        </div>
+
         {cartItems.length === 0 ? (
-          <Message>
-            Your cart is empty <Link to='/'>Go Back</Link>
-          </Message>
+          /* Empty Cart State */
+          <div className='empty-cart-container'>
+            <Card className='empty-cart-card'>
+              <Card.Body className='text-center py-5'>
+                <div className='empty-cart-icon mb-4'>
+                  <i className='fas fa-shopping-cart'></i>
+                </div>
+                <h3 className='empty-cart-title'>Your cart is empty</h3>
+                <p className='empty-cart-subtitle'>
+                  Looks like you haven't added any medicines to your cart yet.
+                  <br />
+                  Explore our wide range of authentic medicines and health
+                  products.
+                </p>
+                <div className='empty-cart-actions'>
+                  <Button
+                    variant='primary'
+                    size='lg'
+                    onClick={continueShopping}
+                    className='me-3'
+                  >
+                    <i className='fas fa-pills me-2'></i>
+                    Browse Medicines
+                  </Button>
+                  <Link to='/' className='btn btn-outline-secondary btn-lg'>
+                    <i className='fas fa-home me-2'></i>
+                    Go Home
+                  </Link>
+                </div>
+              </Card.Body>
+            </Card>
+          </div>
         ) : (
-          <ListGroup variant='flush'>
-            {cartItems.map((item) => (
-              <ListGroup.Item key={item.product}>
-                <Row>
-                  <Col md={2}>
-                    <Image
-                      src={getImagePath(item.image)}
-                      alt={item.name}
-                      fluid
-                      rounded
-                    />
-                  </Col>
-                  <Col md={3}>
-                    <Link to={`/product/${item.product}`}>{item.name}</Link>
-                  </Col>
-                  <Col md={2}>BDT{item.price}</Col>
-                  <Col md={2}>
-                    <Form.Control
-                      as='select'
-                      value={item.qty}
-                      onChange={(e) =>
-                        dispatch(
-                          addToCart(item.product, Number(e.target.value))
-                        )
-                      }
+          <Row>
+            {/* Cart Items */}
+            <Col lg={8}>
+              <Card className='cart-items-card mb-4'>
+                <Card.Header className='cart-items-header'>
+                  <div className='d-flex justify-content-between align-items-center'>
+                    <h5 className='mb-0'>
+                      <i className='fas fa-list me-2'></i>
+                      Cart Items
+                    </h5>
+                    <Badge bg='primary' className='items-count-badge'>
+                      {totalItems} {totalItems === 1 ? 'item' : 'items'}
+                    </Badge>
+                  </div>
+                </Card.Header>
+                <Card.Body className='p-0'>
+                  {cartItems.map((item, index) => (
+                    <div
+                      key={item.product}
+                      className={`cart-item ${
+                        index !== cartItems.length - 1 ? 'border-bottom' : ''
+                      }`}
                     >
-                      {[...Array(item.countInStock).keys()].map((x) => (
-                        <option key={x + 1} value={x + 1}>
-                          {x + 1}
-                        </option>
-                      ))}
-                    </Form.Control>
-                  </Col>
-                  <Col md={2}>
+                      <Row className='align-items-center g-3'>
+                        {/* Product Image */}
+                        <Col xs={12} sm={3} md={2}>
+                          <div className='cart-item-image'>
+                            <img
+                              src={getImagePath(item.image)}
+                              alt={item.name}
+                              className='img-fluid'
+                            />
+                          </div>
+                        </Col>
+
+                        {/* Product Info */}
+                        <Col xs={12} sm={9} md={6}>
+                          <div className='cart-item-info'>
+                            <Link
+                              to={`/product/${item.product}`}
+                              className='cart-item-title'
+                            >
+                              {item.name}
+                            </Link>
+                            <div className='cart-item-details'>
+                              <span className='cart-item-price'>
+                                ৳{item.price.toFixed(2)} each
+                              </span>
+                              {item.brand && (
+                                <span className='cart-item-brand'>
+                                  <i className='fas fa-industry me-1'></i>
+                                  {item.brand}
+                                </span>
+                              )}
+                            </div>
+                            {item.countInStock < 10 && (
+                              <Alert
+                                variant='warning'
+                                className='stock-warning mb-0 mt-2'
+                              >
+                                <i className='fas fa-exclamation-triangle me-1'></i>
+                                Only {item.countInStock} left in stock
+                              </Alert>
+                            )}
+                          </div>
+                        </Col>
+
+                        {/* Quantity Controls */}
+                        <Col xs={6} md={2}>
+                          <div className='quantity-controls'>
+                            <label className='quantity-label'>Quantity</label>
+                            <InputGroup size='sm'>
+                              <Button
+                                variant='outline-secondary'
+                                disabled={item.qty <= 1 || isLoading}
+                                onClick={() =>
+                                  handleQuantityChange(
+                                    item.product,
+                                    item.qty - 1
+                                  )
+                                }
+                              >
+                                <i className='fas fa-minus'></i>
+                              </Button>
+                              <Form.Control
+                                as='select'
+                                value={item.qty}
+                                disabled={isLoading}
+                                onChange={(e) =>
+                                  handleQuantityChange(
+                                    item.product,
+                                    Number(e.target.value)
+                                  )
+                                }
+                                className='text-center'
+                              >
+                                {[
+                                  ...Array(
+                                    Math.min(item.countInStock, 10)
+                                  ).keys(),
+                                ].map((x) => (
+                                  <option key={x + 1} value={x + 1}>
+                                    {x + 1}
+                                  </option>
+                                ))}
+                              </Form.Control>
+                              <Button
+                                variant='outline-secondary'
+                                disabled={
+                                  item.qty >= item.countInStock || isLoading
+                                }
+                                onClick={() =>
+                                  handleQuantityChange(
+                                    item.product,
+                                    item.qty + 1
+                                  )
+                                }
+                              >
+                                <i className='fas fa-plus'></i>
+                              </Button>
+                            </InputGroup>
+                          </div>
+                        </Col>
+
+                        {/* Total Price and Actions */}
+                        <Col xs={6} md={2}>
+                          <div className='cart-item-actions'>
+                            <div className='item-total-price'>
+                              ৳{(item.qty * item.price).toFixed(2)}
+                            </div>
+                            <Button
+                              variant='outline-danger'
+                              size='sm'
+                              onClick={() => handleRemoveConfirmation(item)}
+                              className='remove-btn'
+                            >
+                              <i className='fas fa-trash me-1'></i>
+                              Remove
+                            </Button>
+                          </div>
+                        </Col>
+                      </Row>
+                    </div>
+                  ))}
+                </Card.Body>
+              </Card>
+            </Col>
+
+            {/* Order Summary */}
+            <Col lg={4}>
+              <Card className='order-summary-card'>
+                <Card.Header className='order-summary-header'>
+                  <h5 className='mb-0'>
+                    <i className='fas fa-receipt me-2'></i>
+                    Order Summary
+                  </h5>
+                </Card.Header>
+                <Card.Body>
+                  <div className='order-summary-details'>
+                    <div className='summary-row'>
+                      <span style={{ color: 'white' }}>
+                        Items ({totalItems})
+                      </span>
+                      <span style={{ color: 'white' }}>
+                        ৳{subtotal.toFixed(2)}
+                      </span>
+                    </div>
+                    <div className='summary-row'>
+                      <span style={{ color: 'white' }}>Delivery</span>
+                      <span
+                        className='text-success'
+                        style={{ color: '#28a745' }}
+                      >
+                        <i className='fas fa-shipping-fast me-1'></i>
+                        FREE
+                      </span>
+                    </div>
+                    <div className='summary-row'>
+                      <span style={{ color: 'white' }}>Tax</span>
+                      <span style={{ color: 'white' }}>৳0.00</span>
+                    </div>
+                    <hr className='summary-divider' />
+                    <div className='summary-row total-row'>
+                      <strong style={{ color: 'white', fontSize: '1.2rem' }}>
+                        Total
+                      </strong>
+                      <strong
+                        className='total-amount'
+                        style={{ color: '#e74c3c', fontSize: '1.4rem' }}
+                      >
+                        ৳{subtotal.toFixed(2)}
+                      </strong>
+                    </div>
+                  </div>
+
+                  <div className='checkout-section'>
                     <Button
-                      type='button'
-                      variant='light'
-                      onClick={() => removeFromCartHandler(item.product)}
+                      variant='primary'
+                      size='lg'
+                      className='checkout-btn w-100 mb-3'
+                      onClick={checkoutHandler}
                     >
-                      <i className='fas fa-trash'></i>
+                      <i className='fas fa-credit-card me-2'></i>
+                      Proceed to Checkout
                     </Button>
-                  </Col>
-                </Row>
-              </ListGroup.Item>
-            ))}
-          </ListGroup>
+                    <Button
+                      variant='outline-secondary'
+                      className='continue-shopping-btn w-100'
+                      onClick={continueShopping}
+                    >
+                      <i className='fas fa-plus me-2'></i>
+                      <span style={{ color: 'white' }}>Continue Shopping</span>
+                    </Button>
+                  </div>
+
+                  <div className='trust-badges mt-4'>
+                    <Row className='text-center'>
+                      <Col xs={4}>
+                        <div className='trust-badge'>
+                          <i className='fas fa-shield-alt'></i>
+                          <small>Secure</small>
+                        </div>
+                      </Col>
+                      <Col xs={4}>
+                        <div className='trust-badge'>
+                          <i className='fas fa-truck'></i>
+                          <small>Fast Delivery</small>
+                        </div>
+                      </Col>
+                      <Col xs={4}>
+                        <div className='trust-badge'>
+                          <i className='fas fa-certificate'></i>
+                          <small>Authentic</small>
+                        </div>
+                      </Col>
+                    </Row>
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
         )}
-      </Col>
-      <Col md={4}>
-        <Card>
-          <ListGroup variant='flush'>
-            <ListGroup.Item>
-              <h2>
-                Subtotal ({cartItems.reduce((acc, item) => acc + item.qty, 0)})
-                items
-              </h2>
-              BDT
-              {cartItems
-                .reduce((acc, item) => acc + item.qty * item.price, 0)
-                .toFixed(2)}
-            </ListGroup.Item>
-            <ListGroup.Item>
-              <Button
-                type='button'
-                className='btn-block'
-                disabled={cartItems.length === 0}
-                onClick={checkoutHandler}
-              >
-                Proceed To Checkout
-              </Button>
-            </ListGroup.Item>
-          </ListGroup>
-        </Card>
-      </Col>
-    </Row>
+
+        {/* Remove Confirmation Modal */}
+        <Modal show={showRemoveModal} onHide={cancelRemove} centered>
+          <Modal.Header closeButton className='remove-modal-header'>
+            <Modal.Title>
+              <i className='fas fa-exclamation-triangle text-warning me-2'></i>
+              Remove Item
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            {itemToRemove && (
+              <div className='remove-confirmation'>
+                <p>Are you sure you want to remove this item from your cart?</p>
+                <div className='removing-item-preview'>
+                  <img
+                    src={getImagePath(itemToRemove.image)}
+                    alt={itemToRemove.name}
+                    className='removing-item-image'
+                  />
+                  <div className='removing-item-details'>
+                    <h6>{itemToRemove.name}</h6>
+                    <p className='text-muted'>Quantity: {itemToRemove.qty}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant='outline-secondary' onClick={cancelRemove}>
+              Keep in Cart
+            </Button>
+            <Button variant='danger' onClick={confirmRemoveFromCart}>
+              <i className='fas fa-trash me-1'></i>
+              Remove Item
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      </Container>
+    </div>
   );
 };
 

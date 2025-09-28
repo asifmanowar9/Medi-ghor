@@ -179,12 +179,12 @@ const Footer = () => {
                     Home Delivery
                   </a>
                 </li>
-                <li>
+                {/* <li>
                   <a href='#'>
                     <i className='fas fa-calendar-check me-1'></i>
                     Medicine Reminder
                   </a>
-                </li>
+                </li> */}
               </ul>
             </Col>
 

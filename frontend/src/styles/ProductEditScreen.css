@@ -1,0 +1,109 @@
+.admin-product-form {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.admin-product-form .card {
+  border: none;
+  border-radius: 15px;
+}
+
+.admin-product-form h5 {
+  border-bottom: 2px solid #e9ecef;
+  padding-bottom: 8px;
+  margin-bottom: 20px;
+}
+
+.admin-product-form .form-label {
+  color: #495057;
+  margin-bottom: 8px;
+}
+
+.admin-product-form .form-control,
+.admin-product-form .form-select {
+  border-radius: 8px;
+  border: 2px solid #e9ecef;
+  transition: all 0.3s ease;
+}
+
+.admin-product-form .form-control:focus,
+.admin-product-form .form-select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.admin-product-form .form-control-lg {
+  font-size: 1.1rem;
+  padding: 12px 16px;
+}
+
+.admin-product-form .input-group-text {
+  background-color: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-right: none;
+  color: #495057;
+  font-weight: 600;
+}
+
+.admin-product-form .form-switch {
+  padding-left: 2.5em;
+}
+
+.admin-product-form .form-switch .form-check-input {
+  width: 2em;
+  margin-left: -2.5em;
+}
+
+.admin-product-form .form-switch .form-check-label {
+  color: white !important;
+  font-weight: 500;
+}
+
+.admin-product-form .btn {
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.admin-product-form .btn-primary {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  border: none;
+}
+
+.admin-product-form .btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.admin-product-form .btn-outline-secondary {
+  border: 2px solid #6c757d;
+}
+
+.admin-product-form .btn-outline-secondary:hover {
+  transform: translateY(-1px);
+}
+
+.admin-product-form .text-danger {
+  color: #dc3545 !important;
+}
+
+.admin-product-form .text-primary {
+  color: #007bff !important;
+}
+
+.admin-product-form hr {
+  border-color: #e9ecef;
+  margin: 30px 0 20px 0;
+}
+
+@media (max-width: 768px) {
+  .admin-product-form {
+    padding: 15px;
+  }
+  
+  .admin-product-form .card-body {
+    padding: 20px !important;
+  }
+}

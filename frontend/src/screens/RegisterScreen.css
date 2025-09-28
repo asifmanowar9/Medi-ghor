@@ -1,0 +1,509 @@
+/* RegisterScreen.css - Modern Design with Glass Morphism */
+
+/* Main container styling */
+.register-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.register-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(120, 119, 198, 0.2) 0%, transparent 50%);
+  z-index: 1;
+}
+
+.register-container > .container-fluid {
+  position: relative;
+  z-index: 2;
+}
+
+/* Branding section styling */
+.branding-section {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.brand-content {
+  max-width: 500px;
+  width: 100%;
+}
+
+/* Brand logo styling */
+.brand-logo {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.logo-circle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #27ae60, #229954);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 2rem;
+  box-shadow: 0 20px 40px rgba(46, 204, 113, 0.3);
+  animation: logoFloat 3s ease-in-out infinite;
+}
+
+.logo-circle i {
+  font-size: 3rem;
+  color: white;
+}
+
+@keyframes logoFloat {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.brand-title {
+  color: white;
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+.brand-subtitle {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1.3rem;
+  font-weight: 300;
+  margin-bottom: 3rem;
+  text-align: center;
+}
+
+/* Benefits list styling - spacing handled by margin-bottom on .benefit-item */
+
+.benefit-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding: 1.25rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.benefit-item:hover {
+  transform: translateY(-3px);
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+}
+
+.benefit-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+  flex-shrink: 0;
+}
+
+.benefit-icon i {
+  font-size: 1.2rem;
+  color: white;
+}
+
+.benefit-text h5 {
+  color: white;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  font-size: 1rem;
+}
+
+.benefit-text p {
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 0;
+  font-size: 0.85rem;
+}
+
+/* Register form section styling */
+.register-form-section {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+/* Register card styling */
+.register-card {
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.3),
+    0 10px 20px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.register-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 
+    0 35px 70px rgba(0, 0, 0, 0.4),
+    0 15px 30px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Mobile logo styling */
+.mobile-logo {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #27ae60, #229954);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  box-shadow: 0 10px 20px rgba(46, 204, 113, 0.3);
+}
+
+.mobile-logo i {
+  font-size: 2rem;
+  color: white;
+}
+
+/* Form styling */
+.input-group-modern {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.input-group-modern .form-control:focus {
+  box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
+  z-index: 3;
+}
+
+/* Progress bar styling */
+.progress {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.progress-bar {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  box-shadow: 0 2px 4px rgba(52, 152, 219, 0.3);
+}
+
+/* Password strength indicator */
+.password-strength-indicator {
+  margin-top: 0.5rem;
+}
+
+.strength-bar {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+}
+
+.strength-fill {
+  height: 100%;
+  transition: all 0.3s ease;
+  border-radius: 2px;
+}
+
+.strength-weak {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+.strength-medium {
+  background: linear-gradient(135deg, #f39c12, #e67e22);
+}
+
+.strength-strong {
+  background: linear-gradient(135deg, #27ae60, #229954);
+}
+
+/* Button hover effects */
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3) !important;
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn:disabled {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Link styling */
+.btn-outline-primary:hover {
+  background: linear-gradient(135deg, #3498db, #2980b9) !important;
+  border-color: #3498db !important;
+  color: white !important;
+}
+
+/* Step transition animation */
+.step-transition {
+  animation: stepSlideIn 0.5s ease-out;
+}
+
+@keyframes stepSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Form validation styling */
+.form-control.is-valid {
+  border-color: #27ae60;
+  background-image: none;
+}
+
+.form-control.is-invalid {
+  border-color: #e74c3c;
+  background-image: none;
+}
+
+.valid-feedback {
+  color: #27ae60;
+  font-size: 0.875rem;
+}
+
+.invalid-feedback {
+  color: #e74c3c;
+  font-size: 0.875rem;
+}
+
+/* Loading states */
+.loading-shimmer {
+  background: linear-gradient(90deg, 
+    rgba(255, 255, 255, 0.1) 0%, 
+    rgba(255, 255, 255, 0.2) 50%, 
+    rgba(255, 255, 255, 0.1) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Responsive design */
+@media (max-width: 991px) {
+  .branding-section {
+    display: none;
+  }
+  
+  .register-form-section {
+    padding: 1rem;
+  }
+  
+  .register-card .card-body {
+    padding: 2rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .register-container {
+    padding: 1rem 0;
+  }
+  
+  .register-form-section {
+    height: auto;
+    min-height: 100vh;
+  }
+  
+  .brand-title {
+    font-size: 2rem;
+  }
+  
+  .benefit-item {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .benefit-icon {
+    width: 45px;
+    height: 45px;
+    margin-right: 0.75rem;
+  }
+  
+  .benefit-icon i {
+    font-size: 1rem;
+  }
+  
+  .benefit-text h5 {
+    font-size: 0.9rem;
+  }
+  
+  .benefit-text p {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .register-card .card-body {
+    padding: 1.5rem !important;
+  }
+  
+  .mobile-logo {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .mobile-logo i {
+    font-size: 1.5rem;
+  }
+  
+  .input-group-modern .form-control {
+    font-size: 0.9rem;
+    padding: 0.6rem 0.8rem;
+  }
+  
+  .btn {
+    font-size: 0.9rem;
+    padding: 0.75rem 1rem;
+  }
+  
+  .brand-title {
+    font-size: 1.75rem;
+  }
+  
+  .brand-subtitle {
+    font-size: 1rem;
+  }
+  
+  .benefit-item {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .benefit-icon {
+    margin-right: 0;
+    margin-bottom: 0.75rem;
+  }
+}
+
+/* Animation for form elements */
+.register-card .form-group {
+  animation: slideInUp 0.5s ease-out;
+}
+
+.register-card .form-group:nth-child(1) { animation-delay: 0.1s; }
+.register-card .form-group:nth-child(2) { animation-delay: 0.2s; }
+.register-card .form-group:nth-child(3) { animation-delay: 0.3s; }
+.register-card .form-group:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Focus states for accessibility */
+.btn:focus,
+.form-control:focus {
+  outline: 2px solid rgba(52, 152, 219, 0.5);
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .register-card,
+  .benefit-item {
+    border: 2px solid #fff !important;
+    background: rgba(0, 0, 0, 0.8) !important;
+  }
+  
+  .text-black {
+    color: #fff !important;
+  }
+  
+  .progress {
+    background: #000 !important;
+    border: 2px solid #fff !important;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .register-card,
+  .benefit-item,
+  .btn,
+  .logo-circle {
+    transition: none !important;
+    animation: none !important;
+  }
+  
+  .register-card:hover,
+  .benefit-item:hover {
+    transform: none !important;
+  }
+}
+
+/* Print styles */
+@media print {
+  .register-container {
+    background: white !important;
+  }
+  
+  .branding-section {
+    display: none !important;
+  }
+  
+  .register-card {
+    background: white !important;
+    color: black !important;
+    border: 1px solid #ddd !important;
+    box-shadow: none !important;
+  }
+  
+  .progress {
+    display: none !important;
+  }
+}
+
+/* Custom scrollbar */
+.register-card .card-body {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(52, 152, 219, 0.5) rgba(255, 255, 255, 0.1);
+}
+
+.register-card .card-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.register-card .card-body::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.register-card .card-body::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  border-radius: 10px;
+}

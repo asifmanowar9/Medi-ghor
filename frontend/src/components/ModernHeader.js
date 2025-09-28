@@ -36,7 +36,9 @@ const ModernHeader = () => {
   };
 
   useEffect(() => {
-    dispatch(listCategories());
+    if (!categoriesLoading && (!categories || categories.length === 0)) {
+      dispatch(listCategories());
+    }
   }, [dispatch]);
 
   return (

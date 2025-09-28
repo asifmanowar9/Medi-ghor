@@ -1,0 +1,386 @@
+/* UserListScreen.css - Modern Design with Glass Morphism */
+
+/* Main container styling */
+.user-container {
+  padding: 2rem 0;
+  min-height: 100vh;
+}
+
+/* Stats cards styling */
+.stats-card {
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.stats-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+  z-index: -1;
+  transition: all 0.3s ease;
+}
+
+.stats-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+.stats-card:hover::before {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* User card styling */
+.user-card {
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.user-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  pointer-events: none;
+  z-index: -1;
+}
+
+.user-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(52, 152, 219, 0.5) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* User avatar styling */
+.user-avatar {
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.user-card:hover .user-avatar {
+  transform: scale(1.1);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* User details styling */
+.user-details p {
+  transition: all 0.3s ease;
+}
+
+.user-details p:hover {
+  color: #3498db !important;
+}
+
+/* Table styling for list view */
+.table-row-hover:hover {
+  background: rgba(52, 152, 219, 0.1) !important;
+  transform: translateX(5px);
+}
+
+.table-row-hover {
+  transition: all 0.3s ease;
+}
+
+/* Button hover effects */
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.btn-outline-primary:hover {
+  background: linear-gradient(135deg, #3498db, #2980b9) !important;
+  border-color: #3498db !important;
+  color: white !important;
+}
+
+.btn-outline-danger:hover {
+  background: linear-gradient(135deg, #e74c3c, #c0392b) !important;
+  border-color: #e74c3c !important;
+  color: white !important;
+}
+
+/* Form controls styling */
+.form-control:focus,
+.form-select:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
+  background: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* Input group styling */
+.input-group-text {
+  transition: all 0.3s ease;
+}
+
+.form-control:focus + .input-group-text,
+.form-control:focus ~ .input-group-text {
+  border-color: #3498db;
+  background: rgba(52, 152, 219, 0.2) !important;
+}
+
+/* Badge styling */
+.badge {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.badge:hover {
+  transform: scale(1.05);
+}
+
+/* View mode toggle buttons */
+.btn-group .btn {
+  transition: all 0.3s ease;
+}
+
+/* Email click effect */
+[data-email-clickable] {
+  position: relative;
+}
+
+[data-email-clickable]:hover {
+  color: #3498db !important;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+[data-email-clickable]:hover::after {
+  content: '📧';
+  position: absolute;
+  right: -20px;
+  top: 0;
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+/* Loading states */
+.loading-shimmer {
+  background: linear-gradient(90deg, 
+    rgba(255, 255, 255, 0.1) 0%, 
+    rgba(255, 255, 255, 0.2) 50%, 
+    rgba(255, 255, 255, 0.1) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Search highlight effect */
+.search-highlight {
+  background: linear-gradient(135deg, #f39c12, #e67e22);
+  color: white !important;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+/* Empty state styling */
+.empty-state {
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.empty-state i {
+  opacity: 0.5;
+  margin-bottom: 2rem;
+}
+
+/* Advanced animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.user-card {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.user-card:nth-child(1) { animation-delay: 0.1s; }
+.user-card:nth-child(2) { animation-delay: 0.2s; }
+.user-card:nth-child(3) { animation-delay: 0.3s; }
+.user-card:nth-child(4) { animation-delay: 0.4s; }
+.user-card:nth-child(5) { animation-delay: 0.5s; }
+.user-card:nth-child(6) { animation-delay: 0.6s; }
+
+/* Scrollbar styling */
+.table-responsive {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(52, 152, 219, 0.5) rgba(255, 255, 255, 0.1);
+}
+
+.table-responsive::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #2980b9, #1f618d);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .user-container {
+    padding: 1rem 0;
+  }
+  
+  .stats-card .card-body {
+    padding: 1rem;
+  }
+  
+  .stats-card h4 {
+    font-size: 1.5rem;
+  }
+  
+  .user-card {
+    margin-bottom: 1rem;
+  }
+  
+  .user-avatar {
+    width: 40px !important;
+    height: 40px !important;
+    font-size: 1.2rem !important;
+  }
+  
+  .table-responsive {
+    font-size: 0.9rem;
+  }
+  
+  .btn-group {
+    width: 100%;
+  }
+  
+  .btn-group .btn {
+    flex: 1;
+  }
+}
+
+@media (max-width: 576px) {
+  .stats-card .card-body {
+    padding: 0.75rem;
+  }
+  
+  .stats-card h4 {
+    font-size: 1.3rem;
+  }
+  
+  .stats-card small {
+    font-size: 0.75rem;
+  }
+  
+  .user-card .card-body {
+    padding: 1rem;
+  }
+  
+  h2.text-black {
+    font-size: 1.5rem;
+  }
+  
+  .table th,
+  .table td {
+    padding: 0.5rem;
+    font-size: 0.85rem;
+  }
+  
+  .user-avatar {
+    width: 35px !important;
+    height: 35px !important;
+    font-size: 1rem !important;
+  }
+}
+
+/* Print styles */
+@media print {
+  .user-card,
+  .stats-card {
+    background: white !important;
+    color: black !important;
+    border: 1px solid #ddd !important;
+    box-shadow: none !important;
+  }
+  
+  .btn {
+    display: none !important;
+  }
+  
+  .badge {
+    background: #f8f9fa !important;
+    color: black !important;
+    border: 1px solid #ddd !important;
+  }
+  
+  .stats-card .card-body {
+    color: black !important;
+  }
+}
+
+/* Focus states for accessibility */
+.btn:focus,
+.form-control:focus,
+.form-select:focus {
+  outline: 2px solid rgba(52, 152, 219, 0.5);
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .user-card,
+  .stats-card {
+    border: 2px solid #000 !important;
+    background: white !important;
+  }
+  
+  .text-black,
+  .user-details p {
+    color: #000 !important;
+  }
+  
+  .btn-outline-primary,
+  .btn-outline-danger {
+    border-width: 2px !important;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .user-card,
+  .stats-card,
+  .btn,
+  .user-avatar,
+  .table-row-hover {
+    transition: none !important;
+    animation: none !important;
+  }
+  
+  .user-card:hover,
+  .stats-card:hover {
+    transform: none !important;
+  }
+}
