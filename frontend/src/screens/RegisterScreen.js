@@ -133,54 +133,50 @@ const RegisterScreen = () => {
           <Col lg={6} className='d-none d-lg-flex'>
             <div className='branding-section'>
               <div className='brand-content'>
-                <div className='brand-logo mb-4'>
-                  <div className='logo-circle'>
-                    <i className='fas fa-prescription-bottle-alt'></i>
+                {/* Brand Header Section */}
+                <div className='brand-header'>
+                  <div className='brand-logo'>
+                    <div className='logo-circle'>
+                      <i className='fas fa-prescription-bottle-alt'></i>
+                    </div>
+                    <h2 className='brand-title'>Join Medi-ghor</h2>
+                    <p className='brand-subtitle'>
+                      Start your healthy journey with us
+                    </p>
                   </div>
-                  <h2 className='brand-title'>Join Medi-ghor</h2>
-                  <p className='brand-subtitle'>
-                    Start your healthy journey with us
-                  </p>
                 </div>
 
-                <div className='benefits-list'>
-                  <div className='benefit-item'>
-                    <div className='benefit-icon'>
-                      <i className='fas fa-check-circle'></i>
+                {/* Benefits Section */}
+                <div className='benefits-section'>
+                  <div className='benefits-list'>
+                    <div className='benefit-item'>
+                      <div className='benefit-icon'>
+                        <i className='fas fa-check-circle'></i>
+                      </div>
+                      <div className='benefit-text'>
+                        <h5>Free Account Creation</h5>
+                        <p>No hidden charges or subscription fees</p>
+                      </div>
                     </div>
-                    <div className='benefit-text'>
-                      <h5>Free Account Creation</h5>
-                      <p>No hidden charges or subscription fees</p>
-                    </div>
-                  </div>
 
-                  <div className='benefit-item'>
-                    <div className='benefit-icon'>
-                      <i className='fas fa-prescription'></i>
+                    <div className='benefit-item'>
+                      <div className='benefit-icon'>
+                        <i className='fas fa-prescription'></i>
+                      </div>
+                      <div className='benefit-text'>
+                        <h5>Prescription Management</h5>
+                        <p>Upload and manage your prescriptions digitally</p>
+                      </div>
                     </div>
-                    <div className='benefit-text'>
-                      <h5>Prescription Management</h5>
-                      <p>Upload and manage your prescriptions digitally</p>
-                    </div>
-                  </div>
 
-                  <div className='benefit-item'>
-                    <div className='benefit-icon'>
-                      <i className='fas fa-history'></i>
-                    </div>
-                    <div className='benefit-text'>
-                      <h5>Order History</h5>
-                      <p>Track all your medical purchases in one place</p>
-                    </div>
-                  </div>
-
-                  <div className='benefit-item'>
-                    <div className='benefit-icon'>
-                      <i className='fas fa-bell'></i>
-                    </div>
-                    <div className='benefit-text'>
-                      <h5>Medicine Reminders</h5>
-                      <p>Never miss your medication schedule</p>
+                    <div className='benefit-item'>
+                      <div className='benefit-icon'>
+                        <i className='fas fa-history'></i>
+                      </div>
+                      <div className='benefit-text'>
+                        <h5>Order History</h5>
+                        <p>Track all your medical purchases in one place</p>
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -41,10 +41,36 @@
   width: 100%;
 }
 
+/* Brand header section - separate from benefits */
+.brand-header {
+  margin-bottom: 5rem;
+  padding-bottom: 3rem;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  position: relative;
+}
+
+.brand-header::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(135deg, #27ae60, #229954);
+  border-radius: 2px;
+}
+
+/* Benefits section - separate from branding */
+.benefits-section {
+  margin-top: 6rem;
+  padding-top: 3rem;
+}
+
 /* Brand logo styling */
 .brand-logo {
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
 }
 
 .logo-circle {
@@ -74,7 +100,7 @@
   color: white;
   font-size: 3rem;
   font-weight: 700;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
   text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   text-align: center;
 }
@@ -83,7 +109,7 @@
   color: rgba(255, 255, 255, 0.8);
   font-size: 1.3rem;
   font-weight: 300;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
   text-align: center;
 }
 
@@ -331,6 +357,16 @@
   .register-form-section {
     height: auto;
     min-height: 100vh;
+  }
+  
+  .brand-header {
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+  }
+  
+  .benefits-section {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
   }
   
   .brand-title {
