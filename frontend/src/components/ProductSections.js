@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import {
   Container,
   Row,
@@ -11,14 +12,21 @@ import {
   Nav,
   Spinner,
   Alert,
+  Modal,
+  Form,
 } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import { listProducts } from '../actions/productActions';
+import { addToCart } from '../actions/cartActions';
 import '../styles/ProductSections.css';
 
 const ProductSections = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('especially-for-you');
+  const [showQuantityModal, setShowQuantityModal] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [quantity, setQuantity] = useState(1);
 
   const productList = useSelector((state) => state.productList);
   const { loading, error, products } = productList;
@@ -98,6 +106,29 @@ const ProductSections = () => {
     return stars;
   };
 
+  // Show quantity modal when add to cart is clicked
+  const handleAddToCartClick = (product) => {
+    setSelectedProduct(product);
+    setQuantity(1); // Reset to 1
+    setShowQuantityModal(true);
+  };
+
+  // Add to cart handler with selected quantity
+  const addToCartHandler = () => {
+    if (selectedProduct) {
+      dispatch(addToCart(selectedProduct._id, quantity));
+      setShowQuantityModal(false);
+      navigate(`/cart/${selectedProduct._id}?qty=${quantity}`);
+    }
+  };
+
+  // Close modal handler
+  const handleCloseModal = () => {
+    setShowQuantityModal(false);
+    setSelectedProduct(null);
+    setQuantity(1);
+  };
+
   const ProductCard = ({ product }) => (
     <Card className='product-card h-100'>
       {product.discount && (
@@ -158,6 +189,7 @@ const ProductSections = () => {
                 size='sm'
                 className='w-100'
                 disabled={!product.countInStock}
+                onClick={() => handleAddToCartClick(product)}
               >
                 <i className='fas fa-cart-plus me-1'></i>
                 Add to Cart
@@ -269,7 +301,9 @@ const ProductSections = () => {
               {getCurrentProducts().length > 6 && (
                 <Row className='mt-4'>
                   <Col className='text-center'>
-                    <LinkContainer to={`/products`}>
+                    <LinkContainer
+                      to={`/products?type=${activeSection}&sort=name&order=asc`}
+                    >
                       <Button
                         variant='outline-primary'
                         size='lg'
@@ -286,6 +320,92 @@ const ProductSections = () => {
             </>
           )}
         </Tab.Container>
+
+        {/* Quantity Selection Modal */}
+        <Modal show={showQuantityModal} onHide={handleCloseModal} centered>
+          <Modal.Header
+            closeButton
+            style={{
+              backgroundColor: '#343a40',
+              borderBottom: '1px solid #495057',
+            }}
+          >
+            <Modal.Title style={{ color: 'white' }}>
+              Select Quantity
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body style={{ backgroundColor: '#343a40', color: 'white' }}>
+            {selectedProduct && (
+              <>
+                <div className='d-flex align-items-center mb-3'>
+                  <img
+                    src={selectedProduct.image}
+                    alt={selectedProduct.name}
+                    style={{
+                      width: '60px',
+                      height: '60px',
+                      objectFit: 'cover',
+                    }}
+                    className='me-3 rounded'
+                  />
+                  <div>
+                    <h6 className='mb-1' style={{ color: 'white' }}>
+                      {selectedProduct.name}
+                    </h6>
+                    <p className='mb-0' style={{ color: '#adb5bd' }}>
+                      ৳{selectedProduct.price}
+                    </p>
+                  </div>
+                </div>
+
+                <Form.Group className='mb-3'>
+                  <Form.Label style={{ color: 'white' }}>Quantity:</Form.Label>
+                  <Form.Control
+                    as='select'
+                    value={quantity}
+                    onChange={(e) => setQuantity(Number(e.target.value))}
+                    className='w-auto'
+                  >
+                    {[
+                      ...Array(
+                        Math.min(selectedProduct.countInStock, 10)
+                      ).keys(),
+                    ].map((x) => (
+                      <option key={x + 1} value={x + 1}>
+                        {x + 1}
+                      </option>
+                    ))}
+                  </Form.Control>
+                </Form.Group>
+
+                <div className='d-flex justify-content-between align-items-center'>
+                  <span style={{ color: 'white' }}>
+                    <strong>
+                      Total: ৳{(selectedProduct.price * quantity).toFixed(2)}
+                    </strong>
+                  </span>
+                  <span style={{ color: '#adb5bd' }}>
+                    {selectedProduct.countInStock} available
+                  </span>
+                </div>
+              </>
+            )}
+          </Modal.Body>
+          <Modal.Footer
+            style={{
+              backgroundColor: '#343a40',
+              borderTop: '1px solid #495057',
+            }}
+          >
+            <Button variant='secondary' onClick={handleCloseModal}>
+              Cancel
+            </Button>
+            <Button variant='primary' onClick={addToCartHandler}>
+              <i className='fas fa-cart-plus me-2'></i>
+              Add to Cart
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </Container>
     </section>
   );

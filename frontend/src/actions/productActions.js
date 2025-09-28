@@ -34,7 +34,13 @@ import {
 } from '../constants/productConstants';
 
 export const listProducts =
-  (keyword = '', pageNumber = '', category = '') =>
+  (
+    keyword = '',
+    pageNumber = '',
+    category = '',
+    healthCondition = '',
+    brand = ''
+  ) =>
   async (dispatch) => {
     try {
       dispatch({ type: PRODUCT_LIST_REQUEST });
@@ -42,6 +48,12 @@ export const listProducts =
       let url = `/api/products?keyword=${keyword}&pageNumber=${pageNumber}`;
       if (category) {
         url += `&category=${category}`;
+      }
+      if (healthCondition) {
+        url += `&healthCondition=${healthCondition}`;
+      }
+      if (brand) {
+        url += `&brand=${brand}`;
       }
 
       const { data } = await axios.get(url);

@@ -16,6 +16,12 @@ import '../styles/HeroBanner.css';
 const HeroBanner = () => {
   const dispatch = useDispatch();
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [timeLeft, setTimeLeft] = useState({
+    days: 2,
+    hours: 15,
+    minutes: 30,
+    seconds: 45,
+  });
 
   const bannerList = useSelector((state) => state.bannerList);
   const { loading, error, banners } = bannerList;
@@ -43,30 +49,57 @@ const HeroBanner = () => {
     },
   ];
 
+  // Discount countdown timer effect
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft((prevTime) => {
+        let { days, hours, minutes, seconds } = prevTime;
+
+        if (seconds > 0) {
+          seconds--;
+        } else if (minutes > 0) {
+          minutes--;
+          seconds = 59;
+        } else if (hours > 0) {
+          hours--;
+          minutes = 59;
+          seconds = 59;
+        } else if (days > 0) {
+          days--;
+          hours = 23;
+          minutes = 59;
+          seconds = 59;
+        }
+
+        return { days, hours, minutes, seconds };
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
   useEffect(() => {
     dispatch(listBanners());
   }, [dispatch]);
 
   useEffect(() => {
-    if (banners && banners.length > 0) {
-      const timer = setInterval(() => {
-        setCurrentSlide((prev) => (prev + 1) % banners.length);
-      }, 5000);
+    // Include discount banner as first slide, so total slides = banners + 1
+    const totalSlides = banners && banners.length > 0 ? banners.length + 1 : 1;
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % totalSlides);
+    }, 5000);
 
-      return () => clearInterval(timer);
-    }
+    return () => clearInterval(timer);
   }, [banners]);
 
   const nextSlide = () => {
-    if (banners && banners.length > 0) {
-      setCurrentSlide((prev) => (prev + 1) % banners.length);
-    }
+    const totalSlides = banners && banners.length > 0 ? banners.length + 1 : 1;
+    setCurrentSlide((prev) => (prev + 1) % totalSlides);
   };
 
   const prevSlide = () => {
-    if (banners && banners.length > 0) {
-      setCurrentSlide((prev) => (prev - 1 + banners.length) % banners.length);
-    }
+    const totalSlides = banners && banners.length > 0 ? banners.length + 1 : 1;
+    setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
   };
 
   if (loading) {
@@ -99,49 +132,186 @@ const HeroBanner = () => {
           {/* Main Banner Carousel */}
           <Col lg={8} className='banner-carousel-col'>
             <div className='banner-carousel'>
-              {banners && banners.length > 0 ? (
-                banners.map((banner, index) => (
-                  <div
-                    key={banner._id}
-                    className={`banner-slide ${
-                      index === currentSlide ? 'active' : ''
-                    }`}
-                    style={{
-                      background:
-                        banner.bgColor ||
-                        'linear-gradient(135deg, #2E86AB 0%, #A23B72 100%)',
-                    }}
-                  >
-                    <Container>
-                      <Row className='align-items-center min-vh-50'>
-                        <Col md={6} className='banner-content'>
-                          <Badge bg='warning' className='banner-badge mb-2'>
-                            {banner.badge || 'Special Offer'}
-                          </Badge>
-                          <h1 className='banner-title'>{banner.title}</h1>
-                          <h3 className='banner-subtitle'>{banner.subtitle}</h3>
-                          <p className='banner-description'>
-                            {banner.description}
-                          </p>
-                          <LinkContainer to={banner.link || '/products'}>
-                            <Button size='lg' className='banner-btn'>
-                              {banner.buttonText || 'Shop Now'}
-                              <i className='fas fa-arrow-right ms-2'></i>
-                            </Button>
-                          </LinkContainer>
-                        </Col>
-                        <Col md={6} className='banner-image'>
-                          <img
-                            src={banner.image}
-                            alt={banner.title}
-                            className='img-fluid'
-                          />
-                        </Col>
-                      </Row>
-                    </Container>
-                  </div>
-                ))
-              ) : (
+              {/* Discount Banner - First Slide */}
+              <div
+                className={`banner-slide discount-banner-slide ${
+                  currentSlide === 0 ? 'active' : ''
+                }`}
+                style={{
+                  background:
+                    'linear-gradient(135deg, #FF6B6B 0%, #FF8E53 25%, #FF6B9D 50%, #C44569 75%, #F8B500 100%)',
+                }}
+              >
+                <Container>
+                  <Row className='align-items-center min-vh-50'>
+                    <Col md={6} className='banner-content'>
+                      <div className='discount-badge-container mb-3'>
+                        <Badge bg='warning' className='special-offer-badge'>
+                          <i className='fas fa-fire me-2'></i>
+                          Special Mega Sale
+                        </Badge>
+                      </div>
+
+                      <h1 className='discount-banner-title'>
+                        <span className='discount-text'>60% OFF</span>
+                        <span className='main-text'>মেগা সেল</span>
+                      </h1>
+
+                      <p className='banner-description'>
+                        সকল ঔষধ ও স্বাস্থ্য পণ্যে বিশেষ ছাড়!
+                        <br />
+                        <strong>৫০০ টাকার উপরে ফ্রি ডেলিভারি</strong>
+                      </p>
+
+                      <div className='countdown-container mb-4'>
+                        <h6 className='countdown-title'>
+                          <i className='fas fa-clock me-2'></i>
+                          অফার শেষ হবে:
+                        </h6>
+                        <div className='countdown-timer'>
+                          <div className='time-unit'>
+                            <span className='time-number'>
+                              {timeLeft.days.toString().padStart(2, '0')}
+                            </span>
+                            <span className='time-label'>দিন</span>
+                          </div>
+                          <div className='time-separator'>:</div>
+                          <div className='time-unit'>
+                            <span className='time-number'>
+                              {timeLeft.hours.toString().padStart(2, '0')}
+                            </span>
+                            <span className='time-label'>ঘন্টা</span>
+                          </div>
+                          <div className='time-separator'>:</div>
+                          <div className='time-unit'>
+                            <span className='time-number'>
+                              {timeLeft.minutes.toString().padStart(2, '0')}
+                            </span>
+                            <span className='time-label'>মিনিট</span>
+                          </div>
+                          <div className='time-separator'>:</div>
+                          <div className='time-unit'>
+                            <span className='time-number'>
+                              {timeLeft.seconds.toString().padStart(2, '0')}
+                            </span>
+                            <span className='time-label'>সেকেন্ড</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className='action-buttons'>
+                        <LinkContainer to='/sale'>
+                          <Button size='lg' className='discount-shop-btn me-3'>
+                            <i className='fas fa-shopping-bag me-2'></i>
+                            এখনই কিনুন
+                          </Button>
+                        </LinkContainer>
+                        <LinkContainer to='/categories'>
+                          <Button
+                            variant='outline-light'
+                            size='lg'
+                            className='discount-explore-btn'
+                          >
+                            <i className='fas fa-th-large me-2'></i>
+                            সব পণ্য দেখুন
+                          </Button>
+                        </LinkContainer>
+                      </div>
+                    </Col>
+
+                    <Col md={6} className='discount-visual-content'>
+                      <div className='discount-visual'>
+                        <div className='floating-elements'>
+                          <div className='floating-pill pill-1'>
+                            <i className='fas fa-pills'></i>
+                          </div>
+                          <div className='floating-pill pill-2'>
+                            <i className='fas fa-capsules'></i>
+                          </div>
+                          <div className='floating-pill pill-3'>
+                            <i className='fas fa-tablets'></i>
+                          </div>
+                          <div className='floating-discount'>60%</div>
+                        </div>
+
+                        <div className='main-circle'>
+                          <div className='inner-circle'>
+                            <div className='discount-number'>
+                              60<span>%</span>
+                            </div>
+                            <div className='discount-label'>OFF</div>
+                          </div>
+                        </div>
+
+                        <div className='product-icons'>
+                          <div className='product-icon icon-1'>
+                            <i className='fas fa-heartbeat'></i>
+                          </div>
+                          <div className='product-icon icon-2'>
+                            <i className='fas fa-stethoscope'></i>
+                          </div>
+                          <div className='product-icon icon-3'>
+                            <i className='fas fa-syringe'></i>
+                          </div>
+                          <div className='product-icon icon-4'>
+                            <i className='fas fa-thermometer'></i>
+                          </div>
+                        </div>
+                      </div>
+                    </Col>
+                  </Row>
+                </Container>
+              </div>
+
+              {/* Regular Banners from API */}
+              {banners && banners.length > 0
+                ? banners.map((banner, index) => (
+                    <div
+                      key={banner._id}
+                      className={`banner-slide ${
+                        index + 1 === currentSlide ? 'active' : ''
+                      }`}
+                      style={{
+                        background:
+                          banner.bgColor ||
+                          'linear-gradient(135deg, #2E86AB 0%, #A23B72 100%)',
+                      }}
+                    >
+                      <Container>
+                        <Row className='align-items-center min-vh-50'>
+                          <Col md={6} className='banner-content'>
+                            <Badge bg='warning' className='banner-badge mb-2'>
+                              {banner.badge || 'Special Offer'}
+                            </Badge>
+                            <h1 className='banner-title'>{banner.title}</h1>
+                            <h3 className='banner-subtitle'>
+                              {banner.subtitle}
+                            </h3>
+                            <p className='banner-description'>
+                              {banner.description}
+                            </p>
+                            <LinkContainer to={banner.link || '/products'}>
+                              <Button size='lg' className='banner-btn'>
+                                {banner.buttonText || 'Shop Now'}
+                                <i className='fas fa-arrow-right ms-2'></i>
+                              </Button>
+                            </LinkContainer>
+                          </Col>
+                          <Col md={6} className='banner-image'>
+                            <img
+                              src={banner.image}
+                              alt={banner.title}
+                              className='img-fluid'
+                            />
+                          </Col>
+                        </Row>
+                      </Container>
+                    </div>
+                  ))
+                : null}
+
+              {/* Default banner when no banners exist */}
+              {(!banners || banners.length === 0) && (
                 <div
                   className='banner-slide active'
                   style={{
@@ -170,15 +340,23 @@ const HeroBanner = () => {
 
               {/* Dots Indicator */}
               <div className='carousel-dots'>
+                {/* Discount banner dot */}
+                <button
+                  key='discount'
+                  className={`dot ${currentSlide === 0 ? 'active' : ''}`}
+                  onClick={() => setCurrentSlide(0)}
+                ></button>
+
+                {/* Regular banner dots */}
                 {banners &&
                   banners.length > 0 &&
                   banners.map((_, index) => (
                     <button
-                      key={index}
+                      key={index + 1}
                       className={`dot ${
-                        index === currentSlide ? 'active' : ''
+                        index + 1 === currentSlide ? 'active' : ''
                       }`}
-                      onClick={() => setCurrentSlide(index)}
+                      onClick={() => setCurrentSlide(index + 1)}
                     ></button>
                   ))}
               </div>

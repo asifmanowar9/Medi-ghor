@@ -1,6 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import Product from '../models/productModel.js';
 import Category from '../models/categoryModel.js';
+import HealthCondition from '../models/healthConditionModel.js';
 
 // @description  Fetch all products
 // @route        Get /api/products
@@ -9,6 +10,7 @@ const getProducts = asyncHandler(async (req, res) => {
   const pageSize = Number(req.query.pageSize) || 12;
   const page = Number(req.query.pageNumber) || 1;
   const category = req.query.category;
+  const healthCondition = req.query.healthCondition;
   const brand = req.query.brand;
   const featured = req.query.featured;
   const flashSale = req.query.flashSale;
@@ -49,8 +51,33 @@ const getProducts = asyncHandler(async (req, res) => {
     }
   }
 
+  if (healthCondition) {
+    // Check if healthCondition is an ObjectId (24 character hex string) or a name
+    if (healthCondition.match(/^[0-9a-fA-F]{24}$/)) {
+      // It's an ObjectId
+      query.healthConditions = { $in: [healthCondition] };
+    } else {
+      // It's a health condition name, find the condition ID
+      const conditionDoc = await HealthCondition.findOne({
+        name: { $regex: new RegExp(healthCondition, 'i') },
+      });
+      if (conditionDoc) {
+        query.healthConditions = { $in: [conditionDoc._id] };
+      } else {
+        // Health condition not found, return empty results
+        return res.json({
+          products: [],
+          page,
+          pages: 0,
+          total: 0,
+        });
+      }
+    }
+  }
+
   if (brand) {
-    query.brand = brand;
+    // Use case-insensitive regex for brand matching
+    query.brand = { $regex: new RegExp(brand, 'i') };
   }
 
   if (featured === 'true') {

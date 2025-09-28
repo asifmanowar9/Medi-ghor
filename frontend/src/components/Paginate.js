@@ -9,6 +9,8 @@ const Paginate = ({
   isAdmin = false,
   keyword = '',
   category = '',
+  condition = '',
+  brand = '',
 }) => {
   const location = useLocation();
 
@@ -25,6 +27,10 @@ const Paginate = ({
                 ? `/search/${keyword}/page/${x + 1}`
                 : category
                 ? `/category/${category}/page/${x + 1}`
+                : condition
+                ? `/condition/${condition}/page/${x + 1}`
+                : brand
+                ? `/brand/${brand}/page/${x + 1}`
                 : `/page/${x + 1}`
             }
           >
