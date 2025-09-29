@@ -1,47 +1,74 @@
 import React from 'react';
-import { Nav } from 'react-bootstrap';
-import { LinkContainer } from 'react-router-bootstrap';
+import './CheckoutSteps.css';
 
 const CheckoutSteps = ({ step1, step2, step3, step4 }) => {
+  const steps = [
+    {
+      id: 'signin',
+      title: 'Sign In',
+      icon: 'fas fa-user',
+      completed: step1,
+      current: step1 && !step2,
+    },
+    {
+      id: 'shipping',
+      title: 'Shipping',
+      icon: 'fas fa-shipping-fast',
+      completed: step2,
+      current: step2 && !step3,
+    },
+    {
+      id: 'payment',
+      title: 'Payment',
+      icon: 'fas fa-credit-card',
+      completed: step3,
+      current: step3 && !step4,
+    },
+    {
+      id: 'placeorder',
+      title: 'Place Order',
+      icon: 'fas fa-check-circle',
+      completed: step4,
+      current: step4,
+    },
+  ];
+
   return (
-    <Nav className='justify-content-center mb-4'>
-      <Nav.Item>
-        {step1 ? (
-          <LinkContainer to='/login'>
-            <Nav.Link>Sign In</Nav.Link>
-          </LinkContainer>
-        ) : (
-          <Nav.Link disabled>Sign In</Nav.Link>
-        )}
-      </Nav.Item>
-      <Nav.Item>
-        {step2 ? (
-          <LinkContainer to='/shipping'>
-            <Nav.Link>Shipping</Nav.Link>
-          </LinkContainer>
-        ) : (
-          <Nav.Link disabled>Shipping</Nav.Link>
-        )}
-      </Nav.Item>
-      <Nav.Item>
-        {step3 ? (
-          <LinkContainer to='/payment'>
-            <Nav.Link>Payment</Nav.Link>
-          </LinkContainer>
-        ) : (
-          <Nav.Link disabled>Payment</Nav.Link>
-        )}
-      </Nav.Item>
-      <Nav.Item>
-        {step4 ? (
-          <LinkContainer to='/placeorder'>
-            <Nav.Link>Place Order</Nav.Link>
-          </LinkContainer>
-        ) : (
-          <Nav.Link disabled>Place Order</Nav.Link>
-        )}
-      </Nav.Item>
-    </Nav>
+    <div className='checkout-steps-container'>
+      <div className='checkout-steps'>
+        {steps.map((step, index) => (
+          <React.Fragment key={step.id}>
+            <div
+              className={`checkout-step ${
+                step.completed
+                  ? 'active'
+                  : step.current
+                  ? 'current'
+                  : 'disabled'
+              }`}
+            >
+              <div className='step-icon'>
+                {step.completed && !step.current ? (
+                  <i className='fas fa-check'></i>
+                ) : (
+                  <i className={step.icon}></i>
+                )}
+              </div>
+              <span className='step-text'>{step.title}</span>
+            </div>
+
+            {/* Step separator - don't show after last step */}
+            {index < steps.length - 1 && (
+              <div
+                className={`step-separator ${
+                  step.completed ? 'completed' : ''
+                }`}
+              ></div>
+            )}
+          </React.Fragment>
+        ))}
+      </div>
+    </div>
   );
 };
 

@@ -20,6 +20,7 @@ import { LinkContainer } from 'react-router-bootstrap';
 import { listProducts } from '../actions/productActions';
 import { listCategories } from '../actions/categoryActions';
 import { addToCart } from '../actions/cartActions';
+import { addToWishlist, removeFromWishlist } from '../actions/wishlistActions';
 import Product from '../components/Product';
 import Loader from '../components/Loader';
 import Message from '../components/Message';
@@ -64,6 +65,9 @@ const AllProducts = () => {
 
   const categoryList = useSelector((state) => state.categoryList);
   const { categories: allCategories } = categoryList;
+
+  const wishlist = useSelector((state) => state.wishlist);
+  const { wishlistItems } = wishlist;
 
   // Use all categories from the category list, fallback to categories from products if not loaded
   const categories =
@@ -213,6 +217,24 @@ const AllProducts = () => {
       setSelectedProduct(null);
       setQuantity(1);
     }
+  };
+
+  const handleAddToWishlist = async (product) => {
+    try {
+      await dispatch(addToWishlist(product._id));
+      // Show success message or toast here if needed
+    } catch (error) {
+      // Handle error - could show toast or alert
+      console.error('Failed to add to wishlist:', error.message);
+    }
+  };
+
+  const handleRemoveFromWishlist = (productId) => {
+    dispatch(removeFromWishlist(productId));
+  };
+
+  const isInWishlist = (productId) => {
+    return wishlistItems.some((item) => item.product === productId);
   };
 
   const handleCloseModal = () => {
@@ -531,7 +553,7 @@ const AllProducts = () => {
                       <div className='stars text-warning'>
                         {renderStars(product.rating || 0)}
                       </div>
-                      <span className='rating-count text-muted ms-1'>
+                      <span className='rating-count text-black ms-1'>
                         ({product.numReviews || 0})
                       </span>
                     </div>
@@ -549,14 +571,14 @@ const AllProducts = () => {
                     </div>
 
                     <div className='product-info mb-3'>
-                      <small className='text-muted'>
+                      <small className='text-black'>
                         <i className='fas fa-tag me-1'></i>
                         {typeof product.category === 'object'
                           ? product.category.name
                           : product.category}
                       </small>
                       {product.brand && (
-                        <small className='text-muted d-block'>
+                        <small className='text-black d-block'>
                           <i className='fas fa-trademark me-1'></i>
                           {product.brand}
                         </small>
@@ -578,18 +600,43 @@ const AllProducts = () => {
                           </LinkContainer>
                         </Col>
                         <Col>
-                          <Button
-                            variant='primary'
-                            size='sm'
-                            className='w-100'
-                            disabled={!product.countInStock}
-                            onClick={() => handleAddToCartClick(product)}
-                          >
-                            <i className='fas fa-cart-plus me-1'></i>
-                            {product.countInStock
-                              ? 'Add to Cart'
-                              : 'Out of Stock'}
-                          </Button>
+                          {product.countInStock > 0 ? (
+                            <Button
+                              variant='primary'
+                              size='sm'
+                              className='w-100'
+                              onClick={() => handleAddToCartClick(product)}
+                            >
+                              <i className='fas fa-cart-plus me-1'></i>
+                              Add to Cart
+                            </Button>
+                          ) : (
+                            <Button
+                              variant={
+                                isInWishlist(product._id)
+                                  ? 'danger'
+                                  : 'outline-danger'
+                              }
+                              size='sm'
+                              className='w-100'
+                              onClick={() =>
+                                isInWishlist(product._id)
+                                  ? handleRemoveFromWishlist(product._id)
+                                  : handleAddToWishlist(product)
+                              }
+                            >
+                              <i
+                                className={`fas ${
+                                  isInWishlist(product._id)
+                                    ? 'fa-heart-broken'
+                                    : 'fa-heart'
+                                } me-1`}
+                              ></i>
+                              {isInWishlist(product._id)
+                                ? 'Remove from Wishlist'
+                                : 'Add to Wishlist'}
+                            </Button>
+                          )}
                         </Col>
                       </Row>
                     </div>
@@ -665,15 +712,23 @@ const AllProducts = () => {
                   value={quantity}
                   onChange={(e) => setQuantity(Number(e.target.value))}
                   style={{
-                    backgroundColor: '#2c3e50',
-                    color: 'white',
-                    border: '1px solid #34495e',
+                    backgroundColor: '#2c3e50 !important',
+                    color: 'white !important',
+                    border: '1px solid #34495e !important',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
                   }}
                 >
                   {[
-                    ...Array(Math.min(selectedProduct.countInStock, 10)).keys(),
+                    ...Array(Math.min(selectedProduct.countInStock, 12)).keys(),
                   ].map((x) => (
-                    <option key={x + 1} value={x + 1}>
+                    <option
+                      key={x + 1}
+                      value={x + 1}
+                      style={{
+                        backgroundColor: '#2c3e50',
+                        color: 'white',
+                      }}
+                    >
                       {x + 1}
                     </option>
                   ))}

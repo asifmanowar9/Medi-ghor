@@ -39,7 +39,12 @@ const OrderListScreen = () => {
   const { userInfo } = userLogin;
 
   useEffect(() => {
-    if (userInfo && userInfo.isAdmin) {
+    if (
+      userInfo &&
+      (userInfo.isAdmin ||
+        userInfo.role === 'operator' ||
+        userInfo.role === 'super_admin')
+    ) {
       dispatch(listOrders());
     } else {
       navigate('/login');
@@ -164,6 +169,12 @@ const OrderListScreen = () => {
       hour: '2-digit',
       minute: '2-digit',
     });
+  };
+
+  // Function to format order ID for display consistently
+  const formatOrderId = (orderId) => {
+    if (!orderId) return '';
+    return `#${orderId.substring(0, 8).toUpperCase()}`;
   };
 
   return (
@@ -648,7 +659,7 @@ const OrderListScreen = () => {
                                     color: '#000000',
                                   }}
                                 >
-                                  Order #{order._id.slice(-8)}
+                                  Order {formatOrderId(order._id)}
                                 </Card.Title>
                                 <small className='text-muted'>
                                   {formatDate(order.createdAt)}
@@ -837,14 +848,14 @@ const OrderListScreen = () => {
                                   const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(
                                     email
                                   )}&su=${encodeURIComponent(
-                                    'Order #' +
-                                      order._id.slice(-8) +
+                                    'Order ' +
+                                      formatOrderId(order._id) +
                                       ' - Customer Support'
                                   )}&body=${encodeURIComponent(
                                     'Dear ' +
                                       (order.user?.name || 'Customer') +
-                                      ',\n\nRegarding your order #' +
-                                      order._id.slice(-8) +
+                                      ',\n\nRegarding your order ' +
+                                      formatOrderId(order._id) +
                                       '.\n\nBest regards,\nMedi-ghor Support Team'
                                   )}`;
 

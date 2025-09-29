@@ -32,6 +32,13 @@
   border-bottom: 1px solid #eee;
 }
 
+.main-navbar .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+}
+
 /* Logo */
 .brand-logo {
   text-decoration: none !important;
@@ -70,12 +77,13 @@
 /* Categories Button */
 .categories-btn {
   border-radius: 25px;
-  padding: 10px 20px;
+  padding: 10px 15px;
   font-weight: 500;
   border: 2px solid #2E86AB;
   color: #2E86AB;
   transition: all 0.3s ease;
-  min-width: 150px;
+  min-width: 130px;
+  white-space: nowrap;
 }
 
 .categories-btn:hover {
@@ -87,19 +95,22 @@
 
 /* Search Section */
 .search-section {
-  max-width: 500px;
+  min-width: 300px;
+  max-width: 600px;
+  flex: 1;
 }
 
 /* Header Icons */
 .header-icons {
-  gap: 15px;
+  gap: 10px;
+  flex-shrink: 0;
 }
 
 .header-icon-link {
   position: relative;
   color: #2D3436 !important;
   text-decoration: none;
-  padding: 8px 12px;
+  padding: 6px 8px;
   border-radius: 8px;
   transition: all 0.3s ease;
 }
@@ -318,6 +329,27 @@
 }
 
 /* Responsive Design */
+@media (max-width: 1199.98px) {
+  .categories-btn {
+    min-width: 120px;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+  
+  .header-icons {
+    gap: 8px;
+  }
+  
+  .icon-text {
+    font-size: 0.7rem;
+  }
+  
+  .search-section {
+    min-width: 250px;
+    max-width: 450px;
+  }
+}
+
 @media (max-width: 991.98px) {
   .top-bar {
     display: none;
@@ -351,6 +383,8 @@
   .search-section {
     order: 3;
     width: 100%;
+    min-width: unset;
+    max-width: unset;
     margin: 15px 0 0 0;
   }
 }

@@ -28,6 +28,9 @@ const ModernHeader = () => {
   const cart = useSelector((state) => state.cart);
   const { cartItems } = cart;
 
+  const wishlist = useSelector((state) => state.wishlist);
+  const { wishlistItems } = wishlist;
+
   const categoryList = useSelector((state) => state.categoryList);
   const { loading: categoriesLoading, categories } = categoryList;
 
@@ -94,7 +97,7 @@ const ModernHeader = () => {
             </Button>
 
             {/* Search Bar */}
-            <div className='search-section flex-grow-1 mx-3'>
+            <div className='search-section'>
               <SearchBox />
             </div>
 
@@ -112,16 +115,30 @@ const ModernHeader = () => {
                 </Nav.Link>
               </LinkContainer>
 
+              {/* Track Order */}
+              <LinkContainer to='/track-order'>
+                <Nav.Link className='header-icon-link'>
+                  <div className='icon-wrapper'>
+                    <i className='fas fa-search-location'></i>
+                    <span className='icon-text'>Track Order</span>
+                  </div>
+                </Nav.Link>
+              </LinkContainer>
+
               {/* Wishlist */}
-              <Nav.Link className='header-icon-link'>
-                <div className='icon-wrapper'>
-                  <i className='fas fa-heart'></i>
-                  <Badge bg='danger' className='icon-badge'>
-                    0
-                  </Badge>
-                  <span className='icon-text'>Wishlist</span>
-                </div>
-              </Nav.Link>
+              <LinkContainer to='/wishlist'>
+                <Nav.Link className='header-icon-link'>
+                  <div className='icon-wrapper'>
+                    <i className='fas fa-heart'></i>
+                    {wishlistItems.length > 0 && (
+                      <Badge bg='danger' className='icon-badge'>
+                        {wishlistItems.length}
+                      </Badge>
+                    )}
+                    <span className='icon-text'>Wishlist</span>
+                  </div>
+                </Nav.Link>
+              </LinkContainer>
 
               {/* Cart */}
               <LinkContainer to='/cart'>
@@ -144,7 +161,9 @@ const ModernHeader = () => {
                   title={
                     <div className='user-info'>
                       <i className='fas fa-user-circle'></i>
-                      <span className='user-name'>{userInfo.name}</span>
+                      <span style={{ color: 'black' }} className='user-name'>
+                        {userInfo.name}
+                      </span>
                     </div>
                   }
                   id='user-dropdown'
@@ -153,11 +172,6 @@ const ModernHeader = () => {
                   <LinkContainer to='/profile'>
                     <NavDropdown.Item>
                       <i className='fas fa-user me-2'></i>My Profile
-                    </NavDropdown.Item>
-                  </LinkContainer>
-                  <LinkContainer to='/orders'>
-                    <NavDropdown.Item>
-                      <i className='fas fa-box me-2'></i>My Orders
                     </NavDropdown.Item>
                   </LinkContainer>
                   <NavDropdown.Divider />
@@ -174,29 +188,64 @@ const ModernHeader = () => {
               )}
 
               {/* Admin Menu */}
-              {userInfo && userInfo.isAdmin && (
-                <NavDropdown
-                  title='Admin'
-                  id='admin-dropdown'
-                  className='admin-dropdown'
-                >
-                  <LinkContainer to='/admin/userlist'>
-                    <NavDropdown.Item>
-                      <i className='fas fa-users me-2'></i>Users
-                    </NavDropdown.Item>
-                  </LinkContainer>
-                  <LinkContainer to='/admin/productlist'>
-                    <NavDropdown.Item>
-                      <i className='fas fa-pills me-2'></i>Products
-                    </NavDropdown.Item>
-                  </LinkContainer>
-                  <LinkContainer to='/admin/orderlist'>
-                    <NavDropdown.Item>
-                      <i className='fas fa-clipboard-list me-2'></i>Orders
-                    </NavDropdown.Item>
-                  </LinkContainer>
-                </NavDropdown>
-              )}
+              {userInfo &&
+                (userInfo.role === 'super_admin' ||
+                  userInfo.role === 'operator' ||
+                  userInfo.isAdmin) && (
+                  <NavDropdown
+                    title={
+                      <span>
+                        <i
+                          className={
+                            userInfo.role === 'super_admin'
+                              ? 'fas fa-crown me-2'
+                              : userInfo.role === 'operator'
+                              ? 'fas fa-user-cog me-2'
+                              : 'fas fa-user-shield me-2'
+                          }
+                        ></i>
+                        {userInfo.role === 'super_admin'
+                          ? 'Super Admin'
+                          : userInfo.role === 'operator'
+                          ? 'Operator'
+                          : 'Admin'}
+                      </span>
+                    }
+                    id='admin-dropdown'
+                    className='admin-dropdown'
+                  >
+                    {/* Users management - available to all admin roles */}
+                    <LinkContainer to='/admin/userlist'>
+                      <NavDropdown.Item>
+                        <i className='fas fa-users me-2'></i>Users
+                      </NavDropdown.Item>
+                    </LinkContainer>
+
+                    {/* Products management - available to all admin roles */}
+                    <LinkContainer to='/admin/productlist'>
+                      <NavDropdown.Item>
+                        <i className='fas fa-pills me-2'></i>Products
+                      </NavDropdown.Item>
+                    </LinkContainer>
+
+                    {/* Orders management - available to all admin roles */}
+                    <LinkContainer to='/admin/orderlist'>
+                      <NavDropdown.Item>
+                        <i className='fas fa-clipboard-list me-2'></i>Orders
+                      </NavDropdown.Item>
+                    </LinkContainer>
+
+                    {/* System Settings - only for Super Admin */}
+                    {userInfo.role === 'super_admin' && (
+                      <>
+                        <NavDropdown.Divider />
+                        <NavDropdown.Item disabled className='text-muted'>
+                          <i className='fas fa-crown me-2'></i>Super Admin Only
+                        </NavDropdown.Item>
+                      </>
+                    )}
+                  </NavDropdown>
+                )}
             </div>
 
             {/* Mobile Toggle */}

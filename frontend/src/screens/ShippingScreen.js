@@ -327,7 +327,6 @@ const ShippingScreen = () => {
                           }}
                           isInvalid={!!errors.address}
                           className='shipping-input'
-                          style={{ color: 'white' }}
                         />
                         <Form.Control.Feedback type='invalid'>
                           {errors.address}
@@ -353,7 +352,6 @@ const ShippingScreen = () => {
                           }}
                           isInvalid={!!errors.city}
                           className='shipping-input'
-                          style={{ color: 'white' }}
                         >
                           <option value=''>Select Division</option>
                           <option value='Dhaka'>Dhaka</option>
@@ -386,7 +384,6 @@ const ShippingScreen = () => {
                           }}
                           isInvalid={!!errors.district}
                           className='shipping-input'
-                          style={{ color: 'white' }}
                           disabled={!city}
                         >
                           <option value=''>Select District</option>
@@ -426,7 +423,6 @@ const ShippingScreen = () => {
                           }}
                           isInvalid={!!errors.postalCode}
                           className='shipping-input'
-                          style={{ color: 'white' }}
                           maxLength='4'
                         />
                         <Form.Control.Feedback type='invalid'>
@@ -453,7 +449,6 @@ const ShippingScreen = () => {
                             onChange={handlePhoneChange}
                             isInvalid={!!errors.phone}
                             className='shipping-input'
-                            style={{ color: 'white' }}
                             maxLength='14'
                           />
                           <Form.Control.Feedback type='invalid'>
@@ -480,7 +475,6 @@ const ShippingScreen = () => {
                           value={landmark}
                           onChange={(e) => setLandmark(e.target.value)}
                           className='shipping-input'
-                          style={{ color: 'white' }}
                         />
                       </Form.Group>
                     </Col>
@@ -501,7 +495,6 @@ const ShippingScreen = () => {
                             setDeliveryInstructions(e.target.value)
                           }
                           className='shipping-input'
-                          style={{ color: 'white' }}
                           maxLength='200'
                         />
                         <Form.Text className='text-muted'>

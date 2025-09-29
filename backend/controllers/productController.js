@@ -2,6 +2,7 @@ import asyncHandler from 'express-async-handler';
 import Product from '../models/productModel.js';
 import Category from '../models/categoryModel.js';
 import HealthCondition from '../models/healthConditionModel.js';
+import { checkRestockedProducts } from './wishlistController.js';
 
 // @description  Fetch all products
 // @route        Get /api/products
@@ -220,13 +221,19 @@ const updateProduct = asyncHandler(async (req, res) => {
   const product = await Product.findById(req.params.id);
 
   if (product) {
+    // Store the original stock count to check if it was restocked
+    const wasOutOfStock = product.countInStock === 0;
+    const newCountInStock =
+      countInStock !== undefined ? countInStock : product.countInStock;
+    const isNowInStock = newCountInStock > 0;
+
     product.name = name;
     product.price = price;
     product.description = description;
     product.image = image;
     product.brand = brand;
     product.category = category;
-    product.countInStock = countInStock;
+    product.countInStock = newCountInStock;
     product.genericName = genericName || '';
     product.dosageForm = dosageForm || '';
     product.strength = strength || '';
@@ -236,6 +243,21 @@ const updateProduct = asyncHandler(async (req, res) => {
     product.isFeatured = isFeatured || false;
 
     const updatedProduct = await product.save();
+
+    // Check if the product was restocked (was out of stock, now in stock)
+    if (wasOutOfStock && isNowInStock) {
+      try {
+        // Trigger restock notifications for users who have this product in their wishlist
+        await checkRestockedProducts([updatedProduct._id]);
+        console.log(
+          `Restock notifications sent for product: ${updatedProduct.name}`
+        );
+      } catch (error) {
+        console.error('Error sending restock notifications:', error);
+        // Don't throw the error to avoid disrupting the product update
+      }
+    }
+
     res.json(updatedProduct);
   } else {
     res.status(404);

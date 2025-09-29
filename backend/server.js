@@ -19,6 +19,7 @@ import bannerRoutes from './routes/bannerRoutes.js';
 import categoryRoutes from './routes/categoryRoutes.js';
 import brandRoutes from './routes/brandRoutes.js';
 import healthConditionRoutes from './routes/healthConditionRoutes.js';
+import wishlistRoutes from './routes/wishlistRoutes.js';
 
 dotenv.config();
 
@@ -63,6 +64,7 @@ app.use('/api/banners', bannerRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/brands', brandRoutes);
 app.use('/api/health-conditions', healthConditionRoutes);
+app.use('/api/wishlist', wishlistRoutes);
 
 // Serve static files
 const __filename = fileURLToPath(import.meta.url);

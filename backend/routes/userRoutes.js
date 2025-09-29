@@ -10,9 +10,14 @@ import {
   updateUser,
   getUserById,
 } from '../controllers/userController.js';
-import { protect, admin } from '../middleWare/authMiddleware.js';
+import {
+  protect,
+  admin,
+  adminOrHigher,
+  superAdmin,
+} from '../middleWare/authMiddleware.js';
 
-router.route('/').post(registerUser).get(protect, admin, getUser); // Route to handle user registration
+router.route('/').post(registerUser).get(protect, adminOrHigher, getUser); // Route to handle user registration
 router.post('/login', authUser); // Route to handle user login
 router
   .route('/profile')
@@ -20,8 +25,8 @@ router
   .put(protect, updadteUserProfile); // Route to get user profile
 router
   .route('/:id')
-  .delete(protect, admin, deleteUser)
-  .get(protect, admin, getUserById)
-  .put(protect, admin, updateUser); // Route to delete a user by ID
+  .delete(protect, adminOrHigher, deleteUser)
+  .get(protect, adminOrHigher, getUserById)
+  .put(protect, adminOrHigher, updateUser); // Route to delete a user by ID
 
 export default router;

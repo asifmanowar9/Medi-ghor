@@ -19,6 +19,11 @@ import {
   ORDER_DELIVER_RESET,
 } from '../constants/orderConstants';
 import StripeCheckoutModal from '../components/StripeCheckoutModal';
+import {
+  hasAdminPrivileges,
+  isOrderDeliverable,
+  formatOrderId,
+} from '../utils/orderUtils';
 import './OrderScreen.css';
 
 const OrderScreen = () => {
@@ -64,6 +69,12 @@ const OrderScreen = () => {
       };
     } else if (order.isPaid && !order.isDelivered) {
       return { status: 'Processing', variant: 'warning', icon: 'fas fa-clock' };
+    } else if (order.paymentMethod === 'CashOnDelivery') {
+      return {
+        status: 'Cash on Delivery',
+        variant: 'info',
+        icon: 'fas fa-money-bill-wave',
+      };
     } else {
       return {
         status: 'Pending Payment',
@@ -81,6 +92,12 @@ const OrderScreen = () => {
       hour: '2-digit',
       minute: '2-digit',
     });
+  };
+
+  // Function to format order ID for display consistently
+  const formatOrderId = (orderId) => {
+    if (!orderId) return '';
+    return `#${orderId.substring(0, 8).toUpperCase()}`;
   };
 
   if (loading) {
@@ -126,7 +143,9 @@ const OrderScreen = () => {
                 <i className='fas fa-arrow-left me-2'></i>
                 Back
               </Button>
-              <h2 className='text-black mb-0'>Order #{order._id.slice(-8)}</h2>
+              <h2 className='text-black mb-0'>
+                Order {formatOrderId(order._id)}
+              </h2>
               <Badge
                 bg={orderStatus.variant}
                 className='d-flex align-items-center gap-1'
@@ -237,7 +256,7 @@ const OrderScreen = () => {
                       >
                         {order.isDelivered ? 'Delivered' : 'Pending Delivery'}
                       </h6>
-                      <small className='text-muted'>
+                      <small className='text-black'>
                         {order.isDelivered
                           ? `Delivered on ${formatDate(order.deliveredAt)}`
                           : 'Your order will be delivered soon'}
@@ -279,30 +298,58 @@ const OrderScreen = () => {
                 style={{
                   background: order.isPaid
                     ? 'rgba(40, 167, 69, 0.2)'
+                    : order.paymentMethod === 'CashOnDelivery'
+                    ? 'rgba(23, 162, 184, 0.2)'
                     : 'rgba(220, 53, 69, 0.2)',
-                  border: `2px solid ${order.isPaid ? '#28a745' : '#dc3545'}`,
+                  border: `2px solid ${
+                    order.isPaid
+                      ? '#28a745'
+                      : order.paymentMethod === 'CashOnDelivery'
+                      ? '#17a2b8'
+                      : '#dc3545'
+                  }`,
                 }}
               >
                 <div className='d-flex align-items-center'>
                   <i
                     className={`fas ${
-                      order.isPaid ? 'fa-check-circle' : 'fa-times-circle'
-                    } ${order.isPaid ? 'text-success' : 'text-danger'} me-3`}
+                      order.isPaid
+                        ? 'fa-check-circle'
+                        : order.paymentMethod === 'CashOnDelivery'
+                        ? 'fa-money-bill-wave'
+                        : 'fa-times-circle'
+                    } ${
+                      order.isPaid
+                        ? 'text-success'
+                        : order.paymentMethod === 'CashOnDelivery'
+                        ? 'text-info'
+                        : 'text-danger'
+                    } me-3`}
                     style={{ fontSize: '1.5rem' }}
                   ></i>
                   <div>
                     <h6
                       className='mb-1'
                       style={{
-                        color: order.isPaid ? '#28a745' : '#dc3545',
+                        color: order.isPaid
+                          ? '#28a745'
+                          : order.paymentMethod === 'CashOnDelivery'
+                          ? '#17a2b8'
+                          : '#dc3545',
                         fontWeight: '600',
                       }}
                     >
-                      {order.isPaid ? 'Payment Confirmed' : 'Payment Pending'}
+                      {order.isPaid
+                        ? 'Payment Confirmed'
+                        : order.paymentMethod === 'CashOnDelivery'
+                        ? 'Cash on Delivery Order'
+                        : 'Payment Pending'}
                     </h6>
-                    <small className='text-muted'>
+                    <small className='text-black'>
                       {order.isPaid
                         ? `Paid on ${formatDate(order.paidAt)}`
+                        : order.paymentMethod === 'CashOnDelivery'
+                        ? 'Payment will be collected upon delivery'
                         : 'Payment is required to process your order'}
                     </small>
                   </div>
@@ -388,7 +435,7 @@ const OrderScreen = () => {
                               {item.name}
                             </Link>
                             <div className='mt-1'>
-                              <small className='text-muted'>
+                              <small className='text-black'>
                                 <i className='fas fa-tag me-1'></i>
                                 Unit Price: ৳
                                 {parseFloat(item.price).toLocaleString()}
@@ -461,12 +508,6 @@ const OrderScreen = () => {
                     )}
                   </span>
                 </div>
-                <div className='d-flex justify-content-between mb-2'>
-                  <span style={{ color: '#000000' }}>Tax:</span>
-                  <span style={{ color: '#000000', fontWeight: '500' }}>
-                    ৳{parseFloat(order.taxPrice || 0).toLocaleString()}
-                  </span>
-                </div>
                 <hr style={{ borderColor: 'rgba(255, 255, 255, 0.2)' }} />
                 <div className='d-flex justify-content-between'>
                   <span
@@ -491,7 +532,7 @@ const OrderScreen = () => {
               </div>
 
               {/* Payment Action */}
-              {!order.isPaid && (
+              {!order.isPaid && order.paymentMethod !== 'CashOnDelivery' && (
                 <div className='mb-3'>
                   {loadingPay ? (
                     <div className='text-center py-3'>
@@ -518,14 +559,41 @@ const OrderScreen = () => {
                 </div>
               )}
 
+              {/* Cash on Delivery Notice */}
+              {!order.isPaid && order.paymentMethod === 'CashOnDelivery' && (
+                <div className='mb-3'>
+                  <div
+                    className='p-3 rounded text-center'
+                    style={{
+                      background: 'rgba(23, 162, 184, 0.2)',
+                      border: '2px solid #17a2b8',
+                      borderRadius: '10px',
+                    }}
+                  >
+                    <i
+                      className='fas fa-money-bill-wave text-info mb-2'
+                      style={{ fontSize: '2rem' }}
+                    ></i>
+                    <h6 style={{ color: '#17a2b8', fontWeight: '600' }}>
+                      Cash on Delivery
+                    </h6>
+                    <p className='mb-0' style={{ color: '#000000' }}>
+                      You will pay ৳
+                      {parseFloat(order.totalPrice).toLocaleString()} when your
+                      order is delivered
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {/* Admin Actions */}
-              {userInfo?.isAdmin && (
+              {hasAdminPrivileges(userInfo) && (
                 <div className='admin-actions'>
                   <h6 style={{ color: '#000000', marginBottom: '1rem' }}>
                     <i className='fas fa-user-shield me-2'></i>
                     Admin Actions
                   </h6>
-                  {order.isPaid && !order.isDelivered && (
+                  {isOrderDeliverable(order) && (
                     <div className='mb-2'>
                       {loadingDeliver ? (
                         <div className='text-center py-2'>
@@ -547,6 +615,15 @@ const OrderScreen = () => {
                         >
                           <i className='fas fa-truck me-2'></i>
                           Mark as Delivered
+                          {order.paymentMethod === 'CashOnDelivery' &&
+                            !order.isPaid && (
+                              <small
+                                className='d-block'
+                                style={{ fontSize: '0.8em', marginTop: '2px' }}
+                              >
+                                (Will mark as paid)
+                              </small>
+                            )}
                         </Button>
                       )}
                     </div>

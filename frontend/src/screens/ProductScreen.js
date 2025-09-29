@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom'; // Change useHistory to useNavigate
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   Row,
   Col,
   Image,
-  ListGroup,
   Card,
   Button,
   Form,
+  Container,
+  Badge,
 } from 'react-bootstrap';
 import Rating from '../components/Rating';
 import Loader from '../components/Loader';
@@ -18,6 +19,7 @@ import {
   createProductReview,
 } from '../actions/productActions';
 import { PRODUCT_CREATE_REVIEW_RESET } from '../constants/productConstants';
+import './ProductScreen.css';
 
 const ProductScreen = () => {
   const [qty, setQty] = useState(1);
@@ -72,177 +74,395 @@ const ProductScreen = () => {
       : `/uploads/${product.image}`);
 
   return (
-    <>
-      <Link className='btn btn-light my-3' to='/'>
-        Go Back
-      </Link>
-      {loading ? (
-        <Loader />
-      ) : error ? (
-        <Message variant='danger'>{error}</Message>
-      ) : (
-        <>
-          <Row>
-            <Col md={6}>
-              <Image src={imagePath} alt={product.name} fluid />
-            </Col>
-            <Col md={3}>
-              <ListGroup variant='flush'>
-                <ListGroup.Item>
-                  <h3>{product.name}</h3>
-                </ListGroup.Item>
-                <ListGroup.Item>
-                  <Rating
-                    value={product.rating}
-                    text={`${product.numReviews} reviews`}
-                  />
-                </ListGroup.Item>
-                <ListGroup.Item>Price: BDT{product.price}</ListGroup.Item>
-                <ListGroup.Item>
-                  Description: {product.description}
-                </ListGroup.Item>
-              </ListGroup>
-            </Col>
-            <Col md={3}>
-              <Card>
-                <ListGroup variant='flush'>
-                  <ListGroup.Item>
-                    <Row>
-                      <Col>Price:</Col>
-                      <Col>
-                        <strong>BDT{product.price}</strong>
-                      </Col>
-                    </Row>
-                  </ListGroup.Item>
+    <div className='product-screen-container'>
+      <Container fluid>
+        <Link className='back-btn' to='/'>
+          <i className='fas fa-arrow-left me-2'></i>
+          Go Back
+        </Link>
 
-                  <ListGroup.Item>
-                    <Row>
-                      <Col>Status:</Col>
-                      <Col>
-                        {product.countInStock > 0 ? 'In Stock' : 'out of stock'}
-                      </Col>
-                    </Row>
-                  </ListGroup.Item>
+        {loading ? (
+          <div className='text-center py-5'>
+            <Loader />
+          </div>
+        ) : error ? (
+          <Message variant='danger'>{error}</Message>
+        ) : (
+          <>
+            {/* Main Product Information */}
+            <Card className='product-main-card'>
+              <Card.Body className='p-4'>
+                <Row className='g-4'>
+                  {/* Product Image */}
+                  <Col lg={6}>
+                    <div className='product-image-container'>
+                      <Image
+                        src={imagePath}
+                        alt={product.name}
+                        className='product-image'
+                        fluid
+                      />
+                    </div>
+                  </Col>
 
-                  {product.countInStock > 0 && (
-                    <ListGroup.Item>
-                      <Row>
-                        <Col>Qty</Col>
-                        <Col xs='auto' className='my-1'>
-                          <Form.Control
-                            as='select'
-                            value={qty}
-                            onChange={(e) => setQty(e.target.value)}
+                  {/* Product Information */}
+                  <Col lg={4}>
+                    <div className='product-info-section'>
+                      <h1 className='product-title'>
+                        <i className='fas fa-pills me-3'></i>
+                        {product.name}
+                      </h1>
+
+                      <div className='product-rating mb-3'>
+                        <Rating
+                          value={product.rating}
+                          text={`${product.numReviews} reviews`}
+                        />
+                      </div>
+
+                      <div className='product-price mb-3'>
+                        <i className='fas fa-tag me-2'></i>
+                        BDT {product.price}
+                      </div>
+
+                      <div className='info-item'>
+                        <span className='info-label'>
+                          <i className='fas fa-info-circle me-2'></i>
+                          Description:
+                        </span>
+                      </div>
+                      <p className='product-description'>
+                        {product.description || 'No description available.'}
+                      </p>
+
+                      {/* Additional Product Info */}
+                      <div className='info-item'>
+                        <span className='info-label'>
+                          <i className='fas fa-star me-2'></i>
+                          Rating:
+                        </span>
+                        <span className='info-value'>
+                          {product.rating ? `${product.rating}/5` : 'Not rated'}
+                        </span>
+                      </div>
+
+                      <div className='info-item'>
+                        <span className='info-label'>
+                          <i className='fas fa-comments me-2'></i>
+                          Reviews:
+                        </span>
+                        <span className='info-value'>
+                          {product.numReviews || 0} customer reviews
+                        </span>
+                      </div>
+                    </div>
+                  </Col>
+
+                  {/* Purchase Section */}
+                  <Col lg={2}>
+                    <Card className='purchase-card'>
+                      <div className='purchase-header'>
+                        <h5 className='purchase-title'>
+                          <i className='fas fa-shopping-cart me-2'></i>
+                          Purchase Options
+                        </h5>
+                      </div>
+
+                      <div className='purchase-item'>
+                        <div className='d-flex justify-content-between align-items-center w-100'>
+                          <span className='purchase-label'>Price:</span>
+                          <span className='purchase-value price-value'>
+                            BDT {product.price}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className='purchase-item'>
+                        <div className='d-flex justify-content-between align-items-center w-100'>
+                          <span className='purchase-label'>Status:</span>
+                          <Badge
+                            className={`status-badge ${
+                              product.countInStock > 0
+                                ? 'in-stock'
+                                : 'out-of-stock'
+                            }`}
                           >
-                            {[...Array(product.countInStock).keys()].map(
-                              (x) => (
-                                <option key={x + 1} value={x + 1}>
-                                  {x + 1}
-                                </option>
-                              )
+                            <i
+                              className={`fas ${
+                                product.countInStock > 0
+                                  ? 'fa-check-circle'
+                                  : 'fa-times-circle'
+                              } me-1`}
+                            ></i>
+                            {product.countInStock > 0
+                              ? 'In Stock'
+                              : 'Out of Stock'}
+                          </Badge>
+                        </div>
+                      </div>
+
+                      {product.countInStock > 0 && (
+                        <div className='purchase-item'>
+                          <div className='d-flex justify-content-between align-items-center w-100'>
+                            <span className='purchase-label'>
+                              <i className='fas fa-sort-numeric-up me-2'></i>
+                              Qty:
+                            </span>
+                            <div className='qty-selector-container'>
+                              <div
+                                className='d-flex align-items-center'
+                                style={{ maxWidth: '120px' }}
+                              >
+                                <Button
+                                  variant='outline-secondary'
+                                  size='sm'
+                                  disabled={qty <= 1}
+                                  onClick={() => setQty(Math.max(1, qty - 1))}
+                                  style={{
+                                    width: '32px',
+                                    height: '32px',
+                                    padding: '0',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                  }}
+                                >
+                                  <i
+                                    className='fas fa-minus'
+                                    style={{ fontSize: '0.8rem' }}
+                                  ></i>
+                                </Button>
+                                <Form.Control
+                                  type='number'
+                                  min='1'
+                                  max={Math.min(product.countInStock, 12)}
+                                  value={qty}
+                                  onChange={(e) => {
+                                    const newQty =
+                                      parseInt(e.target.value) || 1;
+                                    if (
+                                      newQty >= 1 &&
+                                      newQty <=
+                                        Math.min(product.countInStock, 12)
+                                    ) {
+                                      setQty(newQty);
+                                    }
+                                  }}
+                                  onBlur={(e) => {
+                                    const newQty =
+                                      parseInt(e.target.value) || 1;
+                                    const validQty = Math.max(
+                                      1,
+                                      Math.min(
+                                        Math.min(product.countInStock, 12),
+                                        newQty
+                                      )
+                                    );
+                                    setQty(validQty);
+                                  }}
+                                  className='text-center'
+                                  style={{
+                                    width: '50px',
+                                    fontSize: '0.85rem',
+                                    height: '32px',
+                                    margin: '0 4px',
+                                    padding: '0 4px',
+                                  }}
+                                />
+                                <Button
+                                  variant='outline-secondary'
+                                  size='sm'
+                                  disabled={
+                                    qty >= Math.min(product.countInStock, 12)
+                                  }
+                                  onClick={() =>
+                                    setQty(
+                                      Math.min(
+                                        Math.min(product.countInStock, 12),
+                                        qty + 1
+                                      )
+                                    )
+                                  }
+                                  style={{
+                                    width: '32px',
+                                    height: '32px',
+                                    padding: '0',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                  }}
+                                >
+                                  <i
+                                    className='fas fa-plus'
+                                    style={{ fontSize: '0.8rem' }}
+                                  ></i>
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className='purchase-item'>
+                        <Button
+                          onClick={addTocartHandler}
+                          className='add-to-cart-btn'
+                          disabled={product.countInStock === 0}
+                        >
+                          <i className='fas fa-cart-plus me-2'></i>
+                          {product.countInStock === 0
+                            ? 'Out of Stock'
+                            : 'Add to Cart'}
+                        </Button>
+                      </div>
+                    </Card>
+                  </Col>
+                </Row>
+              </Card.Body>
+            </Card>
+
+            {/* Reviews Section */}
+            <Card className='reviews-section'>
+              <div className='reviews-header'>
+                <h2 className='reviews-title'>
+                  <i className='fas fa-comments me-3'></i>
+                  Customer Reviews ({product.reviews?.length || 0})
+                </h2>
+              </div>
+
+              <div className='reviews-content'>
+                {product.reviews?.length === 0 ? (
+                  <div className='no-reviews-message'>
+                    <i className='fas fa-comment-slash fa-3x mb-3'></i>
+                    <p>No reviews yet. Be the first to review this product!</p>
+                  </div>
+                ) : (
+                  <div className='mb-4'>
+                    {product.reviews?.map((review) => (
+                      <div key={review._id} className='review-item'>
+                        <div className='review-header'>
+                          <div>
+                            <span className='reviewer-name'>
+                              <i className='fas fa-user-circle me-2'></i>
+                              {review.name}
+                            </span>
+                            <div className='mt-1'>
+                              <Rating value={review.rating} />
+                            </div>
+                          </div>
+                          <span className='review-date'>
+                            <i className='fas fa-calendar me-1'></i>
+                            {new Date(review.createdAt).toLocaleDateString(
+                              'en-US',
+                              {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                              }
                             )}
-                          </Form.Control>
-                        </Col>
-                      </Row>
-                    </ListGroup.Item>
-                  )}
+                          </span>
+                        </div>
+                        {review.comment && (
+                          <p className='review-comment'>"{review.comment}"</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
 
-                  <ListGroup.Item>
-                    <Button
-                      onClick={addTocartHandler}
-                      className='btn-block'
-                      type='button'
-                      disabled={product.countInStock === 0}
-                    >
-                      Add to cart
-                    </Button>
-                  </ListGroup.Item>
-                </ListGroup>
-              </Card>
-            </Col>
-          </Row>
+                {/* Write Review Section */}
+                <div className='write-review-section'>
+                  <h3 className='write-review-title'>
+                    <i className='fas fa-edit me-2'></i>
+                    Write a Review
+                  </h3>
 
-          <Row>
-            <Col md={6}>
-              <h2>Reviews</h2>
-              {product.reviews.length === 0 && <Message>No Reviews</Message>}
-              <ListGroup variant='flush'>
-                {product.reviews.map((review) => (
-                  <ListGroup.Item key={review._id}>
-                    <strong>{review.name}</strong>
-                    <Rating value={review.rating} />
-                    <p>{review.createdAt.substring(0, 10)}</p>
-                    <p>{review.comment}</p>
-                  </ListGroup.Item>
-                ))}
-                <ListGroup.Item>
-                  <h2>Write a Customer Review</h2>
                   {successProductReview && (
                     <Message variant='success'>
-                      Review submitted successfully
+                      <i className='fas fa-check-circle me-2'></i>
+                      Review submitted successfully! Thank you for your
+                      feedback.
                     </Message>
                   )}
+
                   {errorProductReview && (
-                    <Message variant='danger'>{errorProductReview}</Message>
+                    <Message variant='danger'>
+                      <i className='fas fa-exclamation-triangle me-2'></i>
+                      {errorProductReview}
+                    </Message>
                   )}
+
                   {userInfo ? (
-                    <Form onSubmit={(e) => submitHandler(e)}>
-                      <Form.Group controlId='rating'>
-                        <Form.Label>Rating</Form.Label>
-                        <Form.Control
-                          as='select'
+                    <Form onSubmit={submitHandler}>
+                      <div className='review-form-group'>
+                        <label className='review-form-label' htmlFor='rating'>
+                          <i className='fas fa-star me-2'></i>
+                          Rating
+                        </label>
+                        <Form.Select
+                          id='rating'
+                          className='review-form-control'
                           value={rating}
                           onChange={(e) => setRating(e.target.value)}
                         >
-                          <option value=''>Select...</option>
-                          {[1, 2, 3, 4, 5].map((x) => (
-                            <option key={x} value={x}>
-                              {x}
-                            </option>
-                          ))}
-                        </Form.Control>
-                      </Form.Group>
+                          <option value=''>Select a rating...</option>
+                          <option value='1'>1 - Poor</option>
+                          <option value='2'>2 - Fair</option>
+                          <option value='3'>3 - Good</option>
+                          <option value='4'>4 - Very Good</option>
+                          <option value='5'>5 - Excellent</option>
+                        </Form.Select>
+                      </div>
 
-                      <Form.Group controlId='comment'>
-                        <Form.Label>Comment</Form.Label>
-                        <Form.Control
-                          as='textarea'
-                          row='3'
+                      <div className='review-form-group'>
+                        <label className='review-form-label' htmlFor='comment'>
+                          <i className='fas fa-comment me-2'></i>
+                          Your Review
+                        </label>
+                        <textarea
+                          id='comment'
+                          className='review-form-control review-textarea'
+                          placeholder='Share your experience with this product...'
                           value={comment}
                           onChange={(e) => setComment(e.target.value)}
-                        ></Form.Control>
-                      </Form.Group>
+                        />
+                      </div>
 
                       <Button
-                        disabled={loading}
                         type='submit'
-                        variant='primary'
-                        // onClick={() => {
-                        //   dispatch(
-                        //     createProductReview(id, {
-                        //       rating,
-                        //       comment,
-                        //     })
-                        //   );
-                        //   setRating(0);
-                        //   setComment('');
-                        // }}
+                        className='submit-review-btn'
+                        disabled={loading}
                       >
-                        Submit
+                        {loading ? (
+                          <>
+                            <i className='fas fa-spinner fa-spin me-2'></i>
+                            Submitting...
+                          </>
+                        ) : (
+                          <>
+                            <i className='fas fa-paper-plane me-2'></i>
+                            Submit Review
+                          </>
+                        )}
                       </Button>
                     </Form>
                   ) : (
-                    <Message>
-                      Please <Link to='/login'>sign in</Link> to write a review
-                    </Message>
+                    <div className='login-prompt'>
+                      <i className='fas fa-sign-in-alt me-2'></i>
+                      Please{' '}
+                      <Link to='/login' className='login-link'>
+                        sign in
+                      </Link>{' '}
+                      to write a review
+                    </div>
                   )}
-                </ListGroup.Item>
-              </ListGroup>
-            </Col>
-          </Row>
-        </>
-      )}
-    </>
+                </div>
+              </div>
+            </Card>
+          </>
+        )}
+      </Container>
+    </div>
   );
 };
 

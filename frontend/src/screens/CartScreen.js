@@ -97,6 +97,10 @@ const CartScreen = () => {
   );
   const totalItems = cartItems.reduce((acc, item) => acc + item.qty, 0);
 
+  // Calculate delivery fee - free for orders above 1000, otherwise 150
+  const deliveryFee = subtotal > 1000 ? 0 : 150;
+  const finalTotal = subtotal + deliveryFee;
+
   return (
     <div className='cart-screen'>
       <Container fluid className='px-3 px-lg-5'>
@@ -250,31 +254,42 @@ const CartScreen = () => {
                                 <i className='fas fa-minus'></i>
                               </Button>
                               <Form.Control
-                                as='select'
+                                type='number'
+                                min='1'
+                                max={item.countInStock}
                                 value={item.qty}
                                 disabled={isLoading}
-                                onChange={(e) =>
-                                  handleQuantityChange(
-                                    item.product,
-                                    Number(e.target.value)
-                                  )
-                                }
+                                onChange={(e) => {
+                                  const newQty = parseInt(e.target.value) || 1;
+                                  if (
+                                    newQty >= 1 &&
+                                    newQty <= item.countInStock &&
+                                    newQty !== item.qty
+                                  ) {
+                                    handleQuantityChange(item.product, newQty);
+                                  }
+                                }}
+                                onBlur={(e) => {
+                                  const newQty = parseInt(e.target.value) || 1;
+                                  const validQty = Math.max(
+                                    1,
+                                    Math.min(item.countInStock, newQty)
+                                  );
+                                  if (validQty !== item.qty) {
+                                    handleQuantityChange(
+                                      item.product,
+                                      validQty
+                                    );
+                                  }
+                                }}
                                 className='text-center'
-                              >
-                                {[
-                                  ...Array(
-                                    Math.min(item.countInStock, 10)
-                                  ).keys(),
-                                ].map((x) => (
-                                  <option key={x + 1} value={x + 1}>
-                                    {x + 1}
-                                  </option>
-                                ))}
-                              </Form.Control>
+                                style={{ fontSize: '0.9rem' }}
+                              />
                               <Button
                                 variant='outline-secondary'
                                 disabled={
-                                  item.qty >= item.countInStock || isLoading
+                                  item.qty >= Math.min(item.countInStock, 12) ||
+                                  isLoading
                                 }
                                 onClick={() =>
                                   handleQuantityChange(
@@ -334,18 +349,29 @@ const CartScreen = () => {
                     </div>
                     <div className='summary-row'>
                       <span style={{ color: 'white' }}>Delivery</span>
-                      <span
-                        className='text-success'
-                        style={{ color: '#28a745' }}
-                      >
-                        <i className='fas fa-shipping-fast me-1'></i>
-                        FREE
-                      </span>
+                      {deliveryFee === 0 ? (
+                        <span
+                          className='text-success'
+                          style={{ color: '#28a745' }}
+                        >
+                          <i className='fas fa-shipping-fast me-1'></i>
+                          FREE
+                        </span>
+                      ) : (
+                        <span style={{ color: 'white' }}>
+                          ৳{deliveryFee.toFixed(2)}
+                        </span>
+                      )}
                     </div>
-                    <div className='summary-row'>
-                      <span style={{ color: 'white' }}>Tax</span>
-                      <span style={{ color: 'white' }}>৳0.00</span>
-                    </div>
+                    {deliveryFee > 0 && (
+                      <div className='delivery-notice mt-2'>
+                        <small style={{ color: '#ffc107' }}>
+                          <i className='fas fa-info-circle me-1'></i>
+                          Add ৳{(1000 - subtotal).toFixed(2)} more for FREE
+                          delivery!
+                        </small>
+                      </div>
+                    )}
                     <hr className='summary-divider' />
                     <div className='summary-row total-row'>
                       <strong style={{ color: 'white', fontSize: '1.2rem' }}>
@@ -355,7 +381,7 @@ const CartScreen = () => {
                         className='total-amount'
                         style={{ color: '#e74c3c', fontSize: '1.4rem' }}
                       >
-                        ৳{subtotal.toFixed(2)}
+                        ৳{finalTotal.toFixed(2)}
                       </strong>
                     </div>
                   </div>

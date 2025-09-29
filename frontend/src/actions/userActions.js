@@ -28,6 +28,10 @@ import {
 import { ORDER_LIST_MY_RESET } from '../constants/orderConstants';
 import { CART_ADD_ITEM, CART_CLEAR_ITEMS } from '../constants/cartConstants';
 import { loadUserCart, clearCart } from '../actions/cartActions';
+import {
+  syncWishlistWithBackend,
+  clearWishlist,
+} from '../actions/wishlistActions';
 
 import axios from 'axios';
 
@@ -58,6 +62,9 @@ export const login = (email, password) => async (dispatch) => {
 
     // Load this user's cart after successful login
     dispatch(loadUserCart());
+
+    // Sync wishlist with backend after successful login
+    dispatch(syncWishlistWithBackend());
   } catch (error) {
     dispatch({
       type: USER_LOGIN_FAIL,
@@ -86,6 +93,9 @@ export const logout = () => (dispatch, getState) => {
 
   // Clear the cart and load guest cart if exists
   dispatch(clearCart());
+
+  // Clear the wishlist on logout
+  dispatch(clearWishlist());
   const guestCartItems = localStorage.getItem('cartItems_guest')
     ? JSON.parse(localStorage.getItem('cartItems_guest'))
     : [];

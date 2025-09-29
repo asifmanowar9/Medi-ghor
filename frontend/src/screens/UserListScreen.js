@@ -59,8 +59,11 @@ const UserListScreen = () => {
 
       const matchesRole =
         filterRole === '' ||
-        (filterRole === 'admin' && user.isAdmin) ||
-        (filterRole === 'user' && !user.isAdmin);
+        (filterRole === 'super_admin' && user.role === 'super_admin') ||
+        (filterRole === 'operator' && user.role === 'operator') ||
+        (filterRole === 'normal_user' &&
+          (user.role === 'normal_user' || !user.role)) || // Include legacy users as normal users
+        (filterRole === 'legacy' && !user.role); // New filter for legacy users
 
       return matchesSearch && matchesRole;
     });
@@ -79,8 +82,9 @@ const UserListScreen = () => {
           bValue = b.email?.toLowerCase() || '';
           break;
         case 'role':
-          aValue = a.isAdmin ? 1 : 0;
-          bValue = b.isAdmin ? 1 : 0;
+          const roleOrder = { super_admin: 3, operator: 2, normal_user: 1 };
+          aValue = roleOrder[a.role] || (a.isAdmin ? 2 : 1);
+          bValue = roleOrder[b.role] || (b.isAdmin ? 2 : 1);
           break;
         case 'date':
           aValue = new Date(a.createdAt || 0);
@@ -128,6 +132,43 @@ const UserListScreen = () => {
   const handleEmailClick = (email) => {
     const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=Medi-ghor: Customer Support&body=Hello,\n\nWe hope you're doing well.\n\nBest regards,\nMedi-ghor Team`;
     window.open(gmailUrl, '_blank');
+  };
+
+  const getRoleInfo = (user) => {
+    if (user.role) {
+      switch (user.role) {
+        case 'super_admin':
+          return { text: 'Super Admin', bg: 'danger', icon: 'fas fa-crown' };
+        case 'operator':
+          return { text: 'Operator', bg: 'warning', icon: 'fas fa-user-cog' };
+        case 'normal_user':
+          return { text: 'User', bg: 'primary', icon: 'fas fa-user' };
+        default:
+          return { text: 'User', bg: 'primary', icon: 'fas fa-user' };
+      }
+    } else {
+      // Legacy users without role field are treated as normal users
+      return { text: 'User (Legacy)', bg: 'secondary', icon: 'fas fa-user' };
+    }
+  };
+
+  const canManageUser = (targetUser) => {
+    if (!userInfo) return false;
+
+    // Super admin can manage everyone
+    if (userInfo.role === 'super_admin') return true;
+
+    // Operators can only manage normal users and legacy users
+    if (userInfo.role === 'operator') {
+      return (
+        targetUser.role === 'normal_user' || !targetUser.role // Legacy users without role field are treated as normal users
+      );
+    }
+
+    // Legacy admin with super_admin role can manage everyone
+    if (userInfo.isAdmin && userInfo.role === 'super_admin') return true;
+
+    return false;
   };
 
   const filteredUsers = getFilteredAndSortedUsers();
@@ -186,7 +227,7 @@ const UserListScreen = () => {
 
         {/* Statistics Row */}
         <Row className='mb-4'>
-          <Col md={3}>
+          <Col md={userInfo?.role === 'operator' ? 4 : 3}>
             <Card
               className='stats-card h-100'
               style={{
@@ -202,25 +243,29 @@ const UserListScreen = () => {
               </Card.Body>
             </Card>
           </Col>
-          <Col md={3}>
-            <Card
-              className='stats-card h-100'
-              style={{
-                background: 'linear-gradient(135deg, #27ae60, #229954)',
-                border: 'none',
-                borderRadius: '15px',
-              }}
-            >
-              <Card.Body className='text-center text-white'>
-                <i className='fas fa-user-shield fa-2x mb-2'></i>
-                <h4 className='mb-0'>
-                  {users?.filter((user) => user.isAdmin).length || 0}
-                </h4>
-                <small>Admin Users</small>
-              </Card.Body>
-            </Card>
-          </Col>
-          <Col md={3}>
+          {/* Hide Super Admin stats from operators */}
+          {userInfo?.role !== 'operator' && (
+            <Col md={3}>
+              <Card
+                className='stats-card h-100'
+                style={{
+                  background: 'linear-gradient(135deg, #e74c3c, #c0392b)',
+                  border: 'none',
+                  borderRadius: '15px',
+                }}
+              >
+                <Card.Body className='text-center text-white'>
+                  <i className='fas fa-crown fa-2x mb-2'></i>
+                  <h4 className='mb-0'>
+                    {users?.filter((user) => user.role === 'super_admin')
+                      .length || 0}
+                  </h4>
+                  <small>Super Admins</small>
+                </Card.Body>
+              </Card>
+            </Col>
+          )}
+          <Col md={userInfo?.role === 'operator' ? 4 : 3}>
             <Card
               className='stats-card h-100'
               style={{
@@ -230,27 +275,34 @@ const UserListScreen = () => {
               }}
             >
               <Card.Body className='text-center text-white'>
-                <i className='fas fa-user fa-2x mb-2'></i>
+                <i className='fas fa-user-cog fa-2x mb-2'></i>
                 <h4 className='mb-0'>
-                  {users?.filter((user) => !user.isAdmin).length || 0}
+                  {users?.filter((user) => user.role === 'operator').length ||
+                    0}
                 </h4>
-                <small>Regular Users</small>
+                <small>Operators</small>
               </Card.Body>
             </Card>
           </Col>
-          <Col md={3}>
+          <Col md={userInfo?.role === 'operator' ? 4 : 3}>
             <Card
               className='stats-card h-100'
               style={{
-                background: 'linear-gradient(135deg, #9b59b6, #8e44ad)',
+                background: 'linear-gradient(135deg, #3498db, #2980b9)',
                 border: 'none',
                 borderRadius: '15px',
               }}
             >
               <Card.Body className='text-center text-white'>
-                <i className='fas fa-filter fa-2x mb-2'></i>
-                <h4 className='mb-0'>{filteredUsers.length}</h4>
-                <small>Filtered Results</small>
+                <i className='fas fa-user fa-2x mb-2'></i>
+                <h4 className='mb-0'>
+                  {users?.filter(
+                    (user) =>
+                      user.role === 'normal_user' ||
+                      (!user.role && !user.isAdmin)
+                  ).length || 0}
+                </h4>
+                <small>Normal Users</small>
               </Card.Body>
             </Card>
           </Col>
@@ -332,8 +384,13 @@ const UserListScreen = () => {
                     }}
                   >
                     <option value=''>All Roles</option>
-                    <option value='admin'>Admin Users</option>
-                    <option value='user'>Regular Users</option>
+                    {/* Hide Super Admin filter option from operators */}
+                    {userInfo?.role !== 'operator' && (
+                      <option value='super_admin'>Super Admin</option>
+                    )}
+                    <option value='operator'>Operator</option>
+                    <option value='normal_user'>Normal User</option>
+                    <option value='legacy'>Legacy User (No Role)</option>
                   </Form.Select>
                 </Form.Group>
               </Col>
@@ -461,19 +518,15 @@ const UserListScreen = () => {
                             {user.name || 'N/A'}
                           </h5>
                           <Badge
-                            bg={user.isAdmin ? 'danger' : 'primary'}
+                            bg={getRoleInfo(user).bg}
                             className='d-flex align-items-center gap-1 w-auto'
                             style={{
                               width: 'fit-content',
                               fontSize: '0.75rem',
                             }}
                           >
-                            <i
-                              className={
-                                user.isAdmin ? 'fas fa-crown' : 'fas fa-user'
-                              }
-                            ></i>
-                            {user.isAdmin ? 'Admin' : 'User'}
+                            <i className={getRoleInfo(user).icon}></i>
+                            {getRoleInfo(user).text}
                           </Badge>
                         </div>
                       </div>
@@ -528,34 +581,46 @@ const UserListScreen = () => {
                       </div>
 
                       <div className='d-flex gap-2'>
-                        <LinkContainer
-                          to={`/admin/user/${user._id}/edit`}
-                          className='flex-fill'
-                        >
-                          <Button
-                            variant='outline-primary'
-                            size='sm'
-                            className='w-100'
-                            style={{
-                              borderColor: 'rgba(52, 152, 219, 0.5)',
-                              color: '#3498db',
-                            }}
+                        {canManageUser(user) ? (
+                          <>
+                            <LinkContainer
+                              to={`/admin/user/${user._id}/edit`}
+                              className='flex-fill'
+                            >
+                              <Button
+                                variant='outline-primary'
+                                size='sm'
+                                className='w-100'
+                                style={{
+                                  borderColor: 'rgba(52, 152, 219, 0.5)',
+                                  color: '#3498db',
+                                }}
+                              >
+                                <i className='fas fa-edit me-2'></i>
+                                Edit
+                              </Button>
+                            </LinkContainer>
+                            <Button
+                              variant='outline-danger'
+                              size='sm'
+                              onClick={() => deleteHandler(user._id)}
+                              style={{
+                                borderColor: 'rgba(231, 76, 60, 0.5)',
+                                color: '#e74c3c',
+                              }}
+                            >
+                              <i className='fas fa-trash'></i>
+                            </Button>
+                          </>
+                        ) : (
+                          <Badge
+                            bg='secondary'
+                            className='text-white w-100 py-2'
                           >
-                            <i className='fas fa-edit me-2'></i>
-                            Edit
-                          </Button>
-                        </LinkContainer>
-                        <Button
-                          variant='outline-danger'
-                          size='sm'
-                          onClick={() => deleteHandler(user._id)}
-                          style={{
-                            borderColor: 'rgba(231, 76, 60, 0.5)',
-                            color: '#e74c3c',
-                          }}
-                        >
-                          <i className='fas fa-trash'></i>
-                        </Button>
+                            <i className='fas fa-shield-alt me-2'></i>
+                            Protected User
+                          </Badge>
+                        )}
                       </div>
                     </Card.Body>
                   </Card>
@@ -678,19 +743,15 @@ const UserListScreen = () => {
                           </td>
                           <td className='px-4 py-3'>
                             <Badge
-                              bg={user.isAdmin ? 'danger' : 'primary'}
+                              bg={getRoleInfo(user).bg}
                               className='d-flex align-items-center gap-1'
                               style={{
                                 width: 'fit-content',
                                 fontSize: '0.75rem',
                               }}
                             >
-                              <i
-                                className={
-                                  user.isAdmin ? 'fas fa-crown' : 'fas fa-user'
-                                }
-                              ></i>
-                              {user.isAdmin ? 'Admin' : 'User'}
+                              <i className={getRoleInfo(user).icon}></i>
+                              {getRoleInfo(user).text}
                             </Badge>
                           </td>
                           <td
@@ -701,31 +762,40 @@ const UserListScreen = () => {
                           </td>
                           <td className='px-4 py-3'>
                             <div className='d-flex gap-2'>
-                              <LinkContainer
-                                to={`/admin/user/${user._id}/edit`}
-                              >
-                                <Button
-                                  variant='outline-primary'
-                                  size='sm'
-                                  style={{
-                                    borderColor: 'rgba(52, 152, 219, 0.5)',
-                                    color: '#3498db',
-                                  }}
-                                >
-                                  <i className='fas fa-edit'></i>
-                                </Button>
-                              </LinkContainer>
-                              <Button
-                                variant='outline-danger'
-                                size='sm'
-                                onClick={() => deleteHandler(user._id)}
-                                style={{
-                                  borderColor: 'rgba(231, 76, 60, 0.5)',
-                                  color: '#e74c3c',
-                                }}
-                              >
-                                <i className='fas fa-trash'></i>
-                              </Button>
+                              {canManageUser(user) ? (
+                                <>
+                                  <LinkContainer
+                                    to={`/admin/user/${user._id}/edit`}
+                                  >
+                                    <Button
+                                      variant='outline-primary'
+                                      size='sm'
+                                      style={{
+                                        borderColor: 'rgba(52, 152, 219, 0.5)',
+                                        color: '#3498db',
+                                      }}
+                                    >
+                                      <i className='fas fa-edit'></i>
+                                    </Button>
+                                  </LinkContainer>
+                                  <Button
+                                    variant='outline-danger'
+                                    size='sm'
+                                    onClick={() => deleteHandler(user._id)}
+                                    style={{
+                                      borderColor: 'rgba(231, 76, 60, 0.5)',
+                                      color: '#e74c3c',
+                                    }}
+                                  >
+                                    <i className='fas fa-trash'></i>
+                                  </Button>
+                                </>
+                              ) : (
+                                <Badge bg='secondary' className='text-white'>
+                                  <i className='fas fa-shield-alt me-1'></i>
+                                  Protected
+                                </Badge>
+                              )}
                             </div>
                           </td>
                         </tr>

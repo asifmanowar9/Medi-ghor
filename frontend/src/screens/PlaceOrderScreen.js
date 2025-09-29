@@ -1,11 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Button, Row, Col, ListGroup, Image, Card } from 'react-bootstrap';
+import { Button, Row, Col, Container, Image } from 'react-bootstrap';
 import Message from '../components/Message';
 import CheckoutSteps from '../components/CheckoutSteps';
 import { createOrder } from '../actions/orderActions';
 import { useNavigate } from 'react-router-dom';
+import './PlaceOrderScreen.css';
 
 const PlaceOrderScreen = () => {
   const cart = useSelector((state) => state.cart);
@@ -23,23 +24,34 @@ const PlaceOrderScreen = () => {
   );
 
   cart.shippingAddress = cart.shippingAddress ? cart.shippingAddress : {};
-  cart.shippingPrice = addDecimals(cart.itemsPrice > 999 ? 0 : 100);
-  cart.taxPrice = addDecimals(Number(cart.itemsPrice) * 0.15);
+  cart.shippingPrice = addDecimals(cart.itemsPrice > 1000 ? 0 : 150);
+  cart.taxPrice = 0;
 
   cart.totalPrice = addDecimals(
-    Number(cart.itemsPrice) + Number(cart.shippingPrice) + Number(cart.taxPrice)
+    Number(cart.itemsPrice) + Number(cart.shippingPrice)
   );
 
   const orderCreate = useSelector((state) => state.orderCreate);
-  const { order, success, error } = orderCreate;
+  const { order, success, error, loading } = orderCreate;
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (success) {
+      setIsSubmitting(false);
       navigate(`/order/${order._id}`);
     }
-  }, [success, order, navigate]);
+    if (error) {
+      setIsSubmitting(false);
+    }
+  }, [success, order, navigate, error]);
 
   const placeOrderHandler = () => {
+    // Prevent multiple submissions
+    if (isSubmitting || loading) {
+      return;
+    }
+
+    setIsSubmitting(true);
     dispatch(
       createOrder({
         orderItems: cart.cartItems,
@@ -54,122 +66,211 @@ const PlaceOrderScreen = () => {
   };
 
   return (
-    <>
-      <CheckoutSteps step1 step2 step3 step4 />
-      <Row>
-        <Col md={8}>
-          <ListGroup variant='flush'>
-            <ListGroup.Item>
-              <h2>Shipping</h2>
-              <p>
-                <strong>Address:</strong>
-                {cart.shippingAddress.address},{cart.shippingAddress.city}{' '}
-                {cart.shippingAddress.postalCode},{' '}
-                {cart.shippingAddress.country}
-              </p>
-            </ListGroup.Item>
+    <div className='place-order-container'>
+      <Container>
+        <CheckoutSteps step1 step2 step3 step4 />
 
-            <ListGroup.Item>
-              <h2>Payment Method</h2>
-              <strong>Method:</strong>
-              {cart.paymentMethod}
-            </ListGroup.Item>
+        <div className='place-order-header'>
+          <h1 className='page-title'>
+            <i className='fas fa-clipboard-check me-3'></i>
+            Review Your Order
+          </h1>
+          <p className='page-subtitle'>
+            Please review your order details before placing your order
+          </p>
+        </div>
 
-            <ListGroup.Item>
-              <h2>Order Items</h2>
-              {cart.cartItems.length === 0 ? (
-                <Message>Your cart is empty</Message>
-              ) : (
-                <ListGroup variant='flush'>
-                  {cart.cartItems.map((item, index) => (
-                    <ListGroup.Item key={index}>
-                      <Row>
-                        <Col md={1}>
-                          <Image
-                            src={
-                              item.image.startsWith('http')
-                                ? item.image
-                                : item.image.startsWith('/uploads')
-                                ? item.image
-                                : item.image.startsWith('/images')
-                                ? item.image
-                                : `/uploads/${item.image}`
-                            }
-                            alt={item.name}
-                            fluid
-                            rounded
-                          />
-                        </Col>
-                        <Col>
-                          <Link to={`/product/${item.product}`}>
-                            {item.name}
-                          </Link>
-                        </Col>
-                        <Col md={4}>
-                          {item.qty} x BDT{item.price} = BDT
-                          {(item.qty * item.price).toFixed(2)}
-                        </Col>
-                      </Row>
-                    </ListGroup.Item>
-                  ))}
-                </ListGroup>
-              )}
-            </ListGroup.Item>
-          </ListGroup>
-        </Col>
+        <Row className='g-4'>
+          <Col lg={8}>
+            <div className='order-details-section'>
+              {/* Shipping Information */}
+              <div className='info-card'>
+                <div className='card-header'>
+                  <h3>
+                    <i className='fas fa-shipping-fast me-2'></i>
+                    Shipping Information
+                  </h3>
+                </div>
+                <div className='card-content'>
+                  <div className='address-info'>
+                    <div className='address-line'>
+                      <i className='fas fa-map-marker-alt me-2'></i>
+                      <span>
+                        {cart.shippingAddress.address},{' '}
+                        {cart.shippingAddress.city}{' '}
+                        {cart.shippingAddress.postalCode},{' '}
+                        {cart.shippingAddress.country}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-        <Col md={4}>
-          <Card>
-            <ListGroup variant='flush'>
-              <ListGroup.Item>
-                <h2>Order Summary</h2>
-              </ListGroup.Item>
+              {/* Payment Method */}
+              <div className='info-card'>
+                <div className='card-header'>
+                  <h3>
+                    <i className='fas fa-credit-card me-2'></i>
+                    Payment Method
+                  </h3>
+                </div>
+                <div className='card-content'>
+                  <div className='payment-info'>
+                    <div className='payment-method-badge'>
+                      <i
+                        className={`fas ${
+                          cart.paymentMethod === 'Stripe'
+                            ? 'fa-credit-card'
+                            : 'fa-money-bill-wave'
+                        } me-2`}
+                      ></i>
+                      <span>
+                        {cart.paymentMethod === 'Stripe'
+                          ? 'Credit/Debit Card via Stripe'
+                          : 'Cash on Delivery'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-              <ListGroup.Item>
-                <Row>
-                  <Col>Items</Col>
-                  <Col>BDT{cart.itemsPrice}</Col>
-                </Row>
-              </ListGroup.Item>
+              {/* Order Items */}
+              <div className='info-card'>
+                <div className='card-header'>
+                  <h3>
+                    <i className='fas fa-shopping-bag me-2'></i>
+                    Order Items ({cart.cartItems.length})
+                  </h3>
+                </div>
+                <div className='card-content'>
+                  {cart.cartItems.length === 0 ? (
+                    <div className='empty-cart'>
+                      <i className='fas fa-shopping-cart'></i>
+                      <p>Your cart is empty</p>
+                    </div>
+                  ) : (
+                    <div className='order-items-list'>
+                      {cart.cartItems.map((item, index) => (
+                        <div key={index} className='order-item'>
+                          <div className='item-image'>
+                            <Image
+                              src={
+                                item.image.startsWith('http')
+                                  ? item.image
+                                  : item.image.startsWith('/uploads')
+                                  ? item.image
+                                  : item.image.startsWith('/images')
+                                  ? item.image
+                                  : `/uploads/${item.image}`
+                              }
+                              alt={item.name}
+                              className='product-image'
+                            />
+                          </div>
+                          <div className='item-details'>
+                            <Link
+                              to={`/product/${item.product}`}
+                              className='item-name'
+                            >
+                              {item.name}
+                            </Link>
+                            <div className='item-quantity'>Qty: {item.qty}</div>
+                          </div>
+                          <div className='item-price'>
+                            <div className='unit-price'>BDT {item.price}</div>
+                            <div className='total-price'>
+                              BDT {(item.qty * item.price).toFixed(2)}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </Col>
 
-              <ListGroup.Item>
-                <Row>
-                  <Col>Shipping</Col>
-                  <Col>BDT{cart.shippingPrice}</Col>
-                </Row>
-              </ListGroup.Item>
+          <Col lg={4}>
+            <div className='order-summary-card'>
+              <div className='summary-header'>
+                <h3>
+                  <i className='fas fa-calculator me-2'></i>
+                  Order Summary
+                </h3>
+              </div>
 
-              <ListGroup.Item>
-                <Row>
-                  <Col>Tax</Col>
-                  <Col>BDT{cart.taxPrice}</Col>
-                </Row>
-              </ListGroup.Item>
+              <div className='summary-content'>
+                <div className='summary-row'>
+                  <span className='label'>Items ({cart.cartItems.length})</span>
+                  <span className='value'>BDT {cart.itemsPrice}</span>
+                </div>
 
-              <ListGroup.Item>
-                <Row>
-                  <Col>Total</Col>
-                  <Col>BDT{cart.totalPrice}</Col>
-                </Row>
-              </ListGroup.Item>
-              <ListGroup.Item>
-                {error && <Message variant='danger'>{error}</Message>}
-              </ListGroup.Item>
-              <ListGroup.Item>
+                <div className='summary-row'>
+                  <span className='label'>
+                    <i className='fas fa-truck me-1'></i>
+                    Shipping
+                  </span>
+                  <span className='value'>BDT {cart.shippingPrice}</span>
+                </div>
+
+                <div className='summary-divider'></div>
+
+                <div className='summary-row total-row'>
+                  <span className='label'>Total Amount</span>
+                  <span className='value total-amount'>
+                    BDT {cart.totalPrice}
+                  </span>
+                </div>
+
+                {error && (
+                  <div className='error-message'>
+                    <Message variant='danger'>{error}</Message>
+                  </div>
+                )}
+
                 <Button
                   type='button'
-                  className='btn-block'
-                  disabled={cart.cartItems.length === 0}
+                  className='place-order-btn'
+                  disabled={
+                    cart.cartItems.length === 0 || isSubmitting || loading
+                  }
                   onClick={placeOrderHandler}
                 >
-                  Place Order
+                  {isSubmitting || loading ? (
+                    <>
+                      <i className='fas fa-spinner fa-spin me-2'></i>
+                      Processing Order...
+                    </>
+                  ) : (
+                    <>
+                      <i className='fas fa-credit-card me-2'></i>
+                      Place Order
+                      <i className='fas fa-arrow-right ms-2'></i>
+                    </>
+                  )}
                 </Button>
-              </ListGroup.Item>
-            </ListGroup>
-          </Card>
-        </Col>
-      </Row>
-    </>
+
+                <div className='security-badges'>
+                  <div className='badge-item'>
+                    <i className='fas fa-shield-alt'></i>
+                    <span>Secure Payment</span>
+                  </div>
+                  <div className='badge-item'>
+                    <i className='fas fa-lock'></i>
+                    <span>256-bit SSL</span>
+                  </div>
+                  <div className='badge-item'>
+                    <i className='fas fa-undo'></i>
+                    <span>Easy Returns</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Col>
+        </Row>
+      </Container>
+    </div>
   );
 };
 

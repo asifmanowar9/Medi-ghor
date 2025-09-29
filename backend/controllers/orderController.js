@@ -73,13 +73,51 @@ const addOrderItems = asyncHandler(async (req, res) => {
 //@access        private;
 
 const getOrderById = asyncHandler(async (req, res) => {
-  const order = await Order.findById(req.params.id).populate(
-    'user',
-    'name email'
-  );
+  const searchId = req.params.id;
+  let order = null;
+
+  try {
+    // First, try to find by exact ObjectId
+    if (searchId.length === 24) {
+      order = await Order.findById(searchId).populate('user', 'name email');
+    }
+
+    // If not found or invalid ObjectId format, search by partial match
+    if (!order) {
+      order = await Order.findOne({
+        _id: { $regex: new RegExp('^' + searchId, 'i') },
+      }).populate('user', 'name email');
+    }
+
+    // If still not found, check if user is looking for their own orders
+    if (!order) {
+      order = await Order.findOne({
+        $or: [
+          { _id: { $regex: new RegExp(searchId, 'i') } },
+          { user: req.user._id },
+        ],
+      }).populate('user', 'name email');
+    }
+  } catch (error) {
+    // Handle invalid ObjectId error
+    console.log('Invalid ObjectId format, trying partial search...');
+    order = await Order.findOne({
+      _id: { $regex: new RegExp('^' + searchId, 'i') },
+    }).populate('user', 'name email');
+  }
 
   if (order) {
-    res.json(order);
+    // Check if user owns this order or is admin
+    if (
+      order.user._id.toString() === req.user._id.toString() ||
+      req.user.role === 'super_admin' ||
+      req.user.role === 'admin'
+    ) {
+      res.json(order);
+    } else {
+      res.status(403);
+      throw new Error('Not authorized to access this order');
+    }
   } else {
     res.status(404);
     throw new Error('Order not found');
@@ -200,7 +238,7 @@ const getOrders = asyncHandler(async (req, res) => {
 
 // @description  Update order to delivered
 // @route        PUT /api/orders/:id/deliver
-// @access       private/admin
+// @access       private/adminOrHigher
 const updateOrderToDelivered = asyncHandler(async (req, res) => {
   const order = await Order.findById(req.params.id).populate(
     'user',
@@ -210,6 +248,18 @@ const updateOrderToDelivered = asyncHandler(async (req, res) => {
   if (order) {
     order.isDelivered = true;
     order.deliveredAt = Date.now();
+
+    // For Cash on Delivery orders, mark as paid when delivered
+    if (order.paymentMethod === 'CashOnDelivery' && !order.isPaid) {
+      order.isPaid = true;
+      order.paidAt = Date.now();
+      order.paymentResult = {
+        id: `COD_${order._id}`,
+        status: 'COMPLETED',
+        update_time: new Date().toISOString(),
+        payment_source: 'Cash on Delivery',
+      };
+    }
 
     const updatedOrder = await order.save();
 

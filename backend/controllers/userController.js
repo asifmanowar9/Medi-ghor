@@ -1,7 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import User from '../models/userModel.js';
 import generateToken from '../utils/generateToken.js';
-import { use } from 'react';
+import { canModifyUser } from '../middleWare/authMiddleware.js';
 
 // @description  Auth user & get token
 // @route        POST /api/users/login
@@ -16,6 +16,7 @@ const authUser = asyncHandler(async (req, res) => {
       name: user.name,
       email: user.email,
       isAdmin: user.isAdmin,
+      role: user.role,
       token: generateToken(user._id),
     });
   } else {
@@ -50,6 +51,7 @@ const registerUser = asyncHandler(async (req, res) => {
         name: user.name,
         email: user.email,
         isAdmin: user.isAdmin,
+        role: user.role,
         token: generateToken(user._id),
       });
     } else {
@@ -84,6 +86,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
       name: user.name,
       email: user.email,
       isAdmin: user.isAdmin,
+      role: user.role,
       //   token: generateToken(user._id),
     });
   } else {
@@ -114,6 +117,7 @@ const updadteUserProfile = asyncHandler(async (req, res) => {
       name: updatedUser.name,
       email: updatedUser.email,
       isAdmin: updatedUser.isAdmin,
+      role: updatedUser.role,
       token: generateToken(updatedUser._id),
     });
   } else {
@@ -128,7 +132,21 @@ const updadteUserProfile = asyncHandler(async (req, res) => {
 // @route        GET /api/users
 // @access       private/admin
 const getUser = asyncHandler(async (req, res) => {
-  const users = await User.find({});
+  let query = {};
+
+  // If the requester is an operator, they should not see super admins
+  if (req.user.role === 'operator') {
+    query = {
+      $or: [
+        { role: 'normal_user' },
+        { role: 'operator' },
+        { role: { $exists: false } }, // Legacy users without role field
+        { role: null },
+      ],
+    };
+  }
+
+  const users = await User.find(query);
   res.json(users);
 });
 
@@ -139,6 +157,12 @@ const deleteUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id);
 
   if (user) {
+    // Check if current user can modify target user based on roles
+    if (!canModifyUser(req.user.role, user.role)) {
+      res.status(403);
+      throw new Error('Not authorized to delete this user');
+    }
+
     await user.deleteOne();
     res.json({ message: 'User removed' });
   } else {
@@ -154,6 +178,12 @@ const getUserById = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id).select('-password');
 
   if (user) {
+    // If the requester is an operator, they should not see super admin details
+    if (req.user.role === 'operator' && user.role === 'super_admin') {
+      res.status(404);
+      throw new Error('User not found');
+    }
+
     res.json(user);
   } else {
     res.status(404);
@@ -168,9 +198,30 @@ const updateUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id);
 
   if (user) {
+    // Check if current user can modify target user based on roles
+    if (!canModifyUser(req.user.role, user.role)) {
+      res.status(403);
+      throw new Error('Not authorized to update this user');
+    }
+
+    // Role assignment rules
+    const newRole = req.body.role;
+    if (newRole) {
+      // Only super admin can assign super admin or operator roles
+      if (
+        (newRole === 'super_admin' || newRole === 'operator') &&
+        req.user.role !== 'super_admin'
+      ) {
+        res.status(403);
+        throw new Error('Not authorized to assign this role');
+      }
+      user.role = newRole;
+    }
+
     user.name = req.body.name || user.name;
     user.email = req.body.email || user.email;
-    user.isAdmin = req.body.isAdmin;
+    user.isAdmin =
+      req.body.isAdmin !== undefined ? req.body.isAdmin : user.isAdmin;
 
     const updatedUser = await user.save();
 
@@ -179,6 +230,7 @@ const updateUser = asyncHandler(async (req, res) => {
       name: updatedUser.name,
       email: updatedUser.email,
       isAdmin: updatedUser.isAdmin,
+      role: updatedUser.role,
     });
   } else {
     res.status(404);

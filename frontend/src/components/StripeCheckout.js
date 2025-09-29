@@ -47,18 +47,24 @@ const StripeCheckout = ({ orderId, totalPrice, onSuccess }) => {
   const cardStyle = {
     style: {
       base: {
-        color: '#32325d',
-        fontFamily: 'Arial, sans-serif',
+        color: '#2c3e50',
+        fontFamily: '"Inter", "Segoe UI", Roboto, sans-serif',
         fontSmoothing: 'antialiased',
         fontSize: '16px',
+        fontWeight: '500',
         '::placeholder': {
-          color: '#aab7c4',
+          color: 'rgba(44, 62, 80, 0.5)',
         },
-        padding: '12px',
+        padding: '16px 20px',
+        backgroundColor: 'transparent',
       },
       invalid: {
-        color: '#fa755a',
-        iconColor: '#fa755a',
+        color: '#e74c3c',
+        iconColor: '#e74c3c',
+      },
+      complete: {
+        color: '#27ae60',
+        iconColor: '#27ae60',
       },
     },
   };
@@ -113,102 +119,174 @@ const StripeCheckout = ({ orderId, totalPrice, onSuccess }) => {
 
   return (
     <div className='stripe-checkout-container'>
-      <h3 className='checkout-title'>Pay with card</h3>
-      <Form id='payment-form' onSubmit={handleSubmit}>
-        <Form.Group className='mb-3'>
-          <Form.Label>Email</Form.Label>
-          <Form.Control
-            type='email'
-            placeholder='email@example.com'
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </Form.Group>
+      <div className='checkout-header'>
+        <div className='payment-amount-card'>
+          <div className='amount-label'>Total Amount</div>
+          <div className='amount-value'>BDT {totalPrice}</div>
+          <div className='payment-secure'>
+            <i className='fas fa-shield-alt me-2'></i>
+            Secure Payment with Stripe
+          </div>
+        </div>
+      </div>
 
-        <Form.Group className='mb-3'>
-          <Form.Label>Card information</Form.Label>
-          <div className='card-element-container'>
-            <CardElement
-              id='card-element'
-              options={cardStyle}
-              onChange={handleChange}
-              className='card-element'
-            />
-            <div className='card-brands'>
-              <img
-                src='/images/card-brands.png'
-                alt='Accepted cards'
-                width='100'
+      <Form id='payment-form' onSubmit={handleSubmit} className='payment-form'>
+        <div className='form-section'>
+          <h4 className='section-title'>
+            <i className='fas fa-envelope me-2'></i>
+            Contact Information
+          </h4>
+          <Form.Group className='form-group'>
+            <Form.Label className='form-label'>Email Address</Form.Label>
+            <div className='input-wrapper'>
+              {/* <i className='fas fa-envelope input-icon'></i> */}
+              <Form.Control
+                type='email'
+                placeholder='your@email.com'
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className='modern-input'
+                required
               />
             </div>
-          </div>
-        </Form.Group>
+          </Form.Group>
+        </div>
 
-        <Form.Group className='mb-3'>
-          <Form.Label>Cardholder name</Form.Label>
-          <Form.Control type='text' placeholder='Full name on card' required />
-        </Form.Group>
+        <div className='form-section'>
+          <h4 className='section-title'>
+            <i className='fas fa-credit-card me-2'></i>
+            Payment Information
+          </h4>
 
-        <Form.Group className='mb-3'>
-          <Form.Label>Country or region</Form.Label>
-          <Form.Select aria-label='Country selection'>
-            <option value='Bangladesh'>Bangladesh</option>
-            <option value='US'>United States</option>
-            <option value='CA'>Canada</option>
-            <option value='GB'>United Kingdom</option>
-            <option value='AU'>Australia</option>
-            <option value='IN'>India</option>
-          </Form.Select>
-        </Form.Group>
-
-        <Form.Group className='mb-4'>
-          <Form.Check
-            type='checkbox'
-            id='save-info'
-            label='Securely save my information for 1-click checkout'
-            checked={saveInfo}
-            onChange={() => setSaveInfo(!saveInfo)}
-          />
-          <small className='text-muted d-block mt-1 ms-4'>
-            Pay faster on New business sandbox and everywhere Link is accepted.
-          </small>
-        </Form.Group>
-
-        <Button
-          className='w-100 pay-button'
-          disabled={processing || succeeded || !stripe}
-          type='submit'
-        >
-          {processing ? (
-            <>
-              <Spinner
-                as='span'
-                animation='border'
-                size='sm'
-                role='status'
-                aria-hidden='true'
-                className='me-1'
+          <Form.Group className='form-group'>
+            <Form.Label className='form-label'>Card Details</Form.Label>
+            <div className='card-element-container'>
+              <CardElement
+                id='card-element'
+                options={cardStyle}
+                onChange={handleChange}
+                className='card-element'
               />
-              Processing...
-            </>
-          ) : (
-            `Pay BDT${totalPrice}`
-          )}
-        </Button>
+              <div className='card-brands'>
+                <div className='brand-icons'>
+                  <i className='fab fa-cc-visa'></i>
+                  <i className='fab fa-cc-mastercard'></i>
+                  <i className='fab fa-cc-amex'></i>
+                  <i className='fab fa-cc-discover'></i>
+                </div>
+              </div>
+            </div>
+          </Form.Group>
 
-        {message && (
-          <div
-            className={`mt-3 text-center message ${
-              succeeded ? 'text-success' : 'text-danger'
-            }`}
-          >
-            {message}
+          <Form.Group className='form-group'>
+            <Form.Label className='form-label'>Cardholder Name</Form.Label>
+            <div className='input-wrapper'>
+              {/* <i className='fas fa-user input-icon'></i> */}
+              <Form.Control
+                type='text'
+                placeholder='Full name on card'
+                className='modern-input'
+                required
+              />
+            </div>
+          </Form.Group>
+
+          <Form.Group className='form-group'>
+            <Form.Label className='form-label'>Country or Region</Form.Label>
+            <div className='input-wrapper'>
+              {/* <i className='fas fa-globe input-icon'></i> */}
+              <Form.Select
+                className='modern-select'
+                aria-label='Country selection'
+              >
+                <option value='Bangladesh'>🇧🇩 Bangladesh</option>
+                <option value='US'>🇺🇸 United States</option>
+                <option value='CA'>🇨🇦 Canada</option>
+                <option value='GB'>🇬🇧 United Kingdom</option>
+                <option value='AU'>🇦🇺 Australia</option>
+                <option value='IN'>🇮🇳 India</option>
+              </Form.Select>
+            </div>
+          </Form.Group>
+        </div>
+
+        <div className='form-section'>
+          <div className='save-info-section'>
+            <Form.Group className='form-group'>
+              <Form.Check
+                type='checkbox'
+                id='save-info'
+                className='custom-checkbox'
+                checked={saveInfo}
+                onChange={() => setSaveInfo(!saveInfo)}
+                label={
+                  <span className='checkbox-label'>
+                    <i className='fas fa-save me-2'></i>
+                    Securely save my information for faster checkout
+                  </span>
+                }
+              />
+              <small className='checkbox-description'>
+                Your payment info is encrypted and never stored on our servers
+              </small>
+            </Form.Group>
           </div>
-        )}
+        </div>
 
-        <div className='text-center mt-3'>
-          <small className='text-muted'>Powered by Stripe</small>
+        <div className='payment-actions'>
+          <Button
+            className='pay-button'
+            disabled={processing || succeeded || !stripe}
+            type='submit'
+          >
+            {processing ? (
+              <>
+                <i className='fas fa-spinner fa-spin me-2'></i>
+                Processing Payment...
+              </>
+            ) : succeeded ? (
+              <>
+                <i className='fas fa-check-circle me-2'></i>
+                Payment Successful!
+              </>
+            ) : (
+              <>
+                <i className='fas fa-credit-card me-2'></i>
+                Pay BDT {totalPrice}
+                <i className='fas fa-arrow-right ms-2'></i>
+              </>
+            )}
+          </Button>
+
+          {message && (
+            <div
+              className={`payment-message ${succeeded ? 'success' : 'error'}`}
+            >
+              <i
+                className={`fas ${
+                  succeeded ? 'fa-check-circle' : 'fa-exclamation-triangle'
+                } me-2`}
+              ></i>
+              {message}
+            </div>
+          )}
+        </div>
+
+        <div className='security-footer'>
+          <div className='security-badges'>
+            <div className='security-badge'>
+              <i className='fas fa-shield-alt'></i>
+              <span>256-bit SSL</span>
+            </div>
+            <div className='security-badge'>
+              <i className='fas fa-lock'></i>
+              <span>PCI Compliant</span>
+            </div>
+            <div className='security-badge'>
+              <i className='fab fa-stripe'></i>
+              <span>Powered by Stripe</span>
+            </div>
+          </div>
         </div>
       </Form>
     </div>

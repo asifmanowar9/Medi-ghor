@@ -22,6 +22,8 @@ import OrderListScreen from './screens/OrderListScreen';
 import ChatListScreen from './screens/ChatListScreen';
 import ChatScreen from './screens/ChatScreen';
 import AllProducts from './screens/AllProducts';
+import WishlistScreen from './screens/WishlistScreen';
+import TrackOrderScreen from './screens/TrackOrderScreen';
 
 const App = () => {
   return (
@@ -69,6 +71,9 @@ const App = () => {
             <Route path='/chats' element={<ChatListScreen />} />
             <Route path='/chat/:id' element={<ChatScreen />} />
             <Route path='/products' element={<AllProducts />} />
+            <Route path='/wishlist' element={<WishlistScreen />} />
+            <Route path='/track-order' element={<TrackOrderScreen />} />
+            <Route path='/track-order/:id' element={<TrackOrderScreen />} />
             <Route path='/category/:categoryName' element={<HomeScreen />} />
             <Route
               path='/category/:categoryName/page/:pageNumber'

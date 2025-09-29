@@ -40,6 +40,7 @@ import { bannerListReducer } from './reducers/bannerReducers';
 import { categoryListReducer } from './reducers/categoryReducers';
 import { brandListReducer } from './reducers/brandReducers';
 import { healthConditionListReducer } from './reducers/healthConditionReducers';
+import { wishlistReducer } from './reducers/wishlistReducers';
 
 const reducer = combineReducers({
   productList: productListReducer,
@@ -73,6 +74,7 @@ const reducer = combineReducers({
   categoryList: categoryListReducer,
   brandList: brandListReducer,
   healthConditionList: healthConditionListReducer,
+  wishlist: wishlistReducer,
 });
 
 // const cartItemsFromStorage = localStorage.getItem('cartItems')
@@ -107,10 +109,14 @@ const getUserSpecificCartData = (userInfo) => {
     ? JSON.parse(localStorage.getItem(`paymentMethod_${userId}`))
     : '';
 
-  return { cartItems, shippingAddress, paymentMethod };
+  const wishlistItems = localStorage.getItem(`wishlistItems_${userId}`)
+    ? JSON.parse(localStorage.getItem(`wishlistItems_${userId}`))
+    : [];
+
+  return { cartItems, shippingAddress, paymentMethod, wishlistItems };
 };
 
-const { cartItems, shippingAddress, paymentMethod } =
+const { cartItems, shippingAddress, paymentMethod, wishlistItems } =
   getUserSpecificCartData(userInfoFromStorage);
 
 const initialState = {
@@ -118,6 +124,9 @@ const initialState = {
     cartItems: cartItems,
     shippingAddress: shippingAddress,
     paymentMethod: paymentMethod,
+  },
+  wishlist: {
+    wishlistItems: wishlistItems,
   },
   userLogin: { userInfo: userInfoFromStorage },
 };

@@ -43,4 +43,54 @@ const admin = (req, res, next) => {
   }
 };
 
-export { protect, admin };
+// Super Admin middleware - full access to everything
+const superAdmin = (req, res, next) => {
+  if (req.user && req.user.role === 'super_admin') {
+    next();
+  } else {
+    res.status(403);
+    throw new Error('Not authorized as a super admin');
+  }
+};
+
+// Operator middleware - can access operator and user functions but not super admin functions
+const operator = (req, res, next) => {
+  if (
+    req.user &&
+    (req.user.role === 'operator' || req.user.role === 'super_admin')
+  ) {
+    next();
+  } else {
+    res.status(403);
+    throw new Error('Not authorized as an operator');
+  }
+};
+
+// Admin or higher middleware - includes both super admin and operator
+const adminOrHigher = (req, res, next) => {
+  if (
+    req.user &&
+    (req.user.role === 'operator' ||
+      req.user.role === 'super_admin' ||
+      req.user.isAdmin)
+  ) {
+    next();
+  } else {
+    res.status(403);
+    throw new Error('Not authorized as an admin');
+  }
+};
+
+// Check if user can modify another user based on roles
+const canModifyUser = (currentUserRole, targetUserRole) => {
+  if (currentUserRole === 'super_admin') {
+    return true; // Super admin can modify anyone
+  }
+  if (currentUserRole === 'operator') {
+    // Operators can modify normal users and legacy users (those without role field)
+    return targetUserRole === 'normal_user' || !targetUserRole;
+  }
+  return false; // Normal users can't modify others
+};
+
+export { protect, admin, superAdmin, operator, adminOrHigher, canModifyUser };

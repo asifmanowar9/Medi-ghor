@@ -18,6 +18,7 @@ import {
 import { LinkContainer } from 'react-router-bootstrap';
 import { listProducts } from '../actions/productActions';
 import { addToCart } from '../actions/cartActions';
+import { addToWishlist, removeFromWishlist } from '../actions/wishlistActions';
 import '../styles/ProductSections.css';
 
 const ProductSections = () => {
@@ -30,6 +31,9 @@ const ProductSections = () => {
 
   const productList = useSelector((state) => state.productList);
   const { loading, error, products } = productList;
+
+  const wishlist = useSelector((state) => state.wishlist);
+  const { wishlistItems } = wishlist;
 
   useEffect(() => {
     dispatch(listProducts());
@@ -122,6 +126,23 @@ const ProductSections = () => {
     }
   };
 
+  // Wishlist handlers
+  const handleAddToWishlist = async (product) => {
+    try {
+      await dispatch(addToWishlist(product._id));
+    } catch (error) {
+      console.error('Failed to add to wishlist:', error.message);
+    }
+  };
+
+  const handleRemoveFromWishlist = (productId) => {
+    dispatch(removeFromWishlist(productId));
+  };
+
+  const isInWishlist = (productId) => {
+    return wishlistItems.some((item) => item.product === productId);
+  };
+
   // Close modal handler
   const handleCloseModal = () => {
     setShowQuantityModal(false);
@@ -130,47 +151,104 @@ const ProductSections = () => {
   };
 
   const ProductCard = ({ product }) => (
-    <Card className='product-card h-100'>
-      {product.discount && (
-        <Badge bg='danger' className='discount-badge'>
-          -{product.discount}%
-        </Badge>
-      )}
+    <Card className='product-card h-100 shadow-sm'>
+      <div className='product-img-container position-relative'>
+        <LinkContainer to={`/product/${product._id}`}>
+          <Card.Img
+            src={
+              product.image?.startsWith('http')
+                ? product.image
+                : product.image?.startsWith('/uploads')
+                ? product.image
+                : product.image?.startsWith('/images')
+                ? product.image
+                : `/uploads/${product.image}`
+            }
+            variant='top'
+            className='product-img'
+            style={{
+              height: '200px',
+              objectFit: 'cover',
+              cursor: 'pointer',
+            }}
+          />
+        </LinkContainer>
 
-      <div className='product-image-container'>
-        <Card.Img
-          variant='top'
-          src={product.image}
-          alt={product.name}
-          className='product-image'
-        />
-        {!product.countInStock && (
-          <div className='out-of-stock-overlay'>
-            <span>Out of Stock</span>
-          </div>
-        )}
+        {/* Product Badges */}
+        <div className='product-badges'>
+          {product.discount && (
+            <Badge bg='danger' className='product-badge'>
+              <i className='fas fa-percentage me-1'></i>-{product.discount}%
+            </Badge>
+          )}
+          {product.isFlashSale && (
+            <Badge bg='danger' className='product-badge'>
+              <i className='fas fa-fire me-1'></i>
+              Flash Sale
+            </Badge>
+          )}
+          {product.isBestSeller && (
+            <Badge bg='warning' className='product-badge'>
+              <i className='fas fa-crown me-1'></i>
+              Best Seller
+            </Badge>
+          )}
+          {product.isFeatured && (
+            <Badge bg='success' className='product-badge'>
+              <i className='fas fa-star me-1'></i>
+              Featured
+            </Badge>
+          )}
+          {!product.countInStock && (
+            <Badge bg='secondary' className='product-badge'>
+              Out of Stock
+            </Badge>
+          )}
+        </div>
       </div>
 
       <Card.Body className='d-flex flex-column'>
-        <Card.Title className='product-title'>{product.name}</Card.Title>
+        <Card.Title className='product-title'>
+          <LinkContainer to={`/product/${product._id}`}>
+            <a href='#' className='text-decoration-none text-dark'>
+              {product.name}
+            </a>
+          </LinkContainer>
+        </Card.Title>
 
         <div className='product-rating mb-2'>
-          <div className='stars'>{renderStars(product.rating)}</div>
-          <span className='rating-count'>({product.numReviews})</span>
+          <div className='stars text-warning'>
+            {renderStars(product.rating || 0)}
+          </div>
+          <span className='rating-count text-black ms-1'>
+            ({product.numReviews || 0})
+          </span>
         </div>
 
         <div className='product-pricing mb-2'>
-          <span className='current-price'>৳{product.price}</span>
-          {product.originalPrice && (
-            <span className='original-price'>৳{product.originalPrice}</span>
+          <span className='current-price fw-bold text-primary'>
+            ৳{product.price}
+          </span>
+          {product.originalPrice && product.originalPrice > product.price && (
+            <span className='original-price text-muted text-decoration-line-through ms-2'>
+              ৳{product.originalPrice}
+            </span>
           )}
         </div>
 
-        <div className='product-category mb-3'>
-          <i className='fas fa-tag me-1'></i>
-          {typeof product.category === 'object'
-            ? product.category.name
-            : product.category}
+        <div className='product-info mb-3'>
+          <small className='text-black'>
+            <i className='fas fa-tag me-1'></i>
+            {typeof product.category === 'object'
+              ? product.category.name
+              : product.category}
+          </small>
+          {product.brand && (
+            <small className='text-black d-block'>
+              <i className='fas fa-trademark me-1'></i>
+              {product.brand}
+            </small>
+          )}
         </div>
 
         <div className='product-actions mt-auto'>
@@ -179,21 +257,44 @@ const ProductSections = () => {
               <LinkContainer to={`/product/${product._id}`}>
                 <Button variant='outline-primary' size='sm' className='w-100'>
                   <i className='fas fa-eye me-1'></i>
-                  View
+                  View Details
                 </Button>
               </LinkContainer>
             </Col>
             <Col>
-              <Button
-                variant='primary'
-                size='sm'
-                className='w-100'
-                disabled={!product.countInStock}
-                onClick={() => handleAddToCartClick(product)}
-              >
-                <i className='fas fa-cart-plus me-1'></i>
-                Add to Cart
-              </Button>
+              {product.countInStock > 0 ? (
+                <Button
+                  variant='primary'
+                  size='sm'
+                  className='w-100'
+                  onClick={() => handleAddToCartClick(product)}
+                >
+                  <i className='fas fa-cart-plus me-1'></i>
+                  Add to Cart
+                </Button>
+              ) : (
+                <Button
+                  variant={
+                    isInWishlist(product._id) ? 'danger' : 'outline-danger'
+                  }
+                  size='sm'
+                  className='w-100'
+                  onClick={() =>
+                    isInWishlist(product._id)
+                      ? handleRemoveFromWishlist(product._id)
+                      : handleAddToWishlist(product)
+                  }
+                >
+                  <i
+                    className={`fas ${
+                      isInWishlist(product._id) ? 'fa-heart-broken' : 'fa-heart'
+                    } me-1`}
+                  ></i>
+                  {isInWishlist(product._id)
+                    ? 'Remove from Wishlist'
+                    : 'Add to Wishlist'}
+                </Button>
+              )}
             </Col>
           </Row>
         </div>
@@ -365,13 +466,26 @@ const ProductSections = () => {
                     value={quantity}
                     onChange={(e) => setQuantity(Number(e.target.value))}
                     className='w-auto'
+                    style={{
+                      backgroundColor: '#2c3e50 !important',
+                      color: 'white !important',
+                      border: '1px solid #34495e !important',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                    }}
                   >
                     {[
                       ...Array(
-                        Math.min(selectedProduct.countInStock, 10)
+                        Math.min(selectedProduct.countInStock, 12)
                       ).keys(),
                     ].map((x) => (
-                      <option key={x + 1} value={x + 1}>
+                      <option
+                        key={x + 1}
+                        value={x + 1}
+                        style={{
+                          backgroundColor: '#2c3e50',
+                          color: 'white',
+                        }}
+                      >
                         {x + 1}
                       </option>
                     ))}
