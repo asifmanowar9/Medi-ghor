@@ -92,7 +92,7 @@ const ProductEditScreen = () => {
   useEffect(() => {
     if (successCreate && createdProduct) {
       dispatch({ type: PRODUCT_CREATE_RESET });
-      navigate(`/admin/product/${createdProduct._id}/edit`);
+      navigate('/admin/productlist');
     }
   }, [successCreate, createdProduct, dispatch, navigate]);
 
@@ -306,25 +306,31 @@ const ProductEditScreen = () => {
               </Col>
               <Col md={6}>
                 <Form.Group className='mb-3'>
-                  <Form.Label className='fw-bold'>Brand</Form.Label>
+                  <Form.Label className='fw-bold'>
+                    Brand <span className='text-danger'>*</span>
+                  </Form.Label>
                   <Form.Control
                     type='text'
                     placeholder='Enter brand name'
                     value={brand}
                     onChange={(e) => setBrand(e.target.value)}
+                    required
                   />
                 </Form.Group>
               </Col>
             </Row>
 
             <Form.Group className='mb-4'>
-              <Form.Label className='fw-bold'>Description</Form.Label>
+              <Form.Label className='fw-bold'>
+                Description <span className='text-danger'>*</span>
+              </Form.Label>
               <Form.Control
                 as='textarea'
                 rows={3}
                 placeholder='Enter product description'
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
+                required
               />
             </Form.Group>
 

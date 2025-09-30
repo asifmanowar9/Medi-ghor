@@ -150,7 +150,9 @@ const WishlistScreen = () => {
                         </Badge>
                         {item.category && (
                           <Badge bg='info' className='category-badge'>
-                            {item.category}
+                            {typeof item.category === 'object'
+                              ? item.category.name
+                              : item.category}
                           </Badge>
                         )}
                       </div>
@@ -171,9 +173,11 @@ const WishlistScreen = () => {
                       </div>
 
                       {item.brand && (
-                        <small className='text-muted mb-3 d-block'>
+                        <small className='text-black mb-3 d-block'>
                           <i className='fas fa-trademark me-1'></i>
-                          {item.brand}
+                          {typeof item.brand === 'object'
+                            ? item.brand.name
+                            : item.brand}
                         </small>
                       )}
 

@@ -225,7 +225,7 @@ const ProductListScreen = () => {
   };
 
   const createProductHandler = () => {
-    navigate('/admin/product/new');
+    navigate('/admin/product/new/edit');
   };
 
   return (
