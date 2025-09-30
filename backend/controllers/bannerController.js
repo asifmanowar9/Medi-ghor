@@ -1,6 +1,14 @@
 import asyncHandler from 'express-async-handler';
 import Banner from '../models/bannerModel.js';
 
+// @description  Get all banners for admin (including inactive)
+// @route        GET /api/banners/admin
+// @access       Private/Admin
+const getAllBannersAdmin = asyncHandler(async (req, res) => {
+  const banners = await Banner.find({}).sort({ order: 1, createdAt: -1 });
+  res.json(banners);
+});
+
 // @description  Get all active banners
 // @route        GET /api/banners
 // @access       Public
@@ -109,4 +117,11 @@ const deleteBanner = asyncHandler(async (req, res) => {
   }
 });
 
-export { getBanners, getBannerById, createBanner, updateBanner, deleteBanner };
+export {
+  getBanners,
+  getBannerById,
+  createBanner,
+  updateBanner,
+  deleteBanner,
+  getAllBannersAdmin,
+};

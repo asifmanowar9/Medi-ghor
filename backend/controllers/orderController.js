@@ -36,6 +36,15 @@ const addOrderItems = asyncHandler(async (req, res) => {
       shippingPrice,
       taxPrice,
       totalPrice,
+      currentStatus: 'pending',
+      statusHistory: [
+        {
+          status: 'pending',
+          timestamp: new Date(),
+          updatedBy: req.user._id,
+          notes: 'Order placed',
+        },
+      ],
     });
 
     // Save the order to the database
@@ -107,12 +116,81 @@ const getOrderById = asyncHandler(async (req, res) => {
   }
 
   if (order) {
-    // Check if user owns this order or is admin
+    // Check if user owns this order or has admin privileges
     if (
       order.user._id.toString() === req.user._id.toString() ||
       req.user.role === 'super_admin' ||
-      req.user.role === 'admin'
+      req.user.role === 'operator' ||
+      req.user.isAdmin
     ) {
+      // Sync legacy orders with new status system
+      if (
+        !order.currentStatus ||
+        !order.statusHistory ||
+        order.statusHistory.length === 0
+      ) {
+        console.log('Syncing legacy order status...');
+
+        // Initialize status history if not exists
+        if (!order.statusHistory) {
+          order.statusHistory = [];
+        }
+
+        // Determine current status based on legacy fields
+        let syncedStatus = 'pending';
+        if (order.isDelivered) {
+          syncedStatus = 'delivered';
+        } else if (order.isPaid) {
+          syncedStatus = 'processing';
+        }
+
+        // Set current status
+        order.currentStatus = syncedStatus;
+
+        // Build status history based on legacy data
+        const statusHistory = [];
+
+        // Order placed
+        statusHistory.push({
+          status: 'pending',
+          timestamp: order.createdAt,
+          updatedBy: order.user._id,
+          notes: 'Order placed (legacy sync)',
+        });
+
+        // Payment confirmed
+        if (order.isPaid) {
+          statusHistory.push({
+            status: 'payment_confirmed',
+            timestamp: order.paidAt || order.createdAt,
+            updatedBy: order.user._id,
+            notes: `Payment confirmed via ${order.paymentMethod} (legacy sync)`,
+          });
+
+          // Processing
+          statusHistory.push({
+            status: 'processing',
+            timestamp: order.paidAt || order.createdAt,
+            updatedBy: order.user._id,
+            notes: 'Order processing (legacy sync)',
+          });
+        }
+
+        // Delivered
+        if (order.isDelivered) {
+          statusHistory.push({
+            status: 'delivered',
+            timestamp: order.deliveredAt || order.updatedAt,
+            updatedBy: order.user._id,
+            notes: 'Order delivered (legacy sync)',
+          });
+        }
+
+        // Update the order with synced status
+        order.statusHistory = statusHistory;
+        await order.save();
+      }
+
       res.json(order);
     } else {
       res.status(403);
@@ -283,6 +361,264 @@ const updateOrderToDelivered = asyncHandler(async (req, res) => {
   }
 });
 
+// @description  Track order by ID (public access)
+// @route        GET /api/orders/track/:id
+// @access       public
+const trackOrderById = asyncHandler(async (req, res) => {
+  const searchId = req.params.id.trim().toLowerCase();
+  let order = null;
+
+  try {
+    // First, try to find by exact ObjectId if it's 24 characters
+    if (searchId.length === 24 && /^[0-9a-fA-F]{24}$/i.test(searchId)) {
+      order = await Order.findById(searchId).populate('user', 'name email');
+    }
+
+    // If not found, search using aggregation pipeline to convert ObjectId to string
+    if (!order && searchId.length >= 4) {
+      const orders = await Order.aggregate([
+        {
+          $addFields: {
+            idString: { $toString: '$_id' },
+          },
+        },
+        {
+          $match: {
+            idString: { $regex: new RegExp('^' + searchId, 'i') },
+          },
+        },
+        {
+          $limit: 1,
+        },
+      ]);
+
+      if (orders.length > 0) {
+        // Populate the user field manually since aggregation doesn't support populate
+        order = await Order.findById(orders[0]._id).populate(
+          'user',
+          'name email'
+        );
+      }
+    }
+
+    // If still not found, try broader search
+    if (!order && searchId.length >= 6) {
+      const orders = await Order.aggregate([
+        {
+          $addFields: {
+            idString: { $toString: '$_id' },
+          },
+        },
+        {
+          $match: {
+            idString: { $regex: new RegExp(searchId, 'i') },
+          },
+        },
+        {
+          $limit: 1,
+        },
+      ]);
+
+      if (orders.length > 0) {
+        order = await Order.findById(orders[0]._id).populate(
+          'user',
+          'name email'
+        );
+      }
+    }
+  } catch (error) {
+    console.log('Error in order search:', error.message);
+  }
+
+  if (order) {
+    // Sync legacy orders with new status system
+    if (
+      !order.currentStatus ||
+      !order.statusHistory ||
+      order.statusHistory.length === 0
+    ) {
+      console.log('Syncing legacy order status for tracking...');
+
+      // Initialize status history if not exists
+      if (!order.statusHistory) {
+        order.statusHistory = [];
+      }
+
+      // Determine current status based on legacy fields
+      let syncedStatus = 'pending';
+      if (order.isDelivered) {
+        syncedStatus = 'delivered';
+      } else if (order.isPaid) {
+        syncedStatus = 'processing';
+      }
+
+      // Set current status
+      order.currentStatus = syncedStatus;
+
+      // Build status history based on legacy data
+      const statusHistory = [];
+
+      // Order placed
+      statusHistory.push({
+        status: 'pending',
+        timestamp: order.createdAt,
+        updatedBy: order.user._id,
+        notes: 'Order placed (legacy sync)',
+      });
+
+      // Payment confirmed
+      if (order.isPaid) {
+        statusHistory.push({
+          status: 'payment_confirmed',
+          timestamp: order.paidAt || order.createdAt,
+          updatedBy: order.user._id,
+          notes: `Payment confirmed via ${order.paymentMethod} (legacy sync)`,
+        });
+
+        // Processing
+        statusHistory.push({
+          status: 'processing',
+          timestamp: order.paidAt || order.createdAt,
+          updatedBy: order.user._id,
+          notes: 'Order processing (legacy sync)',
+        });
+      }
+
+      // Delivered
+      if (order.isDelivered) {
+        statusHistory.push({
+          status: 'delivered',
+          timestamp: order.deliveredAt || order.updatedAt,
+          updatedBy: order.user._id,
+          notes: 'Order delivered (legacy sync)',
+        });
+      }
+
+      // Update the order with synced status
+      order.statusHistory = statusHistory;
+      await order.save();
+    }
+
+    // Return limited order information for public tracking
+    res.json({
+      _id: order._id,
+      orderItems: order.orderItems,
+      shippingAddress: order.shippingAddress,
+      paymentMethod: order.paymentMethod,
+      itemsPrice: order.itemsPrice,
+      taxPrice: order.taxPrice,
+      shippingPrice: order.shippingPrice,
+      totalPrice: order.totalPrice,
+      isPaid: order.isPaid,
+      paidAt: order.paidAt,
+      isDelivered: order.isDelivered,
+      deliveredAt: order.deliveredAt,
+      createdAt: order.createdAt,
+      currentStatus: order.currentStatus,
+      statusHistory: order.statusHistory,
+      // Hide sensitive user information for public access
+      user: {
+        name: order.user.name,
+      },
+    });
+  } else {
+    res.status(404);
+    throw new Error('Order not found');
+  }
+});
+
+// @description  Update order status
+// @route        PUT /api/orders/:id/status
+// @access       private/adminOrHigher
+const updateOrderStatus = asyncHandler(async (req, res) => {
+  const { status, notes } = req.body;
+
+  const validStatuses = [
+    'pending',
+    'payment_confirmed',
+    'processing',
+    'shipped',
+    'out_for_delivery',
+    'delivered',
+    'cancelled',
+  ];
+
+  if (!validStatuses.includes(status)) {
+    res.status(400);
+    throw new Error('Invalid status');
+  }
+
+  const order = await Order.findById(req.params.id).populate(
+    'user',
+    'name email'
+  );
+
+  if (order) {
+    // Add new status to history
+    const statusUpdate = {
+      status,
+      timestamp: new Date(),
+      updatedBy: req.user._id,
+      notes: notes || '',
+    };
+
+    order.statusHistory.push(statusUpdate);
+    order.currentStatus = status;
+
+    // Update legacy fields for backward compatibility
+    if (
+      status === 'payment_confirmed' ||
+      status === 'processing' ||
+      status === 'shipped' ||
+      status === 'out_for_delivery' ||
+      status === 'delivered'
+    ) {
+      if (!order.isPaid && status !== 'pending') {
+        order.isPaid = true;
+        order.paidAt = new Date();
+        if (
+          order.paymentMethod === 'CashOnDelivery' &&
+          status === 'delivered'
+        ) {
+          order.paymentResult = {
+            id: `COD_${order._id}`,
+            status: 'COMPLETED',
+            update_time: new Date().toISOString(),
+            payment_source: 'Cash on Delivery',
+          };
+        }
+      }
+    }
+
+    if (status === 'delivered') {
+      order.isDelivered = true;
+      order.deliveredAt = new Date();
+    }
+
+    const updatedOrder = await order.save();
+
+    // Send status update email if needed
+    if (status === 'delivered') {
+      sendOrderDeliveredEmail(updatedOrder).then((sent) => {
+        if (sent) {
+          console.log(
+            `Order delivery confirmation email sent to ${order.user.email}`
+          );
+        } else {
+          console.log(
+            `Failed to send order delivery email to ${order.user.email}`
+          );
+        }
+      });
+    }
+
+    res.json(updatedOrder);
+  } else {
+    res.status(404);
+    throw new Error('Order not found');
+  }
+});
+
 export {
   addOrderItems,
   getOrderById,
@@ -290,4 +626,6 @@ export {
   getMyOrders,
   getOrders,
   updateOrderToDelivered,
+  trackOrderById,
+  updateOrderStatus,
 };

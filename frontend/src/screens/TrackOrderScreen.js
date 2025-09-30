@@ -14,7 +14,7 @@ import {
   ProgressBar,
   Image,
 } from 'react-bootstrap';
-import { getOrderDetails } from '../actions/orderActions';
+import { getOrderDetails, trackOrder } from '../actions/orderActions';
 import Message from '../components/Message';
 import Loader from '../components/Loader';
 import './TrackOrderScreen.css';
@@ -36,7 +36,7 @@ const TrackOrderScreen = () => {
   useEffect(() => {
     if (urlOrderId) {
       setTrackingId(urlOrderId);
-      dispatch(getOrderDetails(urlOrderId));
+      dispatch(trackOrder(urlOrderId));
       setSearchAttempted(true);
     }
   }, [dispatch, urlOrderId]);
@@ -59,7 +59,7 @@ const TrackOrderScreen = () => {
     const cleanId = trackingId.trim().replace(/[^a-zA-Z0-9]/g, '');
 
     if (cleanId && validateOrderId(cleanId)) {
-      dispatch(getOrderDetails(cleanId));
+      dispatch(trackOrder(cleanId));
       setSearchAttempted(true);
       navigate(`/track-order/${cleanId}`);
     } else {
@@ -120,6 +120,87 @@ const TrackOrderScreen = () => {
   const getTimelineSteps = () => {
     if (!order) return [];
 
+    // Use new status history if available, otherwise fall back to legacy logic
+    if (order.statusHistory && order.statusHistory.length > 0) {
+      const statusMap = {
+        pending: {
+          title: 'Order Placed',
+          description: 'Order confirmed and received',
+          icon: 'fas fa-shopping-cart',
+        },
+        payment_confirmed: {
+          title: 'Payment Confirmed',
+          description: `Payment of ৳${order.totalPrice} received via ${order.paymentMethod}`,
+          icon: 'fas fa-credit-card',
+        },
+        processing: {
+          title: 'Order Processing',
+          description: 'Your medicines are being prepared and quality checked',
+          icon: 'fas fa-box-open',
+        },
+        shipped: {
+          title: 'Shipped',
+          description: 'Package prepared and dispatched from our facility',
+          icon: 'fas fa-shipping-fast',
+        },
+        out_for_delivery: {
+          title: 'Out for Delivery',
+          description: 'Package was dispatched and on the way to your location',
+          icon: 'fas fa-truck',
+        },
+        delivered: {
+          title: 'Delivered',
+          description: `Successfully delivered to ${
+            order.shippingAddress?.address || 'delivery address'
+          }`,
+          icon: 'fas fa-check-circle',
+        },
+        cancelled: {
+          title: 'Cancelled',
+          description: 'Order has been cancelled',
+          icon: 'fas fa-times-circle',
+        },
+      };
+
+      // Convert status history to timeline steps
+      const completedStatuses = order.statusHistory.map(
+        (status) => status.status
+      );
+      const allStatuses = [
+        'pending',
+        'payment_confirmed',
+        'processing',
+        'shipped',
+        'out_for_delivery',
+        'delivered',
+      ];
+
+      return allStatuses
+        .map((status) => {
+          const statusInfo = statusMap[status];
+          const historyItem = order.statusHistory.find(
+            (h) => h.status === status
+          );
+          const isCompleted = completedStatuses.includes(status);
+
+          return {
+            ...statusInfo,
+            date: historyItem?.timestamp,
+            completed: isCompleted,
+            notes: historyItem?.notes,
+          };
+        })
+        .filter((step) => {
+          // Only show steps up to current status + next step
+          const currentIndex = allStatuses.indexOf(order.currentStatus);
+          const stepIndex = allStatuses.indexOf(
+            step.title.toLowerCase().replace(/\s+/g, '_')
+          );
+          return stepIndex <= currentIndex + 1;
+        });
+    }
+
+    // Legacy timeline logic (fallback)
     const orderDate = new Date(order.createdAt);
     const paymentDate = order.paidAt ? new Date(order.paidAt) : null;
     const deliveredDate = order.deliveredAt
@@ -312,17 +393,31 @@ const TrackOrderScreen = () => {
               <div className='search-tips'>
                 <strong>Search Tips:</strong>
                 <ul className='mt-1 mb-2'>
-                  <li>
-                    Make sure you're logged into the account used to place the
-                    order
-                  </li>
                   <li>Try using the first 8-12 characters of your order ID</li>
                   <li>
-                    Order IDs are case-insensitive (e.g., "67a1b2c3" or
-                    "67A1B2C3")
+                    Order IDs are case-insensitive (e.g., "68dab28b" or
+                    "68DAB28B")
                   </li>
                   <li>
                     Check your email confirmation for the correct order ID
+                  </li>
+                  <li>
+                    {userInfo ? (
+                      <>
+                        Visit your{' '}
+                        <a href='/profile' className='text-decoration-none'>
+                          profile page
+                        </a>{' '}
+                        to see your order history
+                      </>
+                    ) : (
+                      <>
+                        <a href='/login' className='text-decoration-none'>
+                          Log in
+                        </a>{' '}
+                        to access your order history
+                      </>
+                    )}
                   </li>
                 </ul>
               </div>

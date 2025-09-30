@@ -1,0 +1,413 @@
+/* BannerListScreen.css - Modern Design */
+
+.banner-list-screen {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 2rem 0;
+}
+
+.screen-header {
+  margin-bottom: 2rem;
+}
+
+.screen-title {
+  color: white;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.screen-subtitle {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1.1rem;
+  margin-bottom: 0;
+}
+
+.create-btn {
+  background: linear-gradient(135deg, #ff6b6b, #ffa500);
+  border: none;
+  border-radius: 10px;
+  padding: 0.75rem 2rem;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+  transition: all 0.3s ease;
+}
+
+.create-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+}
+
+.filters-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.filters-card .card-body {
+  padding: 1.5rem;
+}
+
+.view-mode-toggle .btn {
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+}
+
+/* Banner Cards */
+.banner-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.banner-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+.banner-image-container {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+}
+
+.banner-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.banner-card:hover .banner-image {
+  transform: scale(1.05);
+}
+
+.banner-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.1) 0%,
+    rgba(0, 0, 0, 0.3) 100%
+  );
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1rem;
+}
+
+.status-badge {
+  align-self: flex-start;
+  font-size: 0.75rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+}
+
+.order-badge {
+  align-self: flex-end;
+  font-size: 0.75rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+}
+
+.banner-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+  line-height: 1.3;
+}
+
+.banner-subtitle {
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.4;
+}
+
+.banner-description {
+  font-size: 0.85rem;
+  color: #555;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.banner-meta {
+  border-top: 1px solid #eee;
+  padding-top: 0.75rem;
+  margin-top: auto;
+}
+
+.banner-meta small {
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+/* Table Styling */
+.table-responsive {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.table {
+  margin-bottom: 0;
+}
+
+.table thead th {
+  background: linear-gradient(135deg, #2c3e50, #34495e);
+  color: white;
+  border: none;
+  font-weight: 600;
+  padding: 1rem;
+}
+
+.table tbody tr {
+  background: rgba(255, 255, 255, 0.95);
+  transition: all 0.3s ease;
+}
+
+.table tbody tr:hover {
+  background: rgba(255, 255, 255, 1);
+  transform: scale(1.01);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.table tbody td {
+  padding: 1rem;
+  vertical-align: middle;
+  border-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Modal Styling */
+.banner-modal .modal-content {
+  background: white;
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+}
+
+.banner-modal .modal-header {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border-radius: 15px 15px 0 0;
+  border-bottom: none;
+  padding: 1.5rem;
+}
+
+.banner-modal .modal-header .btn-close {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  width: 2rem;
+  height: 2rem;
+  opacity: 1;
+}
+
+.banner-modal .modal-header .btn-close:hover {
+  background: rgba(255, 255, 255, 1);
+  transform: scale(1.1);
+}
+
+.banner-modal .modal-title {
+  font-weight: 600;
+  color: white;
+}
+
+.banner-modal .modal-body {
+  padding: 2rem;
+  background: white;
+}
+
+.banner-modal .modal-footer {
+  border-top: 1px solid #eee;
+  padding: 1.5rem 2rem;
+  background: white;
+}
+
+.banner-modal .form-label {
+  font-weight: 600;
+  color: #2c3e50 !important;
+  margin-bottom: 0.5rem;
+}
+
+.banner-modal .form-control,
+.banner-modal .form-select {
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  padding: 0.75rem;
+  transition: all 0.3s ease;
+  background: white !important;
+  color: #2c3e50 !important;
+}
+
+.banner-modal .form-control:focus,
+.banner-modal .form-select:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+  background: white !important;
+  color: #2c3e50 !important;
+}
+
+.banner-modal .form-control::placeholder {
+  color: #6c757d !important;
+  opacity: 0.8;
+}
+
+.banner-modal .form-check-label {
+  color: #2c3e50 !important;
+  font-weight: 500;
+}
+
+.banner-modal .text-muted {
+  color: #6c757d !important;
+}
+
+.banner-modal .alert {
+  background: #fff3cd !important;
+  border: 1px solid #ffeaa7 !important;
+  color: #856404 !important;
+}
+
+.banner-modal .text-danger {
+  color: #dc3545 !important;
+}
+
+.banner-modal p {
+  color: #2c3e50 !important;
+  margin-bottom: 1rem;
+}
+
+.modal-content {
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border-radius: 15px 15px 0 0;
+  border-bottom: none;
+  padding: 1.5rem;
+}
+
+.modal-title {
+  font-weight: 600;
+}
+
+.modal-body {
+  padding: 2rem;
+}
+
+.modal-footer {
+  border-top: 1px solid #eee;
+  padding: 1.5rem 2rem;
+}
+
+/* Form Controls */
+.form-control,
+.form-select {
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  padding: 0.75rem;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.form-label {
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .screen-title {
+    font-size: 2rem;
+  }
+  
+  .create-btn {
+    padding: 0.6rem 1.5rem;
+    font-size: 0.9rem;
+  }
+  
+  .filters-card .row {
+    gap: 1rem;
+  }
+  
+  .filters-card .col-md-2,
+  .filters-card .col-md-4 {
+    margin-bottom: 1rem;
+  }
+  
+  .banner-image-container {
+    height: 150px;
+  }
+  
+  .modal-body {
+    padding: 1.5rem;
+  }
+}
+
+/* Loading and Success States */
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.alert {
+  border: none;
+  border-radius: 10px;
+  padding: 1rem 1.5rem;
+}
+
+.alert-warning {
+  background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+  color: #2d3436;
+}
+
+.alert-danger {
+  background: linear-gradient(135deg, #fd79a8, #e84393);
+  color: white;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.banner-card {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.banner-card:nth-child(1) { animation-delay: 0.1s; }
+.banner-card:nth-child(2) { animation-delay: 0.2s; }
+.banner-card:nth-child(3) { animation-delay: 0.3s; }
+.banner-card:nth-child(4) { animation-delay: 0.4s; }
+.banner-card:nth-child(5) { animation-delay: 0.5s; }
+.banner-card:nth-child(6) { animation-delay: 0.6s; }

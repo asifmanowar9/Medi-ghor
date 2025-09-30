@@ -235,6 +235,13 @@ const ModernHeader = () => {
                       </NavDropdown.Item>
                     </LinkContainer>
 
+                    {/* Banner management - available to all admin roles */}
+                    <LinkContainer to='/admin/bannerlist'>
+                      <NavDropdown.Item>
+                        <i className='fas fa-images me-2'></i>Banners
+                      </NavDropdown.Item>
+                    </LinkContainer>
+
                     {/* System Settings - only for Super Admin */}
                     {userInfo.role === 'super_admin' && (
                       <>

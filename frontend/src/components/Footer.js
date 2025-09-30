@@ -1,9 +1,25 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import '../styles/Footer.css';
 
 const Footer = () => {
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop =
+        window.pageYOffset || document.documentElement.scrollTop;
+      setShowScrollTop(scrollTop > 300); // Show button after scrolling 300px
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
   return (
     <footer className='comprehensive-footer'>
       {/* Main Footer Content */}
@@ -294,15 +310,17 @@ const Footer = () => {
       </div>
 
       {/* Back to Top Button */}
-      <div className='back-to-top'>
-        <Button
-          variant='primary'
-          className='back-to-top-btn'
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        >
-          <i className='fas fa-arrow-up'></i>
-        </Button>
-      </div>
+      {showScrollTop && (
+        <div className='back-to-top'>
+          <Button
+            variant='primary'
+            className='back-to-top-btn'
+            onClick={scrollToTop}
+          >
+            <i className='fas fa-arrow-up'></i>
+          </Button>
+        </div>
+      )}
     </footer>
   );
 };

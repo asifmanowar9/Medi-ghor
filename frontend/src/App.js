@@ -19,6 +19,7 @@ import UserEditScreen from './screens/UserEditScreen';
 import ProductListScreen from './screens/ProductListScreen';
 import ProductEditScreen from './screens/ProductEditScreen';
 import OrderListScreen from './screens/OrderListScreen';
+import BannerListScreen from './screens/BannerListScreen';
 import ChatListScreen from './screens/ChatListScreen';
 import ChatScreen from './screens/ChatScreen';
 import AllProducts from './screens/AllProducts';
@@ -62,6 +63,7 @@ const App = () => {
               element={<ProductEditScreen />}
             />
             <Route path='/admin/orderlist' element={<OrderListScreen />} />
+            <Route path='/admin/bannerlist' element={<BannerListScreen />} />
             <Route path='/search/:keyword' element={<HomeScreen />} />
             <Route path='/page/:pageNumber' element={<HomeScreen />} />
             <Route

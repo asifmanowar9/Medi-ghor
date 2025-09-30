@@ -81,28 +81,10 @@ export const hasAdminPrivileges = (userInfo) => {
 };
 
 /**
- * Check if user can mark orders as delivered
+ * Check if user can update order status
  * @param {Object} userInfo - The user info object
- * @returns {boolean} - Whether the user can mark orders as delivered
+ * @returns {boolean} - Whether the user can update order status
  */
-export const canMarkAsDelivered = (userInfo) => {
+export const canUpdateOrderStatus = (userInfo) => {
   return hasAdminPrivileges(userInfo);
-};
-
-/**
- * Check if order can be marked as delivered (considering COD orders)
- * @param {Object} order - The order object
- * @returns {boolean} - Whether the order can be marked as delivered
- */
-export const isOrderDeliverable = (order) => {
-  if (!order || order.isDelivered) return false;
-
-  // Regular paid orders
-  if (order.isPaid && !order.isDelivered) return true;
-
-  // Cash on Delivery orders (even if not marked as paid)
-  if (order.paymentMethod === 'CashOnDelivery' && !order.isDelivered)
-    return true;
-
-  return false;
 };

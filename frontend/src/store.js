@@ -36,7 +36,14 @@ import {
   chatImageAnalyzeReducer,
   aiResponseWaitingReducer,
 } from './reducers/chatReducers';
-import { bannerListReducer } from './reducers/bannerReducers';
+import {
+  bannerListReducer,
+  bannerAdminListReducer,
+  bannerDetailsReducer,
+  bannerCreateReducer,
+  bannerUpdateReducer,
+  bannerDeleteReducer,
+} from './reducers/bannerReducers';
 import { categoryListReducer } from './reducers/categoryReducers';
 import { brandListReducer } from './reducers/brandReducers';
 import { healthConditionListReducer } from './reducers/healthConditionReducers';
@@ -71,6 +78,11 @@ const reducer = combineReducers({
   chatImageAnalyze: chatImageAnalyzeReducer,
   aiResponseWaiting: aiResponseWaitingReducer,
   bannerList: bannerListReducer,
+  bannerAdminList: bannerAdminListReducer,
+  bannerDetails: bannerDetailsReducer,
+  bannerCreate: bannerCreateReducer,
+  bannerUpdate: bannerUpdateReducer,
+  bannerDelete: bannerDeleteReducer,
   categoryList: categoryListReducer,
   brandList: brandListReducer,
   healthConditionList: healthConditionListReducer,

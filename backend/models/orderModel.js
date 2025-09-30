@@ -1,5 +1,33 @@
 import mongoose from 'mongoose';
 
+const orderStatusSchema = mongoose.Schema({
+  status: {
+    type: String,
+    required: true,
+    enum: [
+      'pending',
+      'payment_confirmed',
+      'processing',
+      'shipped',
+      'out_for_delivery',
+      'delivered',
+      'cancelled',
+    ],
+  },
+  timestamp: {
+    type: Date,
+    required: true,
+    default: Date.now,
+  },
+  updatedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  },
+  notes: {
+    type: String,
+  },
+});
+
 const orderSchema = mongoose.Schema(
   {
     user: {
@@ -67,6 +95,22 @@ const orderSchema = mongoose.Schema(
     deliveredAt: {
       type: Date,
     },
+    // New status tracking fields
+    currentStatus: {
+      type: String,
+      required: true,
+      enum: [
+        'pending',
+        'payment_confirmed',
+        'processing',
+        'shipped',
+        'out_for_delivery',
+        'delivered',
+        'cancelled',
+      ],
+      default: 'pending',
+    },
+    statusHistory: [orderStatusSchema],
   },
   {
     timestamps: true,

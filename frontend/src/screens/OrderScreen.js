@@ -8,22 +8,17 @@ import {
   Button,
   Badge,
   Container,
+  Form,
+  Modal,
 } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 
 import Message from '../components/Message';
 import Loader from '../components/Loader';
-import { getOrderDetails, deliverOrder } from '../actions/orderActions';
-import {
-  ORDER_PAY_RESET,
-  ORDER_DELIVER_RESET,
-} from '../constants/orderConstants';
+import { getOrderDetails, updateOrderStatus } from '../actions/orderActions';
+import { ORDER_PAY_RESET } from '../constants/orderConstants';
 import StripeCheckoutModal from '../components/StripeCheckoutModal';
-import {
-  hasAdminPrivileges,
-  isOrderDeliverable,
-  formatOrderId,
-} from '../utils/orderUtils';
+import { hasAdminPrivileges, formatOrderId } from '../utils/orderUtils';
 import './OrderScreen.css';
 
 const OrderScreen = () => {
@@ -31,15 +26,15 @@ const OrderScreen = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showStatusModal, setShowStatusModal] = useState(false);
+  const [newStatus, setNewStatus] = useState('');
+  const [statusNotes, setStatusNotes] = useState('');
 
   const orderDetails = useSelector((state) => state.orderDetails);
   const { order, loading, error } = orderDetails;
 
   const orderPay = useSelector((state) => state.orderPay);
   const { loading: loadingPay, success: successPay } = orderPay;
-
-  const orderDeliver = useSelector((state) => state.orderDeliver);
-  const { loading: loadingDeliver, success: successDeliver } = orderDeliver;
 
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
@@ -49,17 +44,103 @@ const OrderScreen = () => {
       navigate('/login');
     }
 
-    if (!order || successPay || successDeliver || order._id !== id) {
+    if (!order || successPay || order._id !== id) {
       dispatch({ type: ORDER_PAY_RESET });
-      dispatch({ type: ORDER_DELIVER_RESET });
       dispatch(getOrderDetails(id));
     }
-  }, [dispatch, navigate, order, id, successPay, successDeliver, userInfo]);
+  }, [dispatch, navigate, order, id, successPay, userInfo]);
 
-  const deliverHandler = () => {
-    dispatch(deliverOrder(order));
+  const handleStatusUpdate = () => {
+    const effectiveStatus = getEffectiveCurrentStatus();
+    if (newStatus && newStatus !== effectiveStatus) {
+      dispatch(updateOrderStatus(order._id, newStatus, statusNotes));
+      setShowStatusModal(false);
+      setNewStatus('');
+      setStatusNotes('');
+    }
   };
 
+  const getStatusDisplay = (status) => {
+    const statusMap = {
+      pending: { label: 'Pending', variant: 'warning' },
+      payment_confirmed: { label: 'Payment Confirmed', variant: 'info' },
+      processing: { label: 'Processing', variant: 'primary' },
+      shipped: { label: 'Shipped', variant: 'info' },
+      out_for_delivery: { label: 'Out for Delivery', variant: 'warning' },
+      delivered: { label: 'Delivered', variant: 'success' },
+      cancelled: { label: 'Cancelled', variant: 'danger' },
+    };
+    return statusMap[status] || { label: status, variant: 'secondary' };
+  };
+
+  // Helper function to get effective current status (handles legacy orders)
+  const getEffectiveCurrentStatus = () => {
+    // If order has currentStatus, use it
+    if (order.currentStatus) {
+      return order.currentStatus;
+    }
+
+    // Fallback for legacy orders
+    if (order.isDelivered) {
+      return 'delivered';
+    } else if (order.isPaid) {
+      return 'processing';
+    } else {
+      return 'pending';
+    }
+  };
+
+  // Helper function to get available status options with proper styling
+  const getStatusOptions = () => {
+    const currentStatus = getEffectiveCurrentStatus();
+    const statusFlow = [
+      'pending',
+      'payment_confirmed',
+      'processing',
+      'shipped',
+      'out_for_delivery',
+      'delivered',
+    ];
+
+    const currentIndex = statusFlow.indexOf(currentStatus);
+
+    const statusLabels = {
+      pending: 'Pending',
+      payment_confirmed: 'Payment Confirmed',
+      processing: 'Processing',
+      shipped: 'Shipped',
+      out_for_delivery: 'Out for Delivery',
+      delivered: 'Delivered',
+      cancelled: 'Cancelled',
+    };
+
+    return Object.entries(statusLabels).map(([value, label]) => {
+      const statusIndex = statusFlow.indexOf(value);
+      const isCurrent = value === currentStatus;
+      const isPast = statusIndex !== -1 && statusIndex < currentIndex;
+      const isCancelled = value === 'cancelled';
+
+      // Determine if this option should be disabled
+      const isDisabled = isPast || isCurrent;
+
+      // Create display label with indicators
+      let displayLabel = label;
+      if (isCurrent) {
+        displayLabel = `${label} (Current)`;
+      } else if (isPast) {
+        displayLabel = `${label} (Completed)`;
+      }
+
+      return {
+        value,
+        label: displayLabel,
+        disabled: isDisabled,
+        isCurrent,
+        isPast,
+        isCancelled,
+      };
+    });
+  };
   const getOrderStatus = () => {
     if (order.isPaid && order.isDelivered) {
       return {
@@ -158,7 +239,7 @@ const OrderScreen = () => {
                 {orderStatus.status}
               </Badge>
             </div>
-            <p className='text-muted mb-0'>
+            <p className='text-black mb-0'>
               <i className='fas fa-calendar me-2'></i>
               Placed on {formatDate(order.createdAt)}
             </p>
@@ -593,41 +674,39 @@ const OrderScreen = () => {
                     <i className='fas fa-user-shield me-2'></i>
                     Admin Actions
                   </h6>
-                  {isOrderDeliverable(order) && (
-                    <div className='mb-2'>
-                      {loadingDeliver ? (
-                        <div className='text-center py-2'>
-                          <Loader />
-                        </div>
-                      ) : (
-                        <Button
-                          className='w-100'
-                          variant='warning'
-                          onClick={deliverHandler}
-                          style={{
-                            background:
-                              'linear-gradient(135deg, #ffc107, #fd7e14)',
-                            border: 'none',
-                            borderRadius: '8px',
-                            fontWeight: '600',
-                            color: '#000000',
-                          }}
-                        >
-                          <i className='fas fa-truck me-2'></i>
-                          Mark as Delivered
-                          {order.paymentMethod === 'CashOnDelivery' &&
-                            !order.isPaid && (
-                              <small
-                                className='d-block'
-                                style={{ fontSize: '0.8em', marginTop: '2px' }}
-                              >
-                                (Will mark as paid)
-                              </small>
-                            )}
-                        </Button>
-                      )}
+
+                  {/* Current Status Display */}
+                  <div className='mb-3'>
+                    <small className='text-muted'>Current Status:</small>
+                    <div>
+                      <Badge
+                        bg={
+                          getStatusDisplay(getEffectiveCurrentStatus()).variant
+                        }
+                        className='me-2'
+                      >
+                        {getStatusDisplay(getEffectiveCurrentStatus()).label}
+                      </Badge>
                     </div>
-                  )}
+                  </div>
+
+                  {/* Update Status Button */}
+                  <div className='mb-2'>
+                    <Button
+                      variant='primary'
+                      onClick={() => setShowStatusModal(true)}
+                      className='w-100'
+                      style={{
+                        background: 'linear-gradient(135deg, #2E86AB, #A23B72)',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontWeight: '600',
+                      }}
+                    >
+                      <i className='fas fa-edit me-2'></i>
+                      Update Order Status
+                    </Button>
+                  </div>
                 </div>
               )}
             </Card.Body>
@@ -642,6 +721,109 @@ const OrderScreen = () => {
         orderId={order._id}
         totalPrice={order.totalPrice}
       />
+
+      {/* Status Update Modal */}
+      <Modal
+        show={showStatusModal}
+        onHide={() => setShowStatusModal(false)}
+        centered
+        className='status-modal'
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>
+            <i className='fas fa-edit me-2'></i>
+            Update Order Status
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group className='mb-3'>
+              <Form.Label style={{ color: '#ffffff', fontWeight: '600' }}>
+                Current Status
+              </Form.Label>
+              <div className='current-status-display'>
+                <div className='d-flex align-items-center'>
+                  <Badge
+                    bg={getStatusDisplay(getEffectiveCurrentStatus()).variant}
+                    className='me-2'
+                    style={{ fontSize: '0.9rem', padding: '0.5rem 0.75rem' }}
+                  >
+                    <i className='fas fa-circle me-2'></i>
+                    {getStatusDisplay(getEffectiveCurrentStatus()).label}
+                  </Badge>
+                  <small className='text-white' style={{ opacity: 0.9 }}>
+                    This is the current order status
+                  </small>
+                </div>
+              </div>
+            </Form.Group>
+
+            <Form.Group className='mb-3'>
+              <Form.Label style={{ color: '#ffffff', fontWeight: '600' }}>
+                New Status
+              </Form.Label>
+              <Form.Select
+                value={newStatus}
+                onChange={(e) => setNewStatus(e.target.value)}
+              >
+                <option value=''>Select new status...</option>
+                {getStatusOptions().map((option) => (
+                  <option
+                    key={option.value}
+                    value={option.value}
+                    disabled={option.disabled}
+                    style={{
+                      backgroundColor: option.isCurrent
+                        ? '#e7f3ff'
+                        : option.isPast
+                        ? '#f8f9fa'
+                        : 'white',
+                      color: option.disabled ? '#6c757d' : 'black',
+                      fontWeight: option.isCurrent ? 'bold' : 'normal',
+                    }}
+                  >
+                    {option.label}
+                  </option>
+                ))}
+              </Form.Select>
+              <small
+                className='status-help-text d-block'
+                style={{ color: '#b8c5d1' }}
+              >
+                <i className='fas fa-info-circle me-1'></i>
+                You can only move forward in the order process or cancel the
+                order.
+              </small>
+            </Form.Group>
+
+            <Form.Group className='mb-3'>
+              <Form.Label style={{ color: '#ffffff', fontWeight: '600' }}>
+                Notes (Optional)
+              </Form.Label>
+              <Form.Control
+                as='textarea'
+                rows={3}
+                value={statusNotes}
+                onChange={(e) => setStatusNotes(e.target.value)}
+                placeholder='Add any notes about this status update...'
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant='secondary' onClick={() => setShowStatusModal(false)}>
+            Cancel
+          </Button>
+          <Button
+            variant='primary'
+            onClick={handleStatusUpdate}
+            disabled={!newStatus || newStatus === getEffectiveCurrentStatus()}
+          >
+            <i className='fas fa-save me-2'></i>
+            Update Status
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 };

@@ -273,3 +273,88 @@
     display: none !important;
   }
 }
+
+/* Status Management Modal Styling */
+.status-modal .modal-content {
+  background: linear-gradient(135deg, #2c3e50, #34495e);
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.status-modal .modal-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.status-modal .modal-title {
+  color: white;
+  font-weight: 600;
+}
+
+.status-modal .modal-body {
+  color: white;
+}
+
+.status-modal .form-label {
+  color: white !important;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.status-modal .form-control,
+.status-modal .form-select {
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+.status-modal .form-control:focus,
+.status-modal .form-select:focus {
+  background-color: white;
+  border-color: #3498db;
+  box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
+  color: #2c3e50;
+}
+
+.status-modal .form-control::placeholder {
+  color: #6c757d;
+  opacity: 0.8;
+}
+
+.status-modal .form-select option:disabled {
+  background-color: #f8f9fa !important;
+  color: #6c757d !important;
+  font-style: italic;
+}
+
+.status-modal .form-select option[data-current="true"] {
+  background-color: #e7f3ff !important;
+  font-weight: bold !important;
+}
+
+.current-status-display {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  backdrop-filter: blur(10px);
+}
+
+.current-status-display .badge {
+  font-size: 0.9rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+}
+
+.status-help-text {
+  font-size: 0.85rem;
+  color: #b8c5d1 !important;
+  margin-top: 0.5rem;
+}
+
+.status-help-text .fas {
+  color: #3498db;
+}
