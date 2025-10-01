@@ -9,21 +9,14 @@ import {
   Badge,
   InputGroup,
   Form,
-  Dropdown,
   Modal,
   Container,
 } from 'react-bootstrap';
-import { LinkContainer } from 'react-router-bootstrap';
 import Message from '../components/Message';
 import Loader from '../components/Loader';
 import Paginate from '../components/Paginate';
-import {
-  listProducts,
-  deleteProduct,
-  createProduct,
-} from '../actions/productActions';
+import { listProducts, deleteProduct } from '../actions/productActions';
 import { listCategories } from '../actions/categoryActions';
-import { PRODUCT_CREATE_RESET } from '../constants/productConstants';
 import './ProductListScreen.css';
 
 const ProductListScreen = () => {

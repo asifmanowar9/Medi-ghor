@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   Container,
@@ -14,13 +14,20 @@ import {
   Tab,
   Tabs,
   Table,
+  Modal,
+  Image,
 } from 'react-bootstrap';
 import { getUserDetails, updateUserProfile } from '../actions/userActions';
+import {
+  listPrescriptions,
+  deletePrescription,
+} from '../actions/prescriptionActions';
 import { LinkContainer } from 'react-router-bootstrap';
 import Message from '../components/Message';
 import Loader from '../components/Loader';
 import { listMyOrders } from '../actions/orderActions';
 import { USER_UPDATE_PROFILE_RESET } from '../constants/userConstants';
+import { PRESCRIPTION_DELETE_REQUEST } from '../constants/prescriptionConstants';
 import './ProfileScreen.css';
 
 const ProfileScreen = () => {
@@ -33,8 +40,15 @@ const ProfileScreen = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [activeTab, setActiveTab] = useState('profile');
 
+  // Prescription states
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [prescriptionToDelete, setPrescriptionToDelete] = useState(null);
+  const [showPrescriptionModal, setShowPrescriptionModal] = useState(false);
+  const [selectedPrescription, setSelectedPrescription] = useState(null);
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [searchParams] = useSearchParams();
 
   const userDetails = useSelector((state) => state.userDetails);
   const { loading, user, error } = userDetails;
@@ -48,7 +62,27 @@ const ProfileScreen = () => {
   const orderListMy = useSelector((state) => state.orderListMy);
   const { loading: loadingOrders, error: errorOrders, orders } = orderListMy;
 
+  const prescriptionList = useSelector((state) => state.prescriptionList);
+  const {
+    loading: loadingPrescriptions,
+    error: errorPrescriptions,
+    prescriptions,
+  } = prescriptionList;
+
+  const prescriptionDelete = useSelector((state) => state.prescriptionDelete);
+  const {
+    loading: loadingDelete,
+    error: errorDelete,
+    success: successDelete,
+  } = prescriptionDelete;
+
   useEffect(() => {
+    // Check URL params for active tab
+    const tab = searchParams.get('tab');
+    if (tab) {
+      setActiveTab(tab);
+    }
+
     if (!userInfo) {
       navigate('/login');
     } else {
@@ -56,12 +90,21 @@ const ProfileScreen = () => {
         dispatch({ type: USER_UPDATE_PROFILE_RESET });
         dispatch(getUserDetails('profile'));
         dispatch(listMyOrders());
+        dispatch(listPrescriptions());
       } else {
         setName(user.name);
         setEmail(user.email);
       }
     }
-  }, [dispatch, navigate, user, userInfo, success]);
+  }, [dispatch, navigate, user, userInfo, success, searchParams]);
+
+  useEffect(() => {
+    if (successDelete) {
+      dispatch(listPrescriptions());
+      setShowDeleteModal(false);
+      setPrescriptionToDelete(null);
+    }
+  }, [dispatch, successDelete]);
 
   const submitHandler = (e) => {
     e.preventDefault();
@@ -95,6 +138,33 @@ const ProfileScreen = () => {
   const formatOrderId = (orderId) => {
     if (!orderId) return '';
     return `#${orderId.substring(0, 8).toUpperCase()}`;
+  };
+
+  // Prescription functions
+  const handleDeletePrescription = (prescription) => {
+    setPrescriptionToDelete(prescription);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeletePrescription = () => {
+    if (prescriptionToDelete) {
+      dispatch(deletePrescription(prescriptionToDelete._id));
+    }
+  };
+
+  const handleViewPrescription = (prescription) => {
+    setSelectedPrescription(prescription);
+    setShowPrescriptionModal(true);
+  };
+
+  const formatPrescriptionDate = (dateString) => {
+    if (!dateString) return 'Not specified';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
   };
 
   return (
@@ -453,12 +523,410 @@ const ProfileScreen = () => {
                       )}
                     </div>
                   </Tab>
+
+                  <Tab
+                    eventKey='prescriptions'
+                    title={
+                      <span>
+                        <i className='fas fa-prescription-bottle-medical me-2'></i>
+                        My Prescriptions
+                      </span>
+                    }
+                  >
+                    <div className='tab-content-wrapper'>
+                      <div className='d-flex justify-content-between align-items-center mb-4'>
+                        <h5 className='mb-0'>
+                          <i className='fas fa-prescription-bottle-medical me-2'></i>
+                          My Prescriptions
+                        </h5>
+                        <LinkContainer to='/upload-prescription'>
+                          <Button className='upload-prescription-btn'>
+                            <i className='fas fa-plus me-2'></i>
+                            Upload New Prescription
+                          </Button>
+                        </LinkContainer>
+                      </div>
+
+                      {loadingPrescriptions ? (
+                        <div className='text-center py-5'>
+                          <Loader />
+                        </div>
+                      ) : errorPrescriptions ? (
+                        <Alert variant='danger'>
+                          <i className='fas fa-exclamation-triangle me-2'></i>
+                          {errorPrescriptions}
+                        </Alert>
+                      ) : prescriptions?.length === 0 ? (
+                        <div className='empty-prescriptions text-center py-5'>
+                          <i className='fas fa-prescription-bottle-medical text-muted mb-3'></i>
+                          <h4 className='text-black'>No Prescriptions Yet</h4>
+                          <p className='text-black mb-4'>
+                            Upload your medical prescriptions to keep them
+                            organized and easily accessible.
+                          </p>
+                          <LinkContainer to='/upload-prescription'>
+                            <Button className='upload-prescription-btn'>
+                              <i className='fas fa-upload me-2'></i>
+                              Upload Your First Prescription
+                            </Button>
+                          </LinkContainer>
+                        </div>
+                      ) : (
+                        <div className='prescriptions-grid'>
+                          {prescriptions?.map((prescription) => (
+                            <Card
+                              key={prescription._id}
+                              className='prescription-card'
+                            >
+                              <Card.Body>
+                                <div className='d-flex justify-content-between align-items-start mb-3'>
+                                  <div>
+                                    <h6 className='prescription-title mb-1'>
+                                      {prescription.title}
+                                    </h6>
+                                    <small className='text-black'>
+                                      <i className='fas fa-calendar me-1'></i>
+                                      Uploaded on{' '}
+                                      {formatDate(prescription.createdAt)}
+                                    </small>
+                                  </div>
+                                  <div className='prescription-actions'>
+                                    <Button
+                                      variant='outline-primary'
+                                      size='sm'
+                                      onClick={() =>
+                                        handleViewPrescription(prescription)
+                                      }
+                                      className='me-2'
+                                    >
+                                      <i className='fas fa-eye'></i>
+                                    </Button>
+                                    <Button
+                                      variant='outline-danger'
+                                      size='sm'
+                                      onClick={() =>
+                                        handleDeletePrescription(prescription)
+                                      }
+                                    >
+                                      <i className='fas fa-trash'></i>
+                                    </Button>
+                                  </div>
+                                </div>
+
+                                {prescription.description && (
+                                  <p className='prescription-description text-black mb-2'>
+                                    {prescription.description}
+                                  </p>
+                                )}
+
+                                <div className='prescription-details'>
+                                  {prescription.doctorName && (
+                                    <div className='detail-item'>
+                                      <i className='fas fa-user-md text-primary me-1'></i>
+                                      <small>
+                                        Dr. {prescription.doctorName}
+                                      </small>
+                                    </div>
+                                  )}
+                                  {prescription.hospitalName && (
+                                    <div className='detail-item'>
+                                      <i className='fas fa-hospital text-info me-1'></i>
+                                      <small>{prescription.hospitalName}</small>
+                                    </div>
+                                  )}
+                                  {prescription.prescriptionDate && (
+                                    <div className='detail-item'>
+                                      <i className='fas fa-calendar-check text-success me-1'></i>
+                                      <small>
+                                        Prescribed:{' '}
+                                        {formatPrescriptionDate(
+                                          prescription.prescriptionDate
+                                        )}
+                                      </small>
+                                    </div>
+                                  )}
+                                  {prescription.validUntil && (
+                                    <div className='detail-item'>
+                                      <i className='fas fa-calendar-times text-warning me-1'></i>
+                                      <small>
+                                        Valid until:{' '}
+                                        {formatPrescriptionDate(
+                                          prescription.validUntil
+                                        )}
+                                      </small>
+                                    </div>
+                                  )}
+                                </div>
+
+                                {prescription.medications &&
+                                  prescription.medications.length > 0 && (
+                                    <div className='medications-preview mt-3'>
+                                      <small className='text-black mb-1 d-block'>
+                                        <i className='fas fa-pills me-1'></i>
+                                        Medications (
+                                        {prescription.medications.length})
+                                      </small>
+                                      <div className='medications-list'>
+                                        {prescription.medications
+                                          .slice(0, 2)
+                                          .map((med, index) => (
+                                            <Badge
+                                              key={index}
+                                              bg='light'
+                                              text='dark'
+                                              className='me-1 mb-1'
+                                            >
+                                              {med.name}
+                                            </Badge>
+                                          ))}
+                                        {prescription.medications.length >
+                                          2 && (
+                                          <Badge
+                                            bg='secondary'
+                                            className='me-1 mb-1'
+                                          >
+                                            +
+                                            {prescription.medications.length -
+                                              2}{' '}
+                                            more
+                                          </Badge>
+                                        )}
+                                      </div>
+                                    </div>
+                                  )}
+
+                                <div className='prescription-status mt-3'>
+                                  <Badge
+                                    bg={
+                                      prescription.isActive
+                                        ? 'success'
+                                        : 'secondary'
+                                    }
+                                  >
+                                    <i
+                                      className={`fas ${
+                                        prescription.isActive
+                                          ? 'fa-check-circle'
+                                          : 'fa-pause-circle'
+                                      } me-1`}
+                                    ></i>
+                                    {prescription.isActive
+                                      ? 'Active'
+                                      : 'Inactive'}
+                                  </Badge>
+                                </div>
+                              </Card.Body>
+                            </Card>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </Tab>
                 </Tabs>
               </Card.Body>
             </Card>
           </Col>
         </Row>
       </Container>
+
+      {/* Prescription View Modal */}
+      <Modal
+        show={showPrescriptionModal}
+        onHide={() => setShowPrescriptionModal(false)}
+        size='lg'
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>
+            <i className='fas fa-prescription-bottle-medical me-2'></i>
+            Prescription Details
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedPrescription && (
+            <div>
+              <Row className='mb-4'>
+                <Col md={6}>
+                  <h5>{selectedPrescription.title}</h5>
+                  {selectedPrescription.description && (
+                    <p className='text-muted'>
+                      {selectedPrescription.description}
+                    </p>
+                  )}
+                </Col>
+                <Col md={6} className='text-end'>
+                  <Badge
+                    bg={selectedPrescription.isActive ? 'success' : 'secondary'}
+                    className='mb-2'
+                  >
+                    {selectedPrescription.isActive ? 'Active' : 'Inactive'}
+                  </Badge>
+                  <br />
+                  <small className='text-muted'>
+                    Uploaded: {formatDate(selectedPrescription.createdAt)}
+                  </small>
+                </Col>
+              </Row>
+
+              <Row className='mb-4'>
+                <Col md={6}>
+                  {selectedPrescription.doctorName && (
+                    <div className='mb-2'>
+                      <strong>
+                        <i className='fas fa-user-md me-2'></i>Doctor:
+                      </strong>{' '}
+                      Dr. {selectedPrescription.doctorName}
+                    </div>
+                  )}
+                  {selectedPrescription.hospitalName && (
+                    <div className='mb-2'>
+                      <strong>
+                        <i className='fas fa-hospital me-2'></i>Hospital:
+                      </strong>{' '}
+                      {selectedPrescription.hospitalName}
+                    </div>
+                  )}
+                </Col>
+                <Col md={6}>
+                  {selectedPrescription.prescriptionDate && (
+                    <div className='mb-2'>
+                      <strong>
+                        <i className='fas fa-calendar-check me-2'></i>
+                        Prescribed:
+                      </strong>{' '}
+                      {formatPrescriptionDate(
+                        selectedPrescription.prescriptionDate
+                      )}
+                    </div>
+                  )}
+                  {selectedPrescription.validUntil && (
+                    <div className='mb-2'>
+                      <strong>
+                        <i className='fas fa-calendar-times me-2'></i>Valid
+                        Until:
+                      </strong>{' '}
+                      {formatPrescriptionDate(selectedPrescription.validUntil)}
+                    </div>
+                  )}
+                </Col>
+              </Row>
+
+              {selectedPrescription.medications &&
+                selectedPrescription.medications.length > 0 && (
+                  <div className='mb-4'>
+                    <h6>
+                      <i className='fas fa-pills me-2'></i>Medications
+                    </h6>
+                    <Table striped bordered hover size='sm'>
+                      <thead>
+                        <tr>
+                          <th>Medicine</th>
+                          <th>Dosage</th>
+                          <th>Frequency</th>
+                          <th>Duration</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {selectedPrescription.medications.map((med, index) => (
+                          <tr key={index}>
+                            <td>{med.name || '-'}</td>
+                            <td>{med.dosage || '-'}</td>
+                            <td>{med.frequency || '-'}</td>
+                            <td>{med.duration || '-'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </Table>
+                  </div>
+                )}
+
+              {selectedPrescription.notes && (
+                <div className='mb-4'>
+                  <h6>
+                    <i className='fas fa-sticky-note me-2'></i>Additional Notes
+                  </h6>
+                  <p className='text-muted'>{selectedPrescription.notes}</p>
+                </div>
+              )}
+
+              <div className='text-center'>
+                <h6>
+                  <i className='fas fa-file-medical me-2'></i>Prescription Image
+                </h6>
+                <Image
+                  src={selectedPrescription.image}
+                  alt='Prescription'
+                  fluid
+                  rounded
+                  style={{ maxHeight: '400px', objectFit: 'contain' }}
+                />
+              </div>
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant='secondary'
+            onClick={() => setShowPrescriptionModal(false)}
+          >
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Delete Prescription Confirmation Modal */}
+      <Modal
+        show={showDeleteModal}
+        onHide={() => setShowDeleteModal(false)}
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>
+            <i className='fas fa-exclamation-triangle text-warning me-2'></i>
+            Confirm Deletion
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Are you sure you want to delete this prescription?</p>
+          {prescriptionToDelete && (
+            <div className='p-3 bg-light rounded'>
+              <strong>{prescriptionToDelete.title}</strong>
+              {prescriptionToDelete.doctorName && (
+                <>
+                  <br />
+                  <small>Dr. {prescriptionToDelete.doctorName}</small>
+                </>
+              )}
+            </div>
+          )}
+          <p className='mt-3 text-danger'>
+            <i className='fas fa-warning me-1'></i>
+            This action cannot be undone.
+          </p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant='secondary' onClick={() => setShowDeleteModal(false)}>
+            Cancel
+          </Button>
+          <Button
+            variant='danger'
+            onClick={confirmDeletePrescription}
+            disabled={loadingDelete}
+          >
+            {loadingDelete ? (
+              <>
+                <i className='fas fa-spinner fa-spin me-1'></i>
+                Deleting...
+              </>
+            ) : (
+              <>
+                <i className='fas fa-trash me-1'></i>
+                Delete Prescription
+              </>
+            )}
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

@@ -222,7 +222,7 @@ const HomeScreen = () => {
               )}
             </h1>
             {currentCondition && (
-              <p className='text-muted'>{currentCondition.description}</p>
+              <p className='text-black'>{currentCondition.description}</p>
             )}
           </div>
 

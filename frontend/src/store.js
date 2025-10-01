@@ -48,6 +48,14 @@ import { categoryListReducer } from './reducers/categoryReducers';
 import { brandListReducer } from './reducers/brandReducers';
 import { healthConditionListReducer } from './reducers/healthConditionReducers';
 import { wishlistReducer } from './reducers/wishlistReducers';
+import {
+  prescriptionListReducer,
+  prescriptionDetailsReducer,
+  prescriptionCreateReducer,
+  prescriptionUpdateReducer,
+  prescriptionDeleteReducer,
+  prescriptionUploadReducer,
+} from './reducers/prescriptionReducers';
 
 const reducer = combineReducers({
   productList: productListReducer,
@@ -87,6 +95,12 @@ const reducer = combineReducers({
   brandList: brandListReducer,
   healthConditionList: healthConditionListReducer,
   wishlist: wishlistReducer,
+  prescriptionList: prescriptionListReducer,
+  prescriptionDetails: prescriptionDetailsReducer,
+  prescriptionCreate: prescriptionCreateReducer,
+  prescriptionUpdate: prescriptionUpdateReducer,
+  prescriptionDelete: prescriptionDeleteReducer,
+  prescriptionUpload: prescriptionUploadReducer,
 });
 
 // const cartItemsFromStorage = localStorage.getItem('cartItems')

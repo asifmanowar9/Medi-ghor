@@ -8,10 +8,7 @@ import {
   Card,
   Button,
   Form,
-  Dropdown,
   Badge,
-  Spinner,
-  Alert,
   Modal,
   InputGroup,
   Pagination,
@@ -21,7 +18,6 @@ import { listProducts } from '../actions/productActions';
 import { listCategories } from '../actions/categoryActions';
 import { addToCart } from '../actions/cartActions';
 import { addToWishlist, removeFromWishlist } from '../actions/wishlistActions';
-import Product from '../components/Product';
 import Loader from '../components/Loader';
 import Message from '../components/Message';
 import '../styles/AllProducts.css';
@@ -543,9 +539,12 @@ const AllProducts = () => {
                   <Card.Body className='d-flex flex-column'>
                     <Card.Title className='product-title'>
                       <LinkContainer to={`/product/${product._id}`}>
-                        <a href='#' className='text-decoration-none text-dark'>
+                        <span
+                          className='text-decoration-none text-dark'
+                          style={{ cursor: 'pointer' }}
+                        >
                           {product.name}
-                        </a>
+                        </span>
                       </LinkContainer>
                     </Card.Title>
 

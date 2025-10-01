@@ -20,6 +20,7 @@ import categoryRoutes from './routes/categoryRoutes.js';
 import brandRoutes from './routes/brandRoutes.js';
 import healthConditionRoutes from './routes/healthConditionRoutes.js';
 import wishlistRoutes from './routes/wishlistRoutes.js';
+import prescriptionRoutes from './routes/prescriptionRoutes.js';
 
 dotenv.config();
 
@@ -65,6 +66,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/brands', brandRoutes);
 app.use('/api/health-conditions', healthConditionRoutes);
 app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/prescriptions', prescriptionRoutes);
 
 // Serve static files
 const __filename = fileURLToPath(import.meta.url);
@@ -78,6 +80,10 @@ app.use(
 app.use(
   '/uploads/test-report-images',
   express.static(path.join(__dirname, '../uploads/test-report-images'))
+);
+app.use(
+  '/uploads/prescriptions',
+  express.static(path.join(__dirname, '../uploads/prescriptions'))
 );
 
 app.get('/api/config/stripe', (req, res) => {

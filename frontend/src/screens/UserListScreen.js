@@ -10,7 +10,6 @@ import {
   InputGroup,
   Form,
   Container,
-  Dropdown,
 } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import Message from '../components/Message';

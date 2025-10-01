@@ -34,7 +34,7 @@ const FeaturedCategories = () => {
   }, [dispatch]);
 
   return (
-    <section className='featured-categories py-5'>
+    <section id='categories' className='featured-categories py-5'>
       <Container>
         {/* Section Header */}
         <Row className='mb-4'>
@@ -113,7 +113,7 @@ const FeaturedCategories = () => {
         </Row>
 
         {/* Health Conditions Section */}
-        <Row className='mt-5'>
+        <Row id='health-conditions' className='mt-5'>
           <Col>
             <div className='section-header text-center mb-4'>
               <h3 className='section-title'>
@@ -173,7 +173,7 @@ const FeaturedCategories = () => {
         </Row>
 
         {/* Popular Brands Section */}
-        <Row className='mt-5'>
+        <Row id='brands' className='mt-5'>
           <Col>
             <div className='section-header text-center mb-4'>
               <h3 className='section-title'>

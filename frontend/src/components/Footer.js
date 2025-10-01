@@ -96,28 +96,22 @@ const Footer = () => {
                   </LinkContainer>
                 </li>
                 <li>
-                  <LinkContainer to='/categories'>
-                    <a href='#'>
-                      <i className='fas fa-th-large me-1'></i>
-                      Categories
-                    </a>
-                  </LinkContainer>
+                  <a href='/#categories'>
+                    <i className='fas fa-th-large me-1'></i>
+                    Categories
+                  </a>
                 </li>
                 <li>
-                  <LinkContainer to='/brands'>
-                    <a href='#'>
-                      <i className='fas fa-award me-1'></i>
-                      Brands
-                    </a>
-                  </LinkContainer>
+                  <a href='/#brands'>
+                    <i className='fas fa-award me-1'></i>
+                    Brands
+                  </a>
                 </li>
                 <li>
-                  <LinkContainer to='/health-conditions'>
-                    <a href='#'>
-                      <i className='fas fa-heartbeat me-1'></i>
-                      Health Conditions
-                    </a>
-                  </LinkContainer>
+                  <a href='/#health-conditions'>
+                    <i className='fas fa-heartbeat me-1'></i>
+                    Health Conditions
+                  </a>
                 </li>
               </ul>
             </Col>
@@ -143,7 +137,7 @@ const Footer = () => {
                   </LinkContainer>
                 </li>
                 <li>
-                  <LinkContainer to='/orders'>
+                  <LinkContainer to='/profile?tab=orders'>
                     <a href='#'>
                       <i className='fas fa-list-alt me-1'></i>
                       Order History
@@ -178,10 +172,12 @@ const Footer = () => {
                   </LinkContainer>
                 </li>
                 <li>
-                  <a href='#'>
-                    <i className='fas fa-upload me-1'></i>
-                    Upload Prescription
-                  </a>
+                  <LinkContainer to='/upload-prescription'>
+                    <a href='#'>
+                      <i className='fas fa-upload me-1'></i>
+                      Upload Prescription
+                    </a>
+                  </LinkContainer>
                 </li>
                 <li>
                   <a href='#'>

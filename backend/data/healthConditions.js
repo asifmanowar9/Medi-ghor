@@ -15,7 +15,7 @@ const healthConditions = [
   },
   {
     name: 'Stomach Care',
-    icon: 'fas fa-stomach',
+    icon: 'fas fa-pills',
     color: '#F39C12',
     description: 'Digestive health and stomach care',
     isActive: true,

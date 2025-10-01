@@ -25,6 +25,7 @@ import ChatScreen from './screens/ChatScreen';
 import AllProducts from './screens/AllProducts';
 import WishlistScreen from './screens/WishlistScreen';
 import TrackOrderScreen from './screens/TrackOrderScreen';
+import UploadPrescriptionScreen from './screens/UploadPrescriptionScreen';
 
 const App = () => {
   return (
@@ -73,6 +74,10 @@ const App = () => {
             <Route path='/chat/:id' element={<ChatScreen />} />
             <Route path='/products' element={<AllProducts />} />
             <Route path='/wishlist' element={<WishlistScreen />} />
+            <Route
+              path='/upload-prescription'
+              element={<UploadPrescriptionScreen />}
+            />
             <Route path='/track-order' element={<TrackOrderScreen />} />
             <Route path='/track-order/:id' element={<TrackOrderScreen />} />
             <Route path='/category/:categoryName' element={<HomeScreen />} />

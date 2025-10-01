@@ -11,7 +11,6 @@ import {
   Alert,
   InputGroup,
   Badge,
-  Modal,
 } from 'react-bootstrap';
 import CheckoutSteps from '../components/CheckoutSteps';
 import { saveShippingAddress } from '../actions/cartActions';
@@ -39,7 +38,6 @@ const ShippingScreen = () => {
   // UI states
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const [showAddressModal, setShowAddressModal] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
