@@ -235,3 +235,52 @@
 .product-list-container::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.5);
 }
+
+/* Fix white text visibility in product cards */
+.product-card .card-title,
+.product-card .text-white {
+  color: #000 !important;
+}
+
+.product-card .text-muted {
+  color: rgba(0, 0, 0, 0.7) !important;
+}
+
+.product-card .fw-semibold {
+  color: #000 !important;
+}
+
+.product-card .small,
+.product-card .medicine-info-section {
+  color: #000 !important;
+}
+
+.product-card .row.g-1 {
+  color: #000 !important;
+}
+
+.product-card .row.g-1 span {
+  color: #000 !important;
+}
+
+/* Empty state text */
+.empty-state-card .text-white {
+  color: #000 !important;
+}
+
+.empty-state-card .text-muted {
+  color: rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Modal text */
+.glass-modal .text-white {
+  color: #000 !important;
+}
+
+.glass-modal .text-muted {
+  color: rgba(0, 0, 0, 0.6) !important;
+}
+
+.glass-modal .text-warning {
+  color: #f39c12 !important;
+}

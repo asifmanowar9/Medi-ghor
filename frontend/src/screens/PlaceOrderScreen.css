@@ -34,7 +34,7 @@
 }
 
 .page-title {
-  color: white;
+  color: #000;
   font-size: 2.5rem;
   font-weight: 700;
   text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
@@ -45,11 +45,11 @@
 }
 
 .page-title i {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(0, 0, 0, 0.8);
 }
 
 .page-subtitle {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(0, 0, 0, 0.8);
   font-size: 1.1rem;
   margin-bottom: 0;
 }
@@ -87,7 +87,7 @@
 }
 
 .card-header h3 {
-  color: white;
+  color: #000;
   font-weight: 600;
   font-size: 1.3rem;
   margin: 0;
@@ -96,7 +96,7 @@
 }
 
 .card-header h3 i {
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(0, 0, 0, 0.7);
 }
 
 .card-content {
@@ -107,7 +107,7 @@
 .address-info .address-line {
   display: flex;
   align-items: flex-start;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(0, 0, 0, 0.9);
   font-size: 1.1rem;
   line-height: 1.5;
 }
@@ -126,7 +126,7 @@
   border: 1px solid rgba(52, 152, 219, 0.4);
   border-radius: 25px;
   padding: 0.75rem 1.5rem;
-  color: white;
+  color: #000;
   font-weight: 500;
   font-size: 1rem;
 }
@@ -139,7 +139,7 @@
 .empty-cart {
   text-align: center;
   padding: 3rem 2rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(0, 0, 0, 0.6);
 }
 
 .empty-cart i {
@@ -193,7 +193,7 @@
 }
 
 .item-name {
-  color: white;
+  color: #000;
   text-decoration: none;
   font-weight: 600;
   font-size: 1rem;
@@ -207,7 +207,7 @@
 }
 
 .item-quantity {
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(0, 0, 0, 0.7);
   font-size: 0.9rem;
 }
 
@@ -217,13 +217,13 @@
 }
 
 .unit-price {
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(0, 0, 0, 0.7);
   font-size: 0.85rem;
   margin-bottom: 0.25rem;
 }
 
 .total-price {
-  color: white;
+  color: #000;
   font-weight: 600;
   font-size: 1.1rem;
 }
@@ -256,7 +256,7 @@
 }
 
 .summary-header h3 {
-  color: white;
+  color: #000;
   font-weight: 600;
   font-size: 1.3rem;
   margin: 0;
@@ -265,7 +265,7 @@
 }
 
 .summary-header h3 i {
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(0, 0, 0, 0.7);
 }
 
 .summary-content {
@@ -390,7 +390,7 @@
 }
 
 .badge-item span {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(0, 0, 0, 0.8);
   font-size: 0.75rem;
   font-weight: 500;
   line-height: 1.2;

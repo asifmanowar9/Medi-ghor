@@ -34,6 +34,7 @@ const ProductEditScreen = () => {
   const [isActive, setIsActive] = useState(true);
   const [isFeatured, setIsFeatured] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [imageFile, setImageFile] = useState(null);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -140,6 +141,9 @@ const ProductEditScreen = () => {
 
   const uploadFileHandler = async (e) => {
     const file = e.target.files[0];
+    if (!file) return;
+
+    setImageFile(file);
     const formData = new FormData();
     formData.append('image', file);
     setUploading(true);
@@ -150,12 +154,29 @@ const ProductEditScreen = () => {
           Authorization: `Bearer ${userInfo.token}`,
         },
       };
-      const { data } = await axios.post('/api/upload', formData, config);
+      const { data } = await axios.post(
+        '/api/upload/product',
+        formData,
+        config
+      );
       setImage(data.image);
       setUploading(false);
     } catch (error) {
       setUploading(false);
       console.error(error);
+      alert('Image upload failed. Please try again.');
+    }
+  };
+
+  // Handler for image URL input
+  const handleImageUrlChange = (e) => {
+    setImage(e.target.value);
+    // Clear file input if URL is being used
+    if (e.target.value && imageFile) {
+      setImageFile(null);
+      // Reset file input
+      const fileInput = document.getElementById('productImageFile');
+      if (fileInput) fileInput.value = '';
     }
   };
 
@@ -447,23 +468,112 @@ const ProductEditScreen = () => {
                     type='url'
                     placeholder='Enter image URL'
                     value={image}
-                    onChange={(e) => setImage(e.target.value)}
+                    onChange={handleImageUrlChange}
+                    disabled={uploading || imageFile}
                   />
+                  {imageFile && (
+                    <Form.Text className='text-warning'>
+                      <i className='fas fa-info-circle me-1'></i>
+                      File upload in progress. Clear the file to use URL.
+                    </Form.Text>
+                  )}
                 </Form.Group>
               </Col>
               <Col md={4}>
                 <Form.Group>
                   <Form.Label className='fw-bold'>Or Upload File</Form.Label>
-                  <Form.Control type='file' onChange={uploadFileHandler} />
+                  <Form.Control
+                    type='file'
+                    id='productImageFile'
+                    onChange={uploadFileHandler}
+                    accept='image/*'
+                    disabled={uploading || (image && !imageFile)}
+                  />
                   {uploading && (
                     <Form.Text className='text-muted'>
                       <i className='fas fa-spinner fa-spin me-1'></i>
                       Uploading...
                     </Form.Text>
                   )}
+                  {image && !imageFile && (
+                    <Form.Text className='text-warning d-block'>
+                      <i className='fas fa-info-circle me-1'></i>
+                      Clear URL to upload file.
+                    </Form.Text>
+                  )}
                 </Form.Group>
               </Col>
             </Row>
+
+            {/* Image Preview */}
+            {image && (
+              <Row className='mb-4'>
+                <Col md={12}>
+                  <div className='border rounded p-3 bg-light'>
+                    <Form.Label className='fw-bold mb-2'>
+                      Image Preview
+                    </Form.Label>
+                    <div className='d-flex align-items-center gap-3'>
+                      <img
+                        src={
+                          image.startsWith('http')
+                            ? image
+                            : image.startsWith('/uploads')
+                            ? image
+                            : image.startsWith('/images')
+                            ? image
+                            : `/uploads/products/${image}`
+                        }
+                        alt='Product preview'
+                        style={{
+                          maxWidth: '150px',
+                          maxHeight: '150px',
+                          objectFit: 'contain',
+                        }}
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src =
+                            'https://via.placeholder.com/150?text=Invalid+Image';
+                        }}
+                      />
+                      <div className='flex-grow-1'>
+                        <p className='mb-1 text-muted small fw-bold'>Image Location:</p>
+                        <div className='d-flex flex-column gap-1'>
+                          {image.startsWith('http') ? (
+                            <div>
+                              <span className='badge bg-info me-2'>External URL</span>
+                              <code className='small'>{image}</code>
+                            </div>
+                          ) : image.startsWith('/images') ? (
+                            <div>
+                              <span className='badge bg-secondary me-2'>Static Asset</span>
+                              <code className='small'>{image}</code>
+                            </div>
+                          ) : image.startsWith('/uploads/products') ? (
+                            <div>
+                              <span className='badge bg-success me-2'>Product Upload</span>
+                              <code className='small'>{image}</code>
+                            </div>
+                          ) : image.startsWith('/uploads') ? (
+                            <div>
+                              <span className='badge bg-warning me-2'>General Upload</span>
+                              <code className='small'>{image}</code>
+                            </div>
+                          ) : (
+                            <div>
+                              <span className='badge bg-primary me-2'>Filename Only</span>
+                              <code className='small'>
+                                Will be saved to: /uploads/products/{image}
+                              </code>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Col>
+              </Row>
+            )}
 
             {/* Settings Section */}
             <Row>
