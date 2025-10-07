@@ -374,6 +374,9 @@ export const googleLogin = () => async (dispatch) => {
       type: USER_GOOGLE_LOGIN_FAIL,
       payload: errorMessage,
     });
+
+    // Re-throw the error so it can be caught in LoginScreen
+    throw error;
   }
 };
 

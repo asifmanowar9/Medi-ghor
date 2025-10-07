@@ -90,9 +90,12 @@ const LoginScreen = () => {
   const handleGoogleLogin = async () => {
     try {
       setIsLoading(true);
+      setMessage(null);
       await dispatch(googleLogin());
       setIsLoading(false);
+      // Navigation will be handled by useEffect when userInfo updates
     } catch (error) {
+      console.error('Google login error:', error);
       setMessage(error.message || 'Google login failed');
       setIsLoading(false);
     }
