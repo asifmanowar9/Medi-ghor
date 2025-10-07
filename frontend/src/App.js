@@ -9,6 +9,7 @@ import ProductScreen from './screens/ProductScreen';
 import CartScreen from './screens/CartScreen';
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
+import EmailVerificationScreen from './screens/EmailVerificationScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import ShippingScreen from './screens/ShippingScreen';
 import PaymentScreen from './screens/PaymentScreen';
@@ -40,6 +41,7 @@ const App = () => {
             <Route path='/shipping' element={<ShippingScreen />} />
             <Route path='/profile' element={<ProfileScreen />} />
             <Route path='/register' element={<RegisterScreen />} />
+            <Route path='/verify-email' element={<EmailVerificationScreen />} />
             <Route path='/login' element={<LoginScreen />} />
             <Route path='/product/:id' element={<ProductScreen />} />
             <Route path='/cart' element={<CartScreen />} />

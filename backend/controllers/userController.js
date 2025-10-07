@@ -147,6 +147,13 @@ const getUser = asyncHandler(async (req, res) => {
   }
 
   const users = await User.find(query);
+  console.log(`📋 User List: Found ${users.length} users`);
+  console.log(
+    `   Firebase users: ${users.filter((u) => u.firebaseUid).length}`
+  );
+  console.log(
+    `   Traditional users: ${users.filter((u) => !u.firebaseUid).length}`
+  );
   res.json(users);
 });
 

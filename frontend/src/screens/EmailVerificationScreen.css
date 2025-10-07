@@ -1,0 +1,51 @@
+.email-verification-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 2rem 0;
+}
+
+.verification-card {
+  animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.verification-icon {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.step-item {
+  transition: transform 0.3s ease;
+}
+
+.step-item:hover {
+  transform: translateX(5px);
+}
+
+@media (max-width: 768px) {
+  .email-verification-container {
+    padding: 1rem 0;
+  }
+  
+  .verification-card .card-body {
+    padding: 2rem 1.5rem !important;
+  }
+}

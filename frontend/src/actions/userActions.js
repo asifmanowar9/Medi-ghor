@@ -23,6 +23,15 @@ import {
   USER_UPDATE_REQUEST,
   USER_UPDATE_SUCCESS,
   USER_UPDATE_FAIL,
+  USER_FIREBASE_LOGIN_REQUEST,
+  USER_FIREBASE_LOGIN_SUCCESS,
+  USER_FIREBASE_LOGIN_FAIL,
+  USER_FIREBASE_REGISTER_REQUEST,
+  USER_FIREBASE_REGISTER_SUCCESS,
+  USER_FIREBASE_REGISTER_FAIL,
+  USER_GOOGLE_LOGIN_REQUEST,
+  USER_GOOGLE_LOGIN_SUCCESS,
+  USER_GOOGLE_LOGIN_FAIL,
 } from '../constants/userConstants';
 
 import { ORDER_LIST_MY_RESET } from '../constants/orderConstants';
@@ -34,6 +43,16 @@ import {
 } from '../actions/wishlistActions';
 
 import axios from 'axios';
+
+// Firebase imports
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signInWithPopup,
+  signOut,
+  sendEmailVerification,
+} from 'firebase/auth';
+import { auth, googleProvider } from '../config/firebase';
 
 export const login = (email, password) => async (dispatch) => {
   try {
@@ -73,16 +92,26 @@ export const login = (email, password) => async (dispatch) => {
           ? error.response.data.message
           : error.message,
     });
+
+    // Re-throw the error so it can be caught in LoginScreen
+    throw error;
   }
 };
 
-export const logout = () => (dispatch, getState) => {
+export const logout = () => async (dispatch, getState) => {
   // Save guest cart if there are items in it before logging out
   const {
     cart: { cartItems },
   } = getState();
   if (cartItems.length > 0) {
     localStorage.setItem('cartItems_guest', JSON.stringify(cartItems));
+  }
+
+  // Sign out from Firebase
+  try {
+    await signOut(auth);
+  } catch (error) {
+    console.error('Firebase signout error:', error);
   }
 
   localStorage.removeItem('userInfo');
@@ -105,6 +134,245 @@ export const logout = () => (dispatch, getState) => {
       type: CART_ADD_ITEM,
       payload: { cartItems: guestCartItems },
       isFullReplace: true,
+    });
+  }
+};
+
+// Firebase Email/Password Login
+export const firebaseLogin = (email, password) => async (dispatch) => {
+  try {
+    dispatch({ type: USER_FIREBASE_LOGIN_REQUEST });
+
+    // Sign in with Firebase
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+    const firebaseUser = userCredential.user;
+
+    // Check if email is verified
+    if (!firebaseUser.emailVerified) {
+      // Send verification email if not sent already
+      await sendEmailVerification(firebaseUser);
+
+      dispatch({
+        type: USER_FIREBASE_LOGIN_FAIL,
+        payload:
+          'Please verify your email before logging in. A verification email has been sent.',
+      });
+
+      return { needsVerification: true };
+    }
+
+    // Get Firebase ID token
+    const idToken = await firebaseUser.getIdToken();
+
+    // Send token to backend for verification and user sync
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
+
+    const { data } = await axios.post(
+      '/api/users/firebase-login',
+      {
+        idToken,
+        email: firebaseUser.email,
+        name: firebaseUser.displayName || firebaseUser.email.split('@')[0],
+        uid: firebaseUser.uid,
+      },
+      config
+    );
+
+    dispatch({
+      type: USER_FIREBASE_LOGIN_SUCCESS,
+      payload: data,
+    });
+
+    dispatch({
+      type: USER_LOGIN_SUCCESS,
+      payload: data,
+    });
+
+    localStorage.setItem('userInfo', JSON.stringify(data));
+
+    // Load user's cart after successful login
+    dispatch(loadUserCart());
+
+    // Sync wishlist with backend after successful login
+    dispatch(syncWishlistWithBackend());
+  } catch (error) {
+    const errorMessage =
+      error.response && error.response.data.message
+        ? error.response.data.message
+        : error.code === 'auth/user-not-found'
+        ? 'No account found with this email'
+        : error.code === 'auth/wrong-password'
+        ? 'Invalid password'
+        : error.code === 'auth/invalid-email'
+        ? 'Invalid email address'
+        : error.code === 'auth/user-disabled'
+        ? 'This account has been disabled'
+        : error.message || 'Login failed';
+
+    dispatch({
+      type: USER_FIREBASE_LOGIN_FAIL,
+      payload: errorMessage,
+    });
+
+    // Re-throw the error so it can be caught in LoginScreen
+    throw error;
+  }
+};
+
+// Firebase Email/Password Registration with Email Verification
+export const firebaseRegister = (name, email, password) => async (dispatch) => {
+  try {
+    dispatch({ type: USER_FIREBASE_REGISTER_REQUEST });
+
+    // Create user with Firebase
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+    const firebaseUser = userCredential.user;
+
+    // Send email verification
+    await sendEmailVerification(firebaseUser);
+
+    // Try to sync with backend (optional - will work without backend for now)
+    try {
+      const idToken = await firebaseUser.getIdToken();
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      };
+
+      const { data } = await axios.post(
+        '/api/users/firebase-register',
+        {
+          idToken,
+          name,
+          email: firebaseUser.email,
+          uid: firebaseUser.uid,
+        },
+        config
+      );
+
+      dispatch({
+        type: USER_FIREBASE_REGISTER_SUCCESS,
+        payload: data,
+      });
+
+      dispatch({
+        type: USER_REGISTER_SUCCESS,
+        payload: data,
+      });
+    } catch (backendError) {
+      console.warn(
+        'Backend sync failed, but Firebase account created:',
+        backendError
+      );
+      // Continue anyway - account is created in Firebase
+      dispatch({
+        type: USER_FIREBASE_REGISTER_SUCCESS,
+        payload: { email: firebaseUser.email, name },
+      });
+    }
+
+    // Note: We don't auto-login until email is verified
+    // The verification screen will handle the redirect
+
+    return { success: true, needsVerification: true };
+  } catch (error) {
+    // If Firebase account creation fails, show error
+    const errorMessage =
+      error.code === 'auth/email-already-in-use'
+        ? 'An account with this email already exists. Please login instead or use a different email.'
+        : error.code === 'auth/weak-password'
+        ? 'Password should be at least 6 characters'
+        : error.code === 'auth/invalid-email'
+        ? 'Invalid email address'
+        : error.code === 'auth/operation-not-allowed'
+        ? 'Email/Password authentication is not enabled. Please enable it in Firebase Console.'
+        : error.message || 'Registration failed';
+
+    dispatch({
+      type: USER_FIREBASE_REGISTER_FAIL,
+      payload: errorMessage,
+    });
+
+    throw new Error(errorMessage);
+  }
+};
+
+// Google Sign-In
+export const googleLogin = () => async (dispatch) => {
+  try {
+    dispatch({ type: USER_GOOGLE_LOGIN_REQUEST });
+
+    // Sign in with Google popup
+    const result = await signInWithPopup(auth, googleProvider);
+    const firebaseUser = result.user;
+
+    // Get Firebase ID token
+    const idToken = await firebaseUser.getIdToken();
+
+    // Send token to backend for verification and user sync
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
+
+    const { data } = await axios.post(
+      '/api/users/google-login',
+      {
+        idToken,
+        email: firebaseUser.email,
+        name: firebaseUser.displayName || firebaseUser.email.split('@')[0],
+        uid: firebaseUser.uid,
+        photoURL: firebaseUser.photoURL,
+      },
+      config
+    );
+
+    dispatch({
+      type: USER_GOOGLE_LOGIN_SUCCESS,
+      payload: data,
+    });
+
+    dispatch({
+      type: USER_LOGIN_SUCCESS,
+      payload: data,
+    });
+
+    localStorage.setItem('userInfo', JSON.stringify(data));
+
+    // Load user's cart after successful login
+    dispatch(loadUserCart());
+
+    // Sync wishlist with backend after successful login
+    dispatch(syncWishlistWithBackend());
+  } catch (error) {
+    const errorMessage =
+      error.response && error.response.data.message
+        ? error.response.data.message
+        : error.code === 'auth/popup-closed-by-user'
+        ? 'Sign-in popup was closed'
+        : error.code === 'auth/cancelled-popup-request'
+        ? 'Another popup is already open'
+        : error.code === 'auth/popup-blocked'
+        ? 'Sign-in popup was blocked by browser'
+        : error.message || 'Google sign-in failed';
+
+    dispatch({
+      type: USER_GOOGLE_LOGIN_FAIL,
+      payload: errorMessage,
     });
   }
 };

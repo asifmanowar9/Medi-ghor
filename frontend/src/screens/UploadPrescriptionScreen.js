@@ -9,11 +9,9 @@ import {
   Form,
   Button,
   Alert,
-  InputGroup,
   Badge,
   ProgressBar,
   Image,
-  ListGroup,
 } from 'react-bootstrap';
 import {
   createPrescription,
@@ -24,7 +22,6 @@ import {
   PRESCRIPTION_UPLOAD_RESET,
 } from '../constants/prescriptionConstants';
 import Message from '../components/Message';
-import Loader from '../components/Loader';
 import '../styles/UploadPrescriptionScreen.css';
 
 const UploadPrescriptionScreen = () => {
@@ -34,11 +31,6 @@ const UploadPrescriptionScreen = () => {
   // Form states
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [doctorName, setDoctorName] = useState('');
-  const [hospitalName, setHospitalName] = useState('');
-  const [prescriptionDate, setPrescriptionDate] = useState('');
-  const [validUntil, setValidUntil] = useState('');
-  const [notes, setNotes] = useState('');
   const [medications, setMedications] = useState([
     { name: '', dosage: '', frequency: '', duration: '' },
   ]);
@@ -56,7 +48,7 @@ const UploadPrescriptionScreen = () => {
   const { userInfo } = userLogin;
 
   const prescriptionCreate = useSelector((state) => state.prescriptionCreate);
-  const { loading, error, success, prescription } = prescriptionCreate;
+  const { loading, error, success } = prescriptionCreate;
 
   const prescriptionUpload = useSelector((state) => state.prescriptionUpload);
   const {

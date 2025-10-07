@@ -11,7 +11,11 @@ import {
   Card,
   ProgressBar,
 } from 'react-bootstrap';
-import { register } from '../actions/userActions';
+import {
+  register,
+  googleLogin,
+  firebaseRegister,
+} from '../actions/userActions';
 import Message from '../components/Message';
 import Loader from '../components/Loader';
 import { validatePassword } from '../utils/passwordValidator';
@@ -121,8 +125,29 @@ const RegisterScreen = () => {
     }
 
     setIsLoading(true);
-    await dispatch(register(name, email, password));
+    try {
+      // Use Firebase registration with email verification
+      const result = await dispatch(firebaseRegister(name, email, password));
+
+      if (result && result.needsVerification) {
+        // Redirect to email verification screen
+        navigate('/verify-email');
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+    }
     setIsLoading(false);
+  };
+
+  const handleGoogleRegister = async () => {
+    try {
+      setIsLoading(true);
+      await dispatch(googleLogin());
+      setIsLoading(false);
+    } catch (error) {
+      setMessage(error.message || 'Google registration failed');
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -621,6 +646,56 @@ const RegisterScreen = () => {
                       </>
                     )}
                   </Form>
+
+                  {/* Divider */}
+                  <div className='d-flex align-items-center my-4'>
+                    <hr className='flex-grow-1' />
+                    <span
+                      className='px-3 text-muted'
+                      style={{ fontSize: '0.9rem' }}
+                    >
+                      OR
+                    </span>
+                    <hr className='flex-grow-1' />
+                  </div>
+
+                  {/* Google Sign-Up Button */}
+                  <Button
+                    variant='light'
+                    className='w-100 mb-3'
+                    size='lg'
+                    onClick={handleGoogleRegister}
+                    disabled={loading || isLoading}
+                    style={{
+                      background: 'white',
+                      border: '2px solid #e0e0e0',
+                      borderRadius: '12px',
+                      padding: '1rem',
+                      fontWeight: '600',
+                      color: '#333',
+                      transition: 'all 0.3s ease',
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.boxShadow =
+                        '0 4px 12px rgba(0, 0, 0, 0.15)';
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.boxShadow = 'none';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                    }}
+                  >
+                    <img
+                      src='https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg'
+                      alt='Google'
+                      style={{
+                        width: '20px',
+                        height: '20px',
+                        marginRight: '10px',
+                      }}
+                    />
+                    Sign up with Google
+                  </Button>
 
                   <div className='text-center'>
                     <div

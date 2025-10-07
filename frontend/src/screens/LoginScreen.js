@@ -10,7 +10,7 @@ import {
   Container,
   Card,
 } from 'react-bootstrap';
-import { login } from '../actions/userActions';
+import { login, firebaseLogin, googleLogin } from '../actions/userActions';
 import Message from '../components/Message';
 import Loader from '../components/Loader';
 import './LoginScreen.css';
@@ -46,8 +46,38 @@ const LoginScreen = () => {
     e.preventDefault();
     if (email && password) {
       setIsLoading(true);
-      await dispatch(login(email, password));
-      setIsLoading(false);
+      setMessage(null);
+
+      // Try traditional login first (for old accounts)
+      try {
+        await dispatch(login(email, password));
+        setIsLoading(false);
+        return; // Success, exit
+      } catch (traditionalErr) {
+        console.log('Traditional login failed, trying Firebase login...');
+      }
+
+      // Clear any error from traditional login before trying Firebase
+      dispatch({ type: 'USER_LOGIN_FAIL', payload: null });
+
+      // If traditional login fails, try Firebase login
+      try {
+        console.log('Attempting Firebase login for:', email);
+        const result = await dispatch(firebaseLogin(email, password));
+
+        // If email needs verification, redirect to verification page
+        if (result && result.needsVerification) {
+          navigate('/verify-email');
+        }
+        setIsLoading(false);
+      } catch (firebaseErr) {
+        console.error(
+          'Both login methods failed. Firebase error:',
+          firebaseErr
+        );
+        setMessage('Login failed. Please check your credentials.');
+        setIsLoading(false);
+      }
     } else {
       setMessage('Please enter email and password');
     }
@@ -55,6 +85,17 @@ const LoginScreen = () => {
 
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      setIsLoading(true);
+      await dispatch(googleLogin());
+      setIsLoading(false);
+    } catch (error) {
+      setMessage(error.message || 'Google login failed');
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -334,6 +375,56 @@ const LoginScreen = () => {
                       )}
                     </Button>
                   </Form>
+
+                  {/* Divider */}
+                  <div className='d-flex align-items-center my-4'>
+                    <hr className='flex-grow-1' />
+                    <span
+                      className='px-3 text-muted'
+                      style={{ fontSize: '0.9rem' }}
+                    >
+                      OR
+                    </span>
+                    <hr className='flex-grow-1' />
+                  </div>
+
+                  {/* Google Sign-In Button */}
+                  <Button
+                    variant='light'
+                    className='w-100 mb-3'
+                    size='lg'
+                    onClick={handleGoogleLogin}
+                    disabled={loading || isLoading}
+                    style={{
+                      background: 'white',
+                      border: '2px solid #e0e0e0',
+                      borderRadius: '12px',
+                      padding: '1rem',
+                      fontWeight: '600',
+                      color: '#333',
+                      transition: 'all 0.3s ease',
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.boxShadow =
+                        '0 4px 12px rgba(0, 0, 0, 0.15)';
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.boxShadow = 'none';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                    }}
+                  >
+                    <img
+                      src='https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg'
+                      alt='Google'
+                      style={{
+                        width: '20px',
+                        height: '20px',
+                        marginRight: '10px',
+                      }}
+                    />
+                    Continue with Google
+                  </Button>
 
                   <div className='text-center'>
                     <div

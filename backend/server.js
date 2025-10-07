@@ -22,7 +22,13 @@ import healthConditionRoutes from './routes/healthConditionRoutes.js';
 import wishlistRoutes from './routes/wishlistRoutes.js';
 import prescriptionRoutes from './routes/prescriptionRoutes.js';
 
-dotenv.config();
+// Load environment variables from root .env file FIRST
+dotenv.config({
+  path: path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../.env'),
+});
+
+// Initialize Firebase Admin SDK
+import './config/firebaseAdmin.js';
 
 connectDB();
 

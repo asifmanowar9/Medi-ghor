@@ -12,10 +12,7 @@ import {
   Alert,
   InputGroup,
   Modal,
-  ListGroup,
 } from 'react-bootstrap';
-import Message from '../components/Message';
-import Loader from '../components/Loader';
 import { addToCart, removeFromCart } from '../actions/cartActions';
 import { useCartAuth } from '../hooks/useCartAuth';
 import '../styles/CartScreen.css';
@@ -25,7 +22,7 @@ const CartScreen = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const userInfo = useCartAuth();
+  useCartAuth();
 
   // Local state for modals and interactions
   const [showRemoveModal, setShowRemoveModal] = useState(false);

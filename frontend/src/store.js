@@ -107,9 +107,17 @@ const reducer = combineReducers({
 //   ? JSON.parse(localStorage.getItem('cartItems'))
 //   : [];
 
-const userInfoFromStorage = localStorage.getItem('userInfo')
-  ? JSON.parse(localStorage.getItem('userInfo'))
-  : null;
+let userInfoFromStorage = null;
+try {
+  const userInfoData = localStorage.getItem('userInfo');
+  userInfoFromStorage =
+    userInfoData && userInfoData !== 'undefined'
+      ? JSON.parse(userInfoData)
+      : null;
+} catch (error) {
+  console.error('Error parsing userInfo:', error);
+  userInfoFromStorage = null;
+}
 
 // const shippingAddressFromStorage = localStorage.getItem('shippingAddress')
 //   ? JSON.parse(localStorage.getItem('shippingAddress'))
@@ -123,21 +131,56 @@ const userInfoFromStorage = localStorage.getItem('userInfo')
 const getUserSpecificCartData = (userInfo) => {
   const userId = userInfo ? userInfo._id : 'guest';
 
-  const cartItems = localStorage.getItem(`cartItems_${userId}`)
-    ? JSON.parse(localStorage.getItem(`cartItems_${userId}`))
-    : [];
+  let cartItems = [];
+  let shippingAddress = {};
+  let paymentMethod = '';
+  let wishlistItems = [];
 
-  const shippingAddress = localStorage.getItem(`shippingAddress_${userId}`)
-    ? JSON.parse(localStorage.getItem(`shippingAddress_${userId}`))
-    : {};
+  try {
+    const cartItemsData = localStorage.getItem(`cartItems_${userId}`);
+    cartItems =
+      cartItemsData && cartItemsData !== 'undefined'
+        ? JSON.parse(cartItemsData)
+        : [];
+  } catch (error) {
+    console.error('Error parsing cartItems:', error);
+    cartItems = [];
+  }
 
-  const paymentMethod = localStorage.getItem(`paymentMethod_${userId}`)
-    ? JSON.parse(localStorage.getItem(`paymentMethod_${userId}`))
-    : '';
+  try {
+    const shippingAddressData = localStorage.getItem(
+      `shippingAddress_${userId}`
+    );
+    shippingAddress =
+      shippingAddressData && shippingAddressData !== 'undefined'
+        ? JSON.parse(shippingAddressData)
+        : {};
+  } catch (error) {
+    console.error('Error parsing shippingAddress:', error);
+    shippingAddress = {};
+  }
 
-  const wishlistItems = localStorage.getItem(`wishlistItems_${userId}`)
-    ? JSON.parse(localStorage.getItem(`wishlistItems_${userId}`))
-    : [];
+  try {
+    const paymentMethodData = localStorage.getItem(`paymentMethod_${userId}`);
+    paymentMethod =
+      paymentMethodData && paymentMethodData !== 'undefined'
+        ? JSON.parse(paymentMethodData)
+        : '';
+  } catch (error) {
+    console.error('Error parsing paymentMethod:', error);
+    paymentMethod = '';
+  }
+
+  try {
+    const wishlistItemsData = localStorage.getItem(`wishlistItems_${userId}`);
+    wishlistItems =
+      wishlistItemsData && wishlistItemsData !== 'undefined'
+        ? JSON.parse(wishlistItemsData)
+        : [];
+  } catch (error) {
+    console.error('Error parsing wishlistItems:', error);
+    wishlistItems = [];
+  }
 
   return { cartItems, shippingAddress, paymentMethod, wishlistItems };
 };

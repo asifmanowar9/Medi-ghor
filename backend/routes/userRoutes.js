@@ -11,6 +11,11 @@ import {
   getUserById,
 } from '../controllers/userController.js';
 import {
+  firebaseLogin,
+  firebaseRegister,
+  googleLogin,
+} from '../controllers/firebaseAuthController.js';
+import {
   protect,
   admin,
   adminOrHigher,
@@ -19,6 +24,11 @@ import {
 
 router.route('/').post(registerUser).get(protect, adminOrHigher, getUser); // Route to handle user registration
 router.post('/login', authUser); // Route to handle user login
+
+// Firebase authentication routes
+router.post('/firebase-login', firebaseLogin); // Firebase email/password login
+router.post('/firebase-register', firebaseRegister); // Firebase email/password registration
+router.post('/google-login', googleLogin); // Google Sign-In
 router
   .route('/profile')
   .get(protect, getUserProfile)

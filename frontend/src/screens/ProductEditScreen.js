@@ -537,31 +537,43 @@ const ProductEditScreen = () => {
                         }}
                       />
                       <div className='flex-grow-1'>
-                        <p className='mb-1 text-muted small fw-bold'>Image Location:</p>
+                        <p className='mb-1 text-muted small fw-bold'>
+                          Image Location:
+                        </p>
                         <div className='d-flex flex-column gap-1'>
                           {image.startsWith('http') ? (
                             <div>
-                              <span className='badge bg-info me-2'>External URL</span>
+                              <span className='badge bg-info me-2'>
+                                External URL
+                              </span>
                               <code className='small'>{image}</code>
                             </div>
                           ) : image.startsWith('/images') ? (
                             <div>
-                              <span className='badge bg-secondary me-2'>Static Asset</span>
+                              <span className='badge bg-secondary me-2'>
+                                Static Asset
+                              </span>
                               <code className='small'>{image}</code>
                             </div>
                           ) : image.startsWith('/uploads/products') ? (
                             <div>
-                              <span className='badge bg-success me-2'>Product Upload</span>
+                              <span className='badge bg-success me-2'>
+                                Product Upload
+                              </span>
                               <code className='small'>{image}</code>
                             </div>
                           ) : image.startsWith('/uploads') ? (
                             <div>
-                              <span className='badge bg-warning me-2'>General Upload</span>
+                              <span className='badge bg-warning me-2'>
+                                General Upload
+                              </span>
                               <code className='small'>{image}</code>
                             </div>
                           ) : (
                             <div>
-                              <span className='badge bg-primary me-2'>Filename Only</span>
+                              <span className='badge bg-primary me-2'>
+                                Filename Only
+                              </span>
                               <code className='small'>
                                 Will be saved to: /uploads/products/{image}
                               </code>

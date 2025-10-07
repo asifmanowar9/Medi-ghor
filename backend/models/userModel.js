@@ -14,9 +14,14 @@ const userSchema = mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
+      required: function () {
+        // Password is not required for Firebase/Google users
+        return !this.firebaseUid;
+      },
       validate: {
         validator: function (password) {
+          // Skip validation if no password (Firebase users)
+          if (!password) return true;
           // Password must contain at least one uppercase letter, one lowercase letter,
           // one number, and one special character
           return (
@@ -29,6 +34,19 @@ const userSchema = mongoose.Schema(
         message:
           'Password must have at least one uppercase letter, one lowercase letter, one number, and one special character',
       },
+    },
+    firebaseUid: {
+      type: String,
+      sparse: true, // Allows multiple null values
+      unique: true,
+    },
+    authProvider: {
+      type: String,
+      enum: ['local', 'firebase', 'google'],
+      default: 'local',
+    },
+    photoURL: {
+      type: String,
     },
     role: {
       type: String,
@@ -58,8 +76,10 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
 };
 
 userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) {
+  // Skip password hashing for Firebase users or if password hasn't changed
+  if (!this.isModified('password') || !this.password) {
     next();
+    return;
   }
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
