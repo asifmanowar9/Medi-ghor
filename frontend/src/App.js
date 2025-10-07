@@ -27,6 +27,7 @@ import AllProducts from './screens/AllProducts';
 import WishlistScreen from './screens/WishlistScreen';
 import TrackOrderScreen from './screens/TrackOrderScreen';
 import UploadPrescriptionScreen from './screens/UploadPrescriptionScreen';
+import ForgotPasswordScreen from './screens/ForgotPasswordScreen';
 
 const App = () => {
   return (
@@ -42,6 +43,7 @@ const App = () => {
             <Route path='/profile' element={<ProfileScreen />} />
             <Route path='/register' element={<RegisterScreen />} />
             <Route path='/verify-email' element={<EmailVerificationScreen />} />
+            <Route path='/forgot-password' element={<ForgotPasswordScreen />} />
             <Route path='/login' element={<LoginScreen />} />
             <Route path='/product/:id' element={<ProductScreen />} />
             <Route path='/cart' element={<CartScreen />} />

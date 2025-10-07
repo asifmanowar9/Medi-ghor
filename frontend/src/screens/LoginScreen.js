@@ -260,19 +260,18 @@ const LoginScreen = () => {
                           <i className='fas fa-lock me-2'></i>
                           Password
                         </Form.Label>
-                        <span
-                          className='password-help-toggle'
+                        <Link
+                          to='/forgot-password'
+                          className='text-decoration-none'
                           style={{
-                            cursor: 'pointer',
-                            fontSize: '0.85rem',
+                            fontSize: '0.9rem',
                             color: '#3498db',
                             fontWeight: '500',
                           }}
-                          onClick={() => setShowPasswordHelp(!showPasswordHelp)}
                         >
-                          <i className='fas fa-info-circle me-1'></i>
-                          {showPasswordHelp ? 'Hide Help' : 'Show Help'}
-                        </span>
+                          <i className='fas fa-key me-1'></i>
+                          Forgot Password?
+                        </Link>
                       </div>
                       <InputGroup className='input-group-modern'>
                         <InputGroup.Text
