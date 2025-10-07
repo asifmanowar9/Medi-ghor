@@ -312,7 +312,7 @@ const ShippingScreen = () => {
                       <Form.Group>
                         <Form.Label className='shipping-label required'>
                           <i className='fas fa-home me-2'></i>
-                          Full Address
+                          <span style={{ color: 'white' }}>Full Address</span>
                         </Form.Label>
                         <Form.Control
                           type='text'
@@ -337,7 +337,7 @@ const ShippingScreen = () => {
                       <Form.Group>
                         <Form.Label className='shipping-label required'>
                           <i className='fas fa-map me-2'></i>
-                          Division
+                          <span style={{ color: 'white' }}>Division</span>
                         </Form.Label>
                         <Form.Select
                           value={city}
@@ -371,7 +371,7 @@ const ShippingScreen = () => {
                       <Form.Group>
                         <Form.Label className='shipping-label required'>
                           <i className='fas fa-city me-2'></i>
-                          District
+                          <span style={{ color: 'white' }}>District</span>
                         </Form.Label>
                         <Form.Select
                           value={district}
@@ -408,7 +408,7 @@ const ShippingScreen = () => {
                       <Form.Group>
                         <Form.Label className='shipping-label required'>
                           <i className='fas fa-mail-bulk me-2'></i>
-                          Postal Code
+                          <span style={{ color: 'white' }}>Postal Code</span>
                         </Form.Label>
                         <Form.Control
                           type='text'
@@ -434,7 +434,7 @@ const ShippingScreen = () => {
                       <Form.Group>
                         <Form.Label className='shipping-label required'>
                           <i className='fas fa-phone me-2'></i>
-                          Phone Number
+                          <span style={{ color: 'white' }}>Phone Number</span>
                         </Form.Label>
                         <InputGroup>
                           <InputGroup.Text>
@@ -465,7 +465,9 @@ const ShippingScreen = () => {
                       <Form.Group>
                         <Form.Label className='shipping-label'>
                           <i className='fas fa-map-pin me-2'></i>
-                          Landmark (Optional)
+                          <span style={{ color: 'white' }}>
+                            Landmark (Optional)
+                          </span>
                         </Form.Label>
                         <Form.Control
                           type='text'
@@ -482,7 +484,9 @@ const ShippingScreen = () => {
                       <Form.Group>
                         <Form.Label className='shipping-label'>
                           <i className='fas fa-clipboard-list me-2'></i>
-                          Delivery Instructions (Optional)
+                          <span style={{ color: 'white' }}>
+                            Delivery Instructions (Optional)
+                          </span>
                         </Form.Label>
                         <Form.Control
                           as='textarea'
@@ -529,8 +533,11 @@ const ShippingScreen = () => {
                       className='me-3'
                       disabled={isLoading}
                     >
-                      <i className='fas fa-arrow-left me-2'></i>
-                      Back to Cart
+                      <i
+                        style={{ color: 'white' }}
+                        className='fas fa-arrow-left me-2'
+                      ></i>
+                      <span style={{ color: 'white' }}>Back to Cart</span>
                     </Button>
                     <Button
                       type='submit'
