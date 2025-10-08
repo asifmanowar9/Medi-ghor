@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Container, Row, Col, Card, Spinner, Alert } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import { listCategories } from '../actions/categoryActions';
-import { listBrands } from '../actions/brandActions';
+import { listProducts } from '../actions/productActions';
 import { listHealthConditions } from '../actions/healthConditionActions';
 import '../styles/FeaturedCategories.css';
 
@@ -17,8 +17,12 @@ const FeaturedCategories = () => {
     categories,
   } = categoryList;
 
-  const brandList = useSelector((state) => state.brandList);
-  const { loading: brandsLoading, error: brandsError, brands } = brandList;
+  const productList = useSelector((state) => state.productList);
+  const {
+    loading: productsLoading,
+    error: productsError,
+    products,
+  } = productList;
 
   const healthConditionList = useSelector((state) => state.healthConditionList);
   const {
@@ -27,9 +31,23 @@ const FeaturedCategories = () => {
     healthConditions,
   } = healthConditionList;
 
+  // Extract unique brands from products
+  const uniqueBrands = React.useMemo(() => {
+    if (!products || products.length === 0) return [];
+
+    const brandSet = new Set();
+    products.forEach((product) => {
+      if (product.brand && product.brand.trim()) {
+        brandSet.add(product.brand.trim());
+      }
+    });
+
+    return Array.from(brandSet).sort().slice(0, 6); // Show only first 6 brands
+  }, [products]);
+
   useEffect(() => {
     dispatch(listCategories());
-    dispatch(listBrands());
+    dispatch(listProducts());
     dispatch(listHealthConditions());
   }, [dispatch]);
 
@@ -186,34 +204,24 @@ const FeaturedCategories = () => {
         </Row>
 
         <Row className='brands-row'>
-          {brandsLoading ? (
+          {productsLoading ? (
             <Col className='text-center py-4'>
               <Spinner animation='border' variant='primary' size='sm' />
             </Col>
-          ) : brandsError ? (
+          ) : productsError ? (
             <Col>
               <Alert variant='warning' className='text-center'>
                 Error loading brands
               </Alert>
             </Col>
-          ) : brands && brands.length > 0 ? (
-            brands.slice(0, 6).map((brand) => (
-              <Col key={brand._id} lg={2} md={4} sm={6} xs={6} className='mb-3'>
+          ) : uniqueBrands && uniqueBrands.length > 0 ? (
+            uniqueBrands.map((brandName, index) => (
+              <Col key={index} lg={2} md={4} sm={6} xs={6} className='mb-3'>
                 <LinkContainer
-                  to={`/brand/${brand.name.toLowerCase().replace(/\s+/g, '-')}`}
+                  to={`/brand/${brandName.toLowerCase().replace(/\s+/g, '-')}`}
                 >
                   <div className='brand-item'>
-                    <img
-                      src={
-                        brand.logo ||
-                        `https://placehold.co/120x60/2E86AB/FFFFFF?text=${encodeURIComponent(
-                          brand.name
-                        )}`
-                      }
-                      alt={brand.name}
-                      className='brand-logo'
-                    />
-                    <span className='brand-name'>{brand.name}</span>
+                    <span className='brand-name'>{brandName}</span>
                   </div>
                 </LinkContainer>
               </Col>

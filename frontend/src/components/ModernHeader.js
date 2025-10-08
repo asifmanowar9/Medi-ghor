@@ -55,7 +55,7 @@ const ModernHeader = () => {
                 <i className='fas fa-phone'></i> +880-123-456789
               </span>
               <span>
-                <i className='fas fa-envelope'></i> info@medi-ghor.com
+                <i className='fas fa-envelope'></i> info@medmart.com
               </span>
             </div>
             <div className='top-links'>
@@ -80,7 +80,7 @@ const ModernHeader = () => {
               <Navbar.Brand className='brand-logo'>
                 <div className='logo-container'>
                   <i className='fas fa-plus-circle text-primary me-2'></i>
-                  <span className='brand-text'>Medi-ghor</span>
+                  <span className='brand-text'>MedMart</span>
                   <small className='brand-tagline'>Your Health Partner</small>
                 </div>
               </Navbar.Brand>
@@ -104,16 +104,16 @@ const ModernHeader = () => {
             {/* Right Side Icons */}
             <div className='header-icons d-flex align-items-center'>
               {/* AI Test Reports */}
-              <LinkContainer
+              {/* <LinkContainer
                 to={userInfo ? '/chats' : '/login?redirect=/chats'}
               >
                 <Nav.Link className='header-icon-link'>
                   <div className='icon-wrapper'>
                     <i className='fas fa-robot'></i>
-                    <span className='icon-text'>AI Reports</span>
+                    <span className='icon-text'>AI Chat</span>
                   </div>
                 </Nav.Link>
-              </LinkContainer>
+              </LinkContainer> */}
 
               {/* Track Order */}
               <LinkContainer to='/track-order'>

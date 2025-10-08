@@ -30,7 +30,7 @@ const Footer = () => {
             <Col lg={3} md={6} className='footer-section'>
               <h5 className='footer-title'>
                 <i className='fas fa-pills me-2'></i>
-                Medi-ghor
+                MedMart
               </h5>
               <p className='footer-description'>
                 বাংলাদেশের নির্ভরযোগ্য অনলাইন ফার্মেসি। আমরা প্রদান করি খাঁটি
@@ -222,7 +222,7 @@ const Footer = () => {
                   <i className='fas fa-envelope'></i>
                   <div>
                     <strong>Email:</strong>
-                    <p>support@medighor.com</p>
+                    <p>support@medmart.com</p>
                   </div>
                 </div>
                 <div className='contact-item'>
@@ -284,7 +284,7 @@ const Footer = () => {
           <Row className='align-items-center'>
             <Col md={6}>
               <p className='copyright'>
-                &copy; 2025 Medi-ghor. All rights reserved.
+                &copy; 2025 MedMart. All rights reserved.
                 <span className='license'>Licensed Pharmacy</span>
               </p>
             </Col>

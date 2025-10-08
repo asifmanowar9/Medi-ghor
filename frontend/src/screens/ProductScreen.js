@@ -251,7 +251,7 @@ const ProductScreen = () => {
                             </span>
                             <span className='detail-value'>
                               {product.prescriptionRequired ? (
-                                <Badge bg='warning' text='dark'>
+                                <Badge bg='warning'>
                                   <i className='fas fa-exclamation-triangle me-1'></i>
                                   Required
                                 </Badge>
@@ -296,7 +296,7 @@ const ProductScreen = () => {
                             )}
 
                           {/* Price Information */}
-                          <div className='detail-item'>
+                          {/* <div className='detail-item'>
                             <span className='detail-label'>
                               <i className='fas fa-dollar-sign me-2'></i>
                               Price Details:
@@ -325,7 +325,7 @@ const ProductScreen = () => {
                                   )}
                               </div>
                             </div>
-                          </div>
+                          </div> */}
 
                           {/* Flash Sale */}
                           {product.isFlashSale && (

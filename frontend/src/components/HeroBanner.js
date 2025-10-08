@@ -195,7 +195,7 @@ const HeroBanner = () => {
             <div className='offers-section'>
               <h4 className='offers-title'>
                 <i className='fas fa-gift me-2'></i>
-                Why Choose Medi-ghor?
+                Why Choose MedMart?
               </h4>
 
               {offers.map((offer, index) => (

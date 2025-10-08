@@ -561,16 +561,60 @@
 
 .detail-label {
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.9);
+  color: white !important;
   min-width: 140px;
   flex-shrink: 0;
 }
 
+/* Ensure all text and icons within detail-label are white */
+.detail-label * {
+  color: white !important;
+}
+
+.detail-label i {
+  color: white !important;
+}
+
 .detail-value {
-  color: white;
+  color: white !important;
   font-weight: 500;
   text-align: right;
   flex: 1;
+}
+
+/* Ensure all text within detail-value is white */
+.detail-value * {
+  color: white !important;
+}
+
+/* Override Bootstrap badge text colors */
+.detail-value .badge {
+  color: white !important;
+}
+
+.detail-value .badge.bg-warning {
+  background-color: #ffc107 !important;
+  color: #000 !important;
+}
+
+.detail-value .badge.bg-success {
+  background-color: #198754 !important;
+  color: white !important;
+}
+
+.detail-value .badge.bg-danger {
+  background-color: #dc3545 !important;
+  color: white !important;
+}
+
+.detail-value .badge.bg-info {
+  background-color: #0dcaf0 !important;
+  color: #000 !important;
+}
+
+.detail-value .badge.bg-primary {
+  background-color: #0d6efd !important;
+  color: white !important;
 }
 
 .brand-name {
