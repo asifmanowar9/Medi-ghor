@@ -6,6 +6,9 @@ import {
   CART_SAVE_SHIPPING_ADDRESS,
   CART_SAVE_PAYMENT_METHOD,
   CART_CLEAR_ITEMS,
+  CART_RESET_SHIPPING,
+  CART_RESET_PAYMENT,
+  CART_RESET_ALL,
 } from '../constants/cartConstants';
 
 export const addToCart = (id, qty) => async (dispatch, getState) => {
@@ -142,4 +145,39 @@ export const loadUserCart = () => (dispatch, getState) => {
       payload: paymentMethodFromStorage,
     });
   }
+};
+
+// Reset cart shipping address
+export const resetCartShipping = () => (dispatch, getState) => {
+  const {
+    userLogin: { userInfo },
+  } = getState();
+  const userId = userInfo ? userInfo._id : 'guest';
+
+  dispatch({ type: CART_RESET_SHIPPING });
+  localStorage.removeItem(`shippingAddress_${userId}`);
+};
+
+// Reset cart payment method
+export const resetCartPayment = () => (dispatch, getState) => {
+  const {
+    userLogin: { userInfo },
+  } = getState();
+  const userId = userInfo ? userInfo._id : 'guest';
+
+  dispatch({ type: CART_RESET_PAYMENT });
+  localStorage.removeItem(`paymentMethod_${userId}`);
+};
+
+// Reset entire cart
+export const resetCart = () => (dispatch, getState) => {
+  const {
+    userLogin: { userInfo },
+  } = getState();
+  const userId = userInfo ? userInfo._id : 'guest';
+
+  dispatch({ type: CART_RESET_ALL });
+  localStorage.removeItem(`cartItems_${userId}`);
+  localStorage.removeItem(`shippingAddress_${userId}`);
+  localStorage.removeItem(`paymentMethod_${userId}`);
 };

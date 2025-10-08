@@ -15,7 +15,11 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import Message from '../components/Message';
 import Loader from '../components/Loader';
-import { getOrderDetails, updateOrderStatus } from '../actions/orderActions';
+import {
+  getOrderDetails,
+  updateOrderStatus,
+  resetOrderCreate,
+} from '../actions/orderActions';
 import { ORDER_PAY_RESET } from '../constants/orderConstants';
 import StripeCheckoutModal from '../components/StripeCheckoutModal';
 import { hasAdminPrivileges, formatOrderId } from '../utils/orderUtils';

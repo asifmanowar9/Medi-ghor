@@ -14,6 +14,7 @@ import {
   Modal,
 } from 'react-bootstrap';
 import { addToCart, removeFromCart } from '../actions/cartActions';
+import { resetOrderCreate } from '../actions/orderActions';
 import { useCartAuth } from '../hooks/useCartAuth';
 import '../styles/CartScreen.css';
 
@@ -73,6 +74,8 @@ const CartScreen = () => {
   };
 
   const checkoutHandler = () => {
+    // Reset any previous order state when starting new checkout
+    dispatch(resetOrderCreate());
     navigate('/login?redirect=shipping');
   };
 

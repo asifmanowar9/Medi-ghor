@@ -282,11 +282,15 @@
 }
 
 .category-item:hover .category-name {
-  color: #2E86AB;
+  color: #2D3436 !important;
 }
 
 .category-item:hover .category-count {
-  color: #A23B72;
+  color: #6c757d !important;
+}
+
+.category-item:hover .category-arrow {
+  color: #2D3436 !important;
 }
 
 .category-icon {

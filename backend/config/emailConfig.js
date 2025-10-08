@@ -39,9 +39,9 @@ export const sendOrderConfirmationEmail = async (order) => {
 
     // Setup email data
     const mailOptions = {
-      from: `"Medi-ghor" <${process.env.EMAIL_USER}>`,
+      from: `"MedMart" <${process.env.EMAIL_USER}>`,
       to: order.user.email,
-      subject: `Medi-ghor - Order Confirmation #${order._id}`,
+      subject: `MedMart - Order Confirmation #${order._id}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background-color: #4a90e2; color: white; padding: 20px; text-align: center;">
@@ -109,11 +109,11 @@ export const sendOrderConfirmationEmail = async (order) => {
             
             <p>If you have any questions about your order, please contact our customer service.</p>
             
-            <p>Thank you for shopping with Medi-ghor!</p>
+            <p>Thank you for shopping with MedMart!</p>
           </div>
           
           <div style="background-color: #f2f2f2; padding: 15px; text-align: center; margin-top: 20px;">
-            <p>© ${new Date().getFullYear()} Medi-ghor. All rights reserved.</p>
+            <p>© ${new Date().getFullYear()} MedMart. All rights reserved.</p>
             <p>This email was sent to ${order.user.email}</p>
           </div>
         </div>
@@ -135,9 +135,9 @@ export const sendOrderConfirmationEmail = async (order) => {
 export const sendOrderDeliveredEmail = async (order) => {
   try {
     const mailOptions = {
-      from: `"Medi-ghor" <${process.env.EMAIL_USER}>`,
+      from: `"MedMart" <${process.env.EMAIL_USER}>`,
       to: order.user.email,
-      subject: `Medi-ghor - Your Order #${order._id} Has Been Delivered`,
+      subject: `MedMart - Your Order #${order._id} Has Been Delivered`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background-color: #4a90e2; color: white; padding: 20px; text-align: center;">
@@ -150,13 +150,13 @@ export const sendOrderDeliveredEmail = async (order) => {
             <p>Dear ${order.user.name},</p>
             <p>We're pleased to inform you that your order has been delivered.</p>
             
-            <p>Thank you for shopping with Medi-ghor! We hope you enjoy your products.</p>
+            <p>Thank you for shopping with MedMart! We hope you enjoy your products.</p>
             
             <p>If you have any questions or need assistance, please don't hesitate to contact us.</p>
           </div>
           
           <div style="background-color: #f2f2f2; padding: 15px; text-align: center; margin-top: 20px;">
-            <p>© ${new Date().getFullYear()} Medi-ghor. All rights reserved.</p>
+            <p>© ${new Date().getFullYear()} MedMart. All rights reserved.</p>
           </div>
         </div>
       `,
@@ -187,7 +187,7 @@ export const sendRestockNotificationEmail = async (user, product) => {
     }/product/${product._id}`;
 
     const mailOptions = {
-      from: `"Medi-ghor" <${process.env.EMAIL_USER}>`,
+      from: `"MedMart" <${process.env.EMAIL_USER}>`,
       to: user.email,
       subject: `🎉 Great News! "${product.name}" is Back in Stock!`,
       html: `
@@ -282,12 +282,12 @@ export const sendRestockNotificationEmail = async (user, product) => {
           
           <!-- Footer -->
           <div style="background-color: #2c3e50; color: white; padding: 25px 20px; text-align: center; border-radius: 0 0 10px 10px;">
-            <p style="margin: 0 0 10px 0; font-size: 16px;">Thank you for choosing Medi-ghor!</p>
+            <p style="margin: 0 0 10px 0; font-size: 16px;">Thank you for choosing MedMart!</p>
             <p style="margin: 0 0 15px 0; font-size: 14px; opacity: 0.8;">Your trusted healthcare partner</p>
             
             <div style="border-top: 1px solid #495057; padding-top: 15px; margin-top: 15px;">
               <p style="margin: 0; font-size: 12px; opacity: 0.7;">
-                © ${new Date().getFullYear()} Medi-ghor. All rights reserved.<br>
+                © ${new Date().getFullYear()} MedMart. All rights reserved.<br>
                 This email was sent to ${
                   user.email
                 } because you have this item in your wishlist.

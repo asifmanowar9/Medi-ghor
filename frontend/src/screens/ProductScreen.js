@@ -125,35 +125,248 @@ const ProductScreen = () => {
                         BDT {product.price}
                       </div>
 
-                      <div className='info-item'>
-                        <span className='info-label'>
-                          <i className='fas fa-info-circle me-2'></i>
-                          Description:
-                        </span>
-                      </div>
-                      <p className='product-description'>
+                      <div className='product-description mb-4'>
                         {product.description || 'No description available.'}
-                      </p>
-
-                      {/* Additional Product Info */}
-                      <div className='info-item'>
-                        <span className='info-label'>
-                          <i className='fas fa-star me-2'></i>
-                          Rating:
-                        </span>
-                        <span className='info-value'>
-                          {product.rating ? `${product.rating}/5` : 'Not rated'}
-                        </span>
                       </div>
 
-                      <div className='info-item'>
-                        <span className='info-label'>
-                          <i className='fas fa-comments me-2'></i>
-                          Reviews:
-                        </span>
-                        <span className='info-value'>
-                          {product.numReviews || 0} customer reviews
-                        </span>
+                      {/* Product Details Section */}
+                      <div className='product-details-section'>
+                        <h4 className='details-title mb-3'>
+                          <i className='fas fa-info-circle me-2'></i>
+                          Product Details
+                        </h4>
+
+                        <div className='details-grid'>
+                          {/* Category */}
+                          {product.category && (
+                            <div className='detail-item'>
+                              <span className='detail-label'>
+                                <i className='fas fa-tags me-2'></i>
+                                Category:
+                              </span>
+                              <span className='detail-value'>
+                                <Badge bg='primary' className='category-badge'>
+                                  {product.category.icon && (
+                                    <i
+                                      className={`fas ${product.category.icon} me-1`}
+                                    ></i>
+                                  )}
+                                  {product.category.name}
+                                </Badge>
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Brand */}
+                          {product.brand && (
+                            <div className='detail-item'>
+                              <span className='detail-label'>
+                                <i className='fas fa-award me-2'></i>
+                                Brand:
+                              </span>
+                              <span className='detail-value brand-name'>
+                                {product.brand}
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Generic Name */}
+                          {product.genericName && (
+                            <div className='detail-item'>
+                              <span className='detail-label'>
+                                <i className='fas fa-prescription me-2'></i>
+                                Generic Name:
+                              </span>
+                              <span className='detail-value'>
+                                {product.genericName}
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Manufacturer */}
+                          {product.manufacturer && (
+                            <div className='detail-item'>
+                              <span className='detail-label'>
+                                <i className='fas fa-industry me-2'></i>
+                                Manufacturer:
+                              </span>
+                              <span className='detail-value'>
+                                {product.manufacturer}
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Dosage Form */}
+                          {product.dosageForm && (
+                            <div className='detail-item'>
+                              <span className='detail-label'>
+                                <i className='fas fa-pills me-2'></i>
+                                Dosage Form:
+                              </span>
+                              <span className='detail-value'>
+                                {product.dosageForm}
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Strength */}
+                          {product.strength && (
+                            <div className='detail-item'>
+                              <span className='detail-label'>
+                                <i className='fas fa-weight me-2'></i>
+                                Strength:
+                              </span>
+                              <span className='detail-value strength-value'>
+                                {product.strength}
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Stock */}
+                          <div className='detail-item'>
+                            <span className='detail-label'>
+                              <i className='fas fa-boxes me-2'></i>
+                              Stock:
+                            </span>
+                            <span className='detail-value'>
+                              {product.countInStock > 0 ? (
+                                <Badge bg='success'>
+                                  <i className='fas fa-check me-1'></i>
+                                  {product.countInStock} units available
+                                </Badge>
+                              ) : (
+                                <Badge bg='danger'>
+                                  <i className='fas fa-times me-1'></i>
+                                  Out of stock
+                                </Badge>
+                              )}
+                            </span>
+                          </div>
+
+                          {/* Prescription Required */}
+                          <div className='detail-item'>
+                            <span className='detail-label'>
+                              <i className='fas fa-file-medical me-2'></i>
+                              Prescription:
+                            </span>
+                            <span className='detail-value'>
+                              {product.prescriptionRequired ? (
+                                <Badge bg='warning' text='dark'>
+                                  <i className='fas fa-exclamation-triangle me-1'></i>
+                                  Required
+                                </Badge>
+                              ) : (
+                                <Badge bg='success'>
+                                  <i className='fas fa-check me-1'></i>
+                                  Not Required
+                                </Badge>
+                              )}
+                            </span>
+                          </div>
+
+                          {/* Health Conditions */}
+                          {product.healthConditions &&
+                            product.healthConditions.length > 0 && (
+                              <div className='detail-item'>
+                                <span className='detail-label'>
+                                  <i className='fas fa-heartbeat me-2'></i>
+                                  Health Conditions:
+                                </span>
+                                <div className='detail-value'>
+                                  <div className='health-conditions-container'>
+                                    {product.healthConditions.map(
+                                      (condition) => (
+                                        <Badge
+                                          key={condition._id}
+                                          bg='info'
+                                          className='health-condition-badge me-1 mb-1'
+                                        >
+                                          {condition.icon && (
+                                            <i
+                                              className={`fas ${condition.icon} me-1`}
+                                            ></i>
+                                          )}
+                                          {condition.name}
+                                        </Badge>
+                                      )
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
+                          {/* Price Information */}
+                          <div className='detail-item'>
+                            <span className='detail-label'>
+                              <i className='fas fa-dollar-sign me-2'></i>
+                              Price Details:
+                            </span>
+                            <div className='detail-value'>
+                              <div className='price-details'>
+                                <div className='current-price'>
+                                  <strong>৳{product.price}</strong>
+                                </div>
+                                {product.originalPrice &&
+                                  product.originalPrice > product.price && (
+                                    <div className='original-price'>
+                                      <span className='text-decoration-line-through text-muted'>
+                                        ৳{product.originalPrice}
+                                      </span>
+                                      <Badge bg='danger' className='ms-2'>
+                                        {Math.round(
+                                          ((product.originalPrice -
+                                            product.price) /
+                                            product.originalPrice) *
+                                            100
+                                        )}
+                                        % OFF
+                                      </Badge>
+                                    </div>
+                                  )}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Flash Sale */}
+                          {product.isFlashSale && (
+                            <div className='detail-item'>
+                              <span className='detail-label'>
+                                <i className='fas fa-flash me-2'></i>
+                                Flash Sale:
+                              </span>
+                              <span className='detail-value'>
+                                <Badge bg='danger' className='flash-sale-badge'>
+                                  <i className='fas fa-fire me-1'></i>
+                                  Flash Sale Active
+                                  {product.flashSaleEndDate && (
+                                    <div className='flash-sale-end'>
+                                      Ends:{' '}
+                                      {new Date(
+                                        product.flashSaleEndDate
+                                      ).toLocaleDateString()}
+                                    </div>
+                                  )}
+                                </Badge>
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Featured Product */}
+                          {/* {product.isFeatured && (
+                            <div className='detail-item'>
+                              <span className='detail-label'>
+                                <i className='fas fa-star me-2'></i>
+                                Featured:
+                              </span>
+                              <span className='detail-value'>
+                                <Badge bg='warning' text='dark'>
+                                  <i className='fas fa-crown me-1'></i>
+                                  Featured Product
+                                </Badge>
+                              </span>
+                            </div>
+                          )} */}
+                        </div>
                       </div>
                     </div>
                   </Col>

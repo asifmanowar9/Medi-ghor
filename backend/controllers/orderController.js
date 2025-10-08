@@ -1,31 +1,163 @@
 import asyncHandler from 'express-async-handler';
 import Order from '../models/orderModel.js';
 import User from '../models/userModel.js'; // Add this import
+import Product from '../models/productModel.js'; // Add this import for inventory management
 import transporter from '../config/emailConfig.js';
 import {
   sendOrderConfirmationEmail,
   sendOrderDeliveredEmail,
 } from '../config/emailConfig.js';
 
+// Helper function to reduce product inventory
+const reduceProductInventory = async (
+  orderItems,
+  reason = 'payment confirmed'
+) => {
+  console.log(`🔄 Processing inventory reduction for ${reason}...`);
+  try {
+    for (const item of orderItems) {
+      const product = await Product.findById(item.product);
+      if (product) {
+        const previousStock = product.countInStock;
+        product.countInStock = Math.max(0, product.countInStock - item.qty);
+        await product.save();
+
+        console.log(
+          `📦 Product "${product.name}": ${previousStock} → ${product.countInStock} (reduced by ${item.qty})`
+        );
+
+        // Log if product is now out of stock
+        if (product.countInStock === 0) {
+          console.log(`⚠️  Product "${product.name}" is now OUT OF STOCK`);
+        }
+      } else {
+        console.log(`❌ Product not found for ID: ${item.product}`);
+      }
+    }
+    console.log(`✅ Inventory reduction completed successfully for ${reason}`);
+    return true;
+  } catch (inventoryError) {
+    console.error(`❌ Error reducing inventory for ${reason}:`, inventoryError);
+    return false;
+  }
+};
+
+// Helper function to restore product inventory (for cancelled orders)
+const restoreProductInventory = async (
+  orderItems,
+  reason = 'order cancellation'
+) => {
+  console.log(`🔄 Processing inventory restoration for ${reason}...`);
+  try {
+    for (const item of orderItems) {
+      const product = await Product.findById(item.product);
+      if (product) {
+        const previousStock = product.countInStock;
+        product.countInStock = product.countInStock + item.qty;
+        await product.save();
+
+        console.log(
+          `📦 Product "${product.name}": ${previousStock} → ${product.countInStock} (restored ${item.qty})`
+        );
+
+        // Log if product is back in stock
+        if (previousStock === 0 && product.countInStock > 0) {
+          console.log(`✅ Product "${product.name}" is now BACK IN STOCK`);
+        }
+      } else {
+        console.log(`❌ Product not found for ID: ${item.product}`);
+      }
+    }
+    console.log(
+      `✅ Inventory restoration completed successfully for ${reason}`
+    );
+    return true;
+  } catch (inventoryError) {
+    console.error(
+      `❌ Error restoring inventory for ${reason}:`,
+      inventoryError
+    );
+    return false;
+  }
+};
+
 // @description  Create new order
 // @route        POST /api/orders
 // @access       private
 const addOrderItems = asyncHandler(async (req, res) => {
-  const {
-    orderItems,
-    shippingAddress,
-    paymentMethod,
-    itemsPrice,
-    shippingPrice,
-    taxPrice,
-    totalPrice,
-  } = req.body;
+  try {
+    console.log('=== Order Creation Request ===');
+    console.log('Request body:', JSON.stringify(req.body, null, 2));
+    console.log(
+      'Headers:',
+      req.headers.authorization
+        ? 'Authorization header present'
+        : 'No authorization header'
+    );
+    console.log('User object:', req.user);
 
-  if (orderItems && orderItems.length === 0) {
-    res.status(400);
-    throw new Error('No order items');
-    return;
-  } else {
+    // Check if user is authenticated
+    if (!req.user) {
+      console.log('❌ Authentication failed: req.user is null');
+      res.status(401);
+      throw new Error('User not authenticated. Please login first.');
+    }
+
+    console.log('User ID:', req.user._id);
+
+    const {
+      orderItems,
+      shippingAddress,
+      paymentMethod,
+      itemsPrice,
+      shippingPrice,
+      taxPrice,
+      totalPrice,
+    } = req.body;
+
+    // Validation
+    if (!orderItems || orderItems.length === 0) {
+      console.log('❌ Validation failed: No order items');
+      res.status(400);
+      throw new Error('No order items');
+    }
+
+    if (!shippingAddress) {
+      console.log('❌ Validation failed: No shipping address');
+      res.status(400);
+      throw new Error('Shipping address is required');
+    }
+
+    if (!paymentMethod) {
+      console.log('❌ Validation failed: No payment method');
+      res.status(400);
+      throw new Error('Payment method is required');
+    }
+
+    console.log('✅ Validation passed, checking inventory...');
+
+    // Check inventory availability for all order items
+    for (const item of orderItems) {
+      const product = await Product.findById(item.product);
+      if (!product) {
+        console.log(`❌ Product not found: ${item.product}`);
+        res.status(400);
+        throw new Error(`Product not found: ${item.name}`);
+      }
+
+      if (product.countInStock < item.qty) {
+        console.log(
+          `❌ Insufficient stock for "${product.name}": requested ${item.qty}, available ${product.countInStock}`
+        );
+        res.status(400);
+        throw new Error(
+          `Insufficient stock for "${product.name}". Only ${product.countInStock} items available, but ${item.qty} requested.`
+        );
+      }
+    }
+
+    console.log('✅ Inventory check passed, creating order...');
+
     // Create the new order
     const order = new Order({
       orderItems,
@@ -47,33 +179,54 @@ const addOrderItems = asyncHandler(async (req, res) => {
       ],
     });
 
+    console.log('💾 Saving order to database...');
     // Save the order to the database
     const createdOrder = await order.save();
+    console.log('✅ Order saved successfully:', createdOrder._id);
 
-    // Fetch the user details for the email
-    const user = await User.findById(req.user._id);
+    try {
+      // Fetch the user details for the email
+      const user = await User.findById(req.user._id);
 
-    // Prepare the order object for email with user details
-    const orderWithUser = {
-      ...createdOrder._doc,
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-      },
-    };
+      // Prepare the order object for email with user details
+      const orderWithUser = {
+        ...createdOrder._doc,
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+        },
+      };
 
-    // Send confirmation email (non-blocking)
-    sendOrderConfirmationEmail(orderWithUser).then((sent) => {
-      if (sent) {
-        console.log(`Order confirmation email sent to ${user.email}`);
-      } else {
-        console.log(`Failed to send order confirmation email to ${user.email}`);
-      }
-    });
+      // Send confirmation email (non-blocking)
+      sendOrderConfirmationEmail(orderWithUser)
+        .then((sent) => {
+          if (sent) {
+            console.log(`📧 Order confirmation email sent to ${user.email}`);
+          } else {
+            console.log(
+              `❌ Failed to send order confirmation email to ${user.email}`
+            );
+          }
+        })
+        .catch((emailError) => {
+          console.log(`📧 Email error for ${user.email}:`, emailError.message);
+        });
+    } catch (emailError) {
+      console.log(
+        '📧 Email sending failed, but order was created successfully:',
+        emailError.message
+      );
+    }
 
+    console.log('🎉 Order creation completed successfully');
     // Return the created order
     res.status(201).json(createdOrder);
+  } catch (error) {
+    console.log('❌ Order creation failed:', error.message);
+    console.log('Error stack:', error.stack);
+    res.status(500);
+    throw new Error(`Order creation failed: ${error.message}`);
   }
 });
 
@@ -225,6 +378,20 @@ const updateOrderToPaid = asyncHandler(async (req, res) => {
 
     const updatedOrder = await order.save();
 
+    // Reduce product inventory when payment is confirmed (only if not already reduced)
+    if (!order.inventoryReduced) {
+      const inventoryReduced = await reduceProductInventory(
+        order.orderItems,
+        'payment confirmed'
+      );
+      if (inventoryReduced) {
+        order.inventoryReduced = true;
+        await order.save();
+      }
+    } else {
+      console.log('📦 Inventory already reduced for this order, skipping...');
+    }
+
     // Send payment confirmation email
     const emailConfig = {
       subject: `Medi-ghor - Payment Confirmed for Order #${order._id}`,
@@ -337,6 +504,21 @@ const updateOrderToDelivered = asyncHandler(async (req, res) => {
         update_time: new Date().toISOString(),
         payment_source: 'Cash on Delivery',
       };
+
+      // Reduce inventory for COD orders when delivered (payment confirmed)
+      if (!order.inventoryReduced) {
+        const inventoryReduced = await reduceProductInventory(
+          order.orderItems,
+          'COD delivery/payment'
+        );
+        if (inventoryReduced) {
+          order.inventoryReduced = true;
+        }
+      } else {
+        console.log(
+          '📦 Inventory already reduced for this COD order, skipping...'
+        );
+      }
     }
 
     const updatedOrder = await order.save();
@@ -593,6 +775,17 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
     if (status === 'delivered') {
       order.isDelivered = true;
       order.deliveredAt = new Date();
+    }
+
+    // Restore inventory if order is cancelled and payment was already processed
+    if (status === 'cancelled' && order.isPaid && order.inventoryReduced) {
+      const inventoryRestored = await restoreProductInventory(
+        order.orderItems,
+        'order cancellation'
+      );
+      if (inventoryRestored) {
+        order.inventoryReduced = false;
+      }
     }
 
     const updatedOrder = await order.save();

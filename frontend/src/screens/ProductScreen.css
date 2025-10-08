@@ -69,13 +69,25 @@
   overflow: hidden;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  min-height: 500px;
+  max-height: 700px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
 }
 
 .product-image {
-  width: 100%;
+  min-width: 300px;
+  min-height: 400px;
+  max-width: 95%;
+  max-height: 95%;
+  width: auto;
   height: auto;
-  border-radius: 15px;
+  object-fit: contain;
+  border-radius: 10px;
   transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .product-image:hover {
@@ -511,6 +523,180 @@
   }
 }
 
+/* Product details section */
+.product-details-section {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.details-title {
+  color: white;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.details-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.detail-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
+}
+
+.detail-label {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  min-width: 140px;
+  flex-shrink: 0;
+}
+
+.detail-value {
+  color: white;
+  font-weight: 500;
+  text-align: right;
+  flex: 1;
+}
+
+.brand-name {
+  font-weight: 700;
+  color: #3498db;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.strength-value {
+  font-weight: 700;
+  color: #e74c3c;
+}
+
+.category-badge {
+  background: linear-gradient(135deg, #3498db, #2980b9) !important;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+}
+
+.health-conditions-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.health-condition-badge {
+  background: linear-gradient(135deg, #17a2b8, #138496) !important;
+  border: none;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  box-shadow: 0 2px 6px rgba(23, 162, 184, 0.3);
+}
+
+.price-details {
+  text-align: right;
+}
+
+.current-price {
+  font-size: 1.25rem;
+  color: #2ecc71;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.original-price {
+  font-size: 0.9rem;
+  margin-top: 0.25rem;
+}
+
+.flash-sale-badge {
+  background: linear-gradient(135deg, #e74c3c, #c0392b) !important;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+  animation: pulse 2s infinite;
+}
+
+.flash-sale-end {
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* Responsive adjustments for product details */
+@media (max-width: 768px) {
+  .detail-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .detail-label {
+    min-width: unset;
+    margin-bottom: 0.25rem;
+  }
+  
+  .detail-value {
+    text-align: left;
+  }
+  
+  .health-conditions-container {
+    justify-content: flex-start;
+  }
+  
+  .price-details {
+    text-align: left;
+  }
+}
+
+@media (max-width: 576px) {
+  .details-grid {
+    gap: 0.75rem;
+  }
+  
+  .detail-item {
+    padding: 0.75rem;
+  }
+  
+  .detail-label {
+    font-size: 0.9rem;
+  }
+  
+  .detail-value {
+    font-size: 0.9rem;
+  }
+}
+
 /* Loading states */
 .loading-shimmer {
   background: linear-gradient(90deg, 
@@ -554,6 +740,38 @@
   .write-review-title,
   .purchase-title {
     color: #000;
+  }
+}
+
+/* Mobile responsive styles for product images */
+@media (max-width: 768px) {
+  .product-image-container {
+    min-height: 450px;
+    max-height: 600px;
+    margin-bottom: 20px;
+    padding: 15px;
+  }
+  
+  .product-image {
+    min-width: 250px;
+    min-height: 300px;
+    max-width: 95%;
+    max-height: 95%;
+  }
+}
+
+@media (max-width: 480px) {
+  .product-image-container {
+    min-height: 400px;
+    max-height: 500px;
+    padding: 10px;
+  }
+  
+  .product-image {
+    min-width: 220px;
+    min-height: 280px;
+    max-width: 90%;
+    max-height: 90%;
   }
 }
 

@@ -4,12 +4,14 @@ import { Link } from 'react-router-dom';
 import { Button, Row, Col, Container, Image } from 'react-bootstrap';
 import Message from '../components/Message';
 import CheckoutSteps from '../components/CheckoutSteps';
-import { createOrder } from '../actions/orderActions';
+import { createOrder, resetOrderCreate } from '../actions/orderActions';
 import { useNavigate } from 'react-router-dom';
 import './PlaceOrderScreen.css';
 
 const PlaceOrderScreen = () => {
   const cart = useSelector((state) => state.cart);
+  const userLogin = useSelector((state) => state.userLogin);
+  const { userInfo } = userLogin;
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -35,7 +37,25 @@ const PlaceOrderScreen = () => {
   const { order, success, error, loading } = orderCreate;
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Reset order state when component mounts
   useEffect(() => {
+    dispatch(resetOrderCreate());
+  }, [dispatch]);
+
+  // Reset order state when component unmounts (cleanup)
+  useEffect(() => {
+    return () => {
+      dispatch(resetOrderCreate());
+    };
+  }, [dispatch]);
+
+  useEffect(() => {
+    // Check if user is logged in
+    if (!userInfo) {
+      navigate('/login?redirect=/placeorder');
+      return;
+    }
+
     if (success) {
       setIsSubmitting(false);
       navigate(`/order/${order._id}`);
@@ -43,7 +63,7 @@ const PlaceOrderScreen = () => {
     if (error) {
       setIsSubmitting(false);
     }
-  }, [success, order, navigate, error]);
+  }, [success, order, navigate, error, userInfo]);
 
   const placeOrderHandler = () => {
     // Prevent multiple submissions
@@ -51,7 +71,24 @@ const PlaceOrderScreen = () => {
       return;
     }
 
+    // Check if user is logged in
+    if (!userInfo) {
+      navigate('/login?redirect=/placeorder');
+      return;
+    }
+
     setIsSubmitting(true);
+    console.log('Placing order with user:', userInfo._id);
+    console.log('Order data:', {
+      orderItems: cart.cartItems,
+      shippingAddress: cart.shippingAddress,
+      paymentMethod: cart.paymentMethod,
+      itemsPrice: cart.itemsPrice,
+      shippingPrice: cart.shippingPrice,
+      taxPrice: cart.taxPrice,
+      totalPrice: cart.totalPrice,
+    });
+
     dispatch(
       createOrder({
         orderItems: cart.cartItems,

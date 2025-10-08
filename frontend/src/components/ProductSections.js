@@ -176,11 +176,6 @@ const ProductSections = () => {
 
         {/* Product Badges */}
         <div className='product-badges'>
-          {product.discount && (
-            <Badge bg='danger' className='product-badge'>
-              <i className='fas fa-percentage me-1'></i>-{product.discount}%
-            </Badge>
-          )}
           {product.isFlashSale && (
             <Badge bg='danger' className='product-badge'>
               <i className='fas fa-fire me-1'></i>

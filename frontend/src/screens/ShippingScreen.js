@@ -14,6 +14,7 @@ import {
 } from 'react-bootstrap';
 import CheckoutSteps from '../components/CheckoutSteps';
 import { saveShippingAddress } from '../actions/cartActions';
+import { resetOrderCreate } from '../actions/orderActions';
 import '../styles/ShippingScreen.css';
 
 const ShippingScreen = () => {
@@ -129,6 +130,11 @@ const ShippingScreen = () => {
   // Calculate delivery fee: 150tk if order < 1000tk, free if >= 1000tk
   const deliveryFee = subtotal >= 1000 ? 0 : 150;
   const finalTotal = subtotal + deliveryFee;
+
+  // Reset order state when starting new checkout process
+  useEffect(() => {
+    dispatch(resetOrderCreate());
+  }, [dispatch]);
 
   // Check if user has items in cart
   useEffect(() => {

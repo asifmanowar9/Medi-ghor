@@ -184,8 +184,8 @@
   background: transparent;
 }
 
+/* Specific styling for different card elements */
 .card-element-container::before {
-  content: '\f09d';
   font-family: "Font Awesome 5 Free";
   font-weight: 900;
   position: absolute;
@@ -195,6 +195,23 @@
   color: rgba(44, 62, 80, 0.5);
   z-index: 1;
 }
+
+/* Card number field icon */
+.card-element-container:has(#card-number-element)::before {
+  content: '\f09d'; /* Credit card icon */
+}
+
+/* Expiry field icon */
+.expiry-container::before {
+  content: '\f073'; /* Calendar icon */
+}
+
+/* CVC field icon */
+.cvc-container::before {
+  content: '\f023'; /* Lock icon */
+}
+
+/* ZIP field - handled by regular input styling */
 
 /* Card brand icons */
 .card-brands {
@@ -501,6 +518,11 @@
   
   .form-section {
     padding: 1.5rem;
+  }
+  
+  /* Stack expiry and CVC on mobile */
+  .card-fields-row .col-md-6 {
+    margin-bottom: 1rem;
   }
 }
 

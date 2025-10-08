@@ -2,6 +2,7 @@ import {
   ORDER_CREATE_REQUEST,
   ORDER_CREATE_SUCCESS,
   ORDER_CREATE_FAIL,
+  ORDER_CREATE_RESET,
   ORDER_DETAILS_REQUEST,
   ORDER_DETAILS_SUCCESS,
   ORDER_DETAILS_FAIL,
@@ -33,6 +34,19 @@ export const createOrder = (order) => async (dispatch, getState) => {
       userLogin: { userInfo },
     } = getState();
 
+    console.log(
+      'Creating order with user info:',
+      userInfo ? 'User authenticated' : 'No user info'
+    );
+
+    if (!userInfo) {
+      throw new Error('User not authenticated. Please login first.');
+    }
+
+    if (!userInfo.token) {
+      throw new Error('Authentication token missing. Please login again.');
+    }
+
     // Set up request options
     const config = {
       headers: {
@@ -40,6 +54,11 @@ export const createOrder = (order) => async (dispatch, getState) => {
         Authorization: `Bearer ${userInfo.token}`,
       },
     };
+
+    console.log(
+      'Making order request with token:',
+      userInfo.token.substring(0, 20) + '...'
+    );
 
     // Make API call to create order
     const { data } = await axios.post(`/api/orders`, order, config);
@@ -314,4 +333,9 @@ export const deliverOrder = (order) => async (dispatch, getState) => {
           : error.message,
     });
   }
+};
+
+// Reset order create state
+export const resetOrderCreate = () => (dispatch) => {
+  dispatch({ type: ORDER_CREATE_RESET });
 };

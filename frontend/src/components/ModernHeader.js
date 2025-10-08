@@ -318,7 +318,12 @@ const ModernHeader = () => {
                     <i className={`fas ${category.icon || 'fa-pills'}`}></i>
                   </div>
                   <div className='category-info'>
-                    <span className='category-name'>{category.name}</span>
+                    <span
+                      style={{ color: category.textColor || '#FFFFFF' }}
+                      className='category-name'
+                    >
+                      {category.name}
+                    </span>
                     <small className='category-count'>
                       {category.productCount || 0} products
                     </small>

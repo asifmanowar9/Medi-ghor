@@ -58,6 +58,11 @@ const orderSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    itemsPrice: {
+      type: Number,
+      required: true,
+      default: 0.0,
+    },
     paymentresult: {
       id: { type: String },
       status: { type: String },
@@ -111,6 +116,11 @@ const orderSchema = mongoose.Schema(
       default: 'pending',
     },
     statusHistory: [orderStatusSchema],
+    // Inventory tracking
+    inventoryReduced: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

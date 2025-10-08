@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { Form, Button, InputGroup, Spinner } from 'react-bootstrap';
+import {
+  CardNumberElement,
+  CardExpiryElement,
+  CardCvcElement,
+  useStripe,
+  useElements,
+} from '@stripe/react-stripe-js';
+import { Form, Button, InputGroup, Spinner, Row, Col } from 'react-bootstrap';
 import { useDispatch } from 'react-redux';
 import axios from 'axios';
 import { payOrder } from '../actions/orderActions';
@@ -17,6 +23,8 @@ const StripeCheckout = ({ orderId, totalPrice, onSuccess }) => {
   const [succeeded, setSucceeded] = useState(false);
   const [email, setEmail] = useState('');
   const [saveInfo, setSaveInfo] = useState(false);
+  const [cardholderName, setCardholderName] = useState('');
+  const [postalCode, setPostalCode] = useState('');
 
   useEffect(() => {
     // Create PaymentIntent as soon as the page loads
@@ -44,7 +52,7 @@ const StripeCheckout = ({ orderId, totalPrice, onSuccess }) => {
     }
   }, [orderId]);
 
-  const cardStyle = {
+  const cardElementOptions = {
     style: {
       base: {
         color: '#2c3e50',
@@ -83,9 +91,13 @@ const StripeCheckout = ({ orderId, totalPrice, onSuccess }) => {
 
     const payload = await stripe.confirmCardPayment(clientSecret, {
       payment_method: {
-        card: elements.getElement(CardElement),
+        card: elements.getElement(CardNumberElement),
         billing_details: {
+          name: cardholderName,
           email: email,
+          address: {
+            postal_code: postalCode,
+          },
         },
       },
     });
@@ -159,11 +171,11 @@ const StripeCheckout = ({ orderId, totalPrice, onSuccess }) => {
           </h4>
 
           <Form.Group className='form-group'>
-            <Form.Label className='form-label'>Card Details</Form.Label>
+            <Form.Label className='form-label'>Card Number</Form.Label>
             <div className='card-element-container'>
-              <CardElement
-                id='card-element'
-                options={cardStyle}
+              <CardNumberElement
+                id='card-number-element'
+                options={cardElementOptions}
                 onChange={handleChange}
                 className='card-element'
               />
@@ -178,13 +190,59 @@ const StripeCheckout = ({ orderId, totalPrice, onSuccess }) => {
             </div>
           </Form.Group>
 
+          <Row className='card-fields-row'>
+            <Col md={6}>
+              <Form.Group className='form-group'>
+                <Form.Label className='form-label'>
+                  Valid Through (MM/YY)
+                </Form.Label>
+                <div className='card-element-container expiry-container'>
+                  <CardExpiryElement
+                    id='card-expiry-element'
+                    options={cardElementOptions}
+                    onChange={handleChange}
+                    className='card-element'
+                  />
+                </div>
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              <Form.Group className='form-group'>
+                <Form.Label className='form-label'>CVC</Form.Label>
+                <div className='card-element-container cvc-container'>
+                  <CardCvcElement
+                    id='card-cvc-element'
+                    options={cardElementOptions}
+                    onChange={handleChange}
+                    className='card-element'
+                  />
+                </div>
+              </Form.Group>
+            </Col>
+          </Row>
+
           <Form.Group className='form-group'>
             <Form.Label className='form-label'>Cardholder Name</Form.Label>
             <div className='input-wrapper'>
-              {/* <i className='fas fa-user input-icon'></i> */}
               <Form.Control
                 type='text'
                 placeholder='Full name on card'
+                value={cardholderName}
+                onChange={(e) => setCardholderName(e.target.value)}
+                className='modern-input'
+                required
+              />
+            </div>
+          </Form.Group>
+
+          <Form.Group className='form-group'>
+            <Form.Label className='form-label'>ZIP / Postal Code</Form.Label>
+            <div className='input-wrapper'>
+              <Form.Control
+                type='text'
+                placeholder='Enter ZIP or postal code'
+                value={postalCode}
+                onChange={(e) => setPostalCode(e.target.value)}
                 className='modern-input'
                 required
               />
@@ -194,7 +252,6 @@ const StripeCheckout = ({ orderId, totalPrice, onSuccess }) => {
           <Form.Group className='form-group'>
             <Form.Label className='form-label'>Country or Region</Form.Label>
             <div className='input-wrapper'>
-              {/* <i className='fas fa-globe input-icon'></i> */}
               <Form.Select
                 className='modern-select'
                 aria-label='Country selection'
