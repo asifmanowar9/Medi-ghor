@@ -736,16 +736,79 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
   );
 
   if (order) {
-    // Add new status to history
-    const statusUpdate = {
-      status,
-      timestamp: new Date(),
-      updatedBy: req.user._id,
-      notes: notes || '',
-    };
+    const currentTime = new Date();
+    const statusFlow = [
+      'pending',
+      'payment_confirmed',
+      'processing',
+      'shipped',
+      'out_for_delivery',
+      'delivered',
+    ];
 
-    order.statusHistory.push(statusUpdate);
-    order.currentStatus = status;
+    // Get current status index
+    const currentStatusIndex = statusFlow.indexOf(order.currentStatus);
+    const newStatusIndex = statusFlow.indexOf(status);
+
+    // Handle status progression with proper timestamps
+    if (status === 'cancelled') {
+      // Cancelled status can be set from any point
+      const statusUpdate = {
+        status: 'cancelled',
+        timestamp: currentTime,
+        updatedBy: req.user._id,
+        notes: notes || 'Order cancelled',
+      };
+      order.statusHistory.push(statusUpdate);
+      order.currentStatus = 'cancelled';
+    } else if (newStatusIndex > currentStatusIndex) {
+      // Moving forward - add intermediate statuses if skipping steps
+      for (let i = currentStatusIndex + 1; i <= newStatusIndex; i++) {
+        const intermediateStatus = statusFlow[i];
+
+        // Check if this status already exists in history
+        const existsInHistory = order.statusHistory.some(
+          (h) => h.status === intermediateStatus
+        );
+
+        if (!existsInHistory) {
+          // Calculate appropriate timestamp for intermediate steps
+          // Spread timestamps evenly across the time gap
+          const timeGap = 30 * 60 * 1000; // 30 minutes between each step
+          const intermediateTime = new Date(
+            currentTime.getTime() - (newStatusIndex - i) * timeGap
+          );
+
+          const statusUpdate = {
+            status: intermediateStatus,
+            timestamp: i === newStatusIndex ? currentTime : intermediateTime,
+            updatedBy: req.user._id,
+            notes:
+              i === newStatusIndex
+                ? notes || ''
+                : 'Auto-updated during status progression',
+          };
+
+          order.statusHistory.push(statusUpdate);
+        }
+      }
+      order.currentStatus = status;
+    } else if (newStatusIndex === currentStatusIndex) {
+      // Same status - just update notes if provided
+      if (notes) {
+        const existingStatus = order.statusHistory.find(
+          (h) => h.status === status
+        );
+        if (existingStatus) {
+          existingStatus.notes = notes;
+          existingStatus.timestamp = currentTime;
+        }
+      }
+    } else {
+      // Cannot go backwards (except to cancelled)
+      res.status(400);
+      throw new Error('Cannot move to a previous status in the order flow');
+    }
 
     // Update legacy fields for backward compatibility
     if (

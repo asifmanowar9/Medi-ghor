@@ -182,8 +182,8 @@ const OrderListScreen = () => {
       <div className='mb-4'>
         <Row className='align-items-center mb-3'>
           <Col>
-            <h2 className='text-white mb-0'>Orders Management</h2>
-            <p className='text-muted mb-0'>
+            <h2 className='text-black mb-0'>Orders Management</h2>
+            <p className='text-black mb-0'>
               {loading
                 ? 'Loading...'
                 : (() => {
@@ -399,7 +399,7 @@ const OrderListScreen = () => {
                         className='mb-2'
                       >
                         <i className='fas fa-list-alt me-1'></i>
-                        Order Status
+                        <span style={{ color: 'white' }}>Order Status</span>
                       </Form.Label>
                       <Form.Select
                         size='sm'
@@ -453,7 +453,7 @@ const OrderListScreen = () => {
                         className='mb-2'
                       >
                         <i className='fas fa-credit-card me-1'></i>
-                        Payment Status
+                        <span style={{ color: 'white' }}>Payment Status</span>
                       </Form.Label>
                       <Form.Select
                         size='sm'
@@ -501,7 +501,7 @@ const OrderListScreen = () => {
                         className='mb-2'
                       >
                         <i className='fas fa-truck me-1'></i>
-                        Delivery Status
+                        <span style={{ color: 'white' }}>Delivery Status</span>
                       </Form.Label>
                       <Form.Select
                         size='sm'
@@ -660,7 +660,7 @@ const OrderListScreen = () => {
                                 >
                                   Order {formatOrderId(order._id)}
                                 </Card.Title>
-                                <small className='text-muted'>
+                                <small className='text-black'>
                                   {formatDate(order.createdAt)}
                                 </small>
                               </div>
@@ -683,7 +683,7 @@ const OrderListScreen = () => {
                                 <i className='fas fa-user me-2'></i>
                                 {order.user?.name || 'Unknown Customer'}
                               </h6>
-                              <small className='text-muted'>
+                              <small className='text-black'>
                                 <i className='fas fa-envelope me-1'></i>
                                 {order.user?.email || 'No email'}
                               </small>
@@ -705,7 +705,7 @@ const OrderListScreen = () => {
                                           order.totalPrice
                                         ).toLocaleString()}
                                       </div>
-                                      <small className='text-muted'>
+                                      <small className='text-black'>
                                         Total Amount
                                       </small>
                                     </div>
@@ -721,7 +721,7 @@ const OrderListScreen = () => {
                                       >
                                         {order.orderItems?.length || 0} items
                                       </div>
-                                      <small className='text-muted'>
+                                      <small className='text-black'>
                                         Products
                                       </small>
                                     </div>
@@ -763,7 +763,7 @@ const OrderListScreen = () => {
                                       {order.isPaid ? 'Paid' : 'Unpaid'}
                                     </div>
                                     {order.isPaid && order.paidAt && (
-                                      <small className='text-muted'>
+                                      <small className='text-black'>
                                         {formatDate(order.paidAt)}
                                       </small>
                                     )}
@@ -803,7 +803,7 @@ const OrderListScreen = () => {
                                         : 'Pending'}
                                     </div>
                                     {order.isDelivered && order.deliveredAt && (
-                                      <small className='text-muted'>
+                                      <small className='text-black'>
                                         {formatDate(order.deliveredAt)}
                                       </small>
                                     )}

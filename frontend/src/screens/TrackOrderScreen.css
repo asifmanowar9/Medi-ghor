@@ -305,8 +305,23 @@
   font-size: 0.9rem;
 }
 
+.timeline-notes {
+  margin-top: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(0, 123, 255, 0.1);
+  border-radius: 6px;
+  border-left: 3px solid #007bff;
+}
+
+.timeline-notes small {
+  display: block;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: #333 !important;
+}
+
 /* Details Card */
-.detail-item {
+.details-card .detail-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -314,24 +329,35 @@
   border-bottom: 1px solid #f0f0f0;
 }
 
-.detail-item:last-child {
+.details-card .detail-item:last-child {
   border-bottom: none;
 }
 
-.detail-label {
+.details-card .detail-label {
   font-weight: 500;
-  color: #6c757d;
+  color: #6c757d !important;
 }
 
-.detail-value {
+.details-card .detail-value {
   font-weight: 600;
-  color: #2c3e50;
+  color: #2c3e50 !important;
 }
 
 /* Address Card */
-.address-info p {
-  color: #495057;
+.address-card .address-info p {
+  color: #495057 !important;
   line-height: 1.4;
+}
+
+/* Ensure all text in details and address cards is visible */
+.details-card .card-body,
+.address-card .card-body {
+  color: #333 !important;
+}
+
+.details-card .card-body *,
+.address-card .card-body * {
+  color: inherit !important;
 }
 
 /* Order Items */

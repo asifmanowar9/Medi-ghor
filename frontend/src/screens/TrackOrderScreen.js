@@ -71,6 +71,72 @@ const TrackOrderScreen = () => {
   const getOrderStatus = () => {
     if (!order) return null;
 
+    // Use new status system if available
+    if (order.currentStatus) {
+      const statusMap = {
+        pending: {
+          status: 'pending',
+          label: 'Payment Pending',
+          progress: 20,
+          color: 'danger',
+          icon: 'fas fa-clock',
+          message: 'Please complete your payment to process this order.',
+        },
+        payment_confirmed: {
+          status: 'payment_confirmed',
+          label: 'Payment Confirmed',
+          progress: 40,
+          color: 'info',
+          icon: 'fas fa-credit-card',
+          message: 'Payment received. Your order is being prepared.',
+        },
+        processing: {
+          status: 'processing',
+          label: 'Processing & Preparing',
+          progress: 60,
+          color: 'warning',
+          icon: 'fas fa-box',
+          message:
+            'Your medicines are being carefully prepared and quality checked.',
+        },
+        shipped: {
+          status: 'shipped',
+          label: 'Shipped',
+          progress: 80,
+          color: 'info',
+          icon: 'fas fa-shipping-fast',
+          message: 'Your order has been shipped and is on the way!',
+        },
+        out_for_delivery: {
+          status: 'out_for_delivery',
+          label: 'Out for Delivery',
+          progress: 90,
+          color: 'info',
+          icon: 'fas fa-truck',
+          message: 'Your order is on the way to your delivery address!',
+        },
+        delivered: {
+          status: 'delivered',
+          label: 'Successfully Delivered',
+          progress: 100,
+          color: 'success',
+          icon: 'fas fa-check-circle',
+          message: 'Your order has been delivered successfully!',
+        },
+        cancelled: {
+          status: 'cancelled',
+          label: 'Order Cancelled',
+          progress: 0,
+          color: 'danger',
+          icon: 'fas fa-times-circle',
+          message: 'This order has been cancelled.',
+        },
+      };
+
+      return statusMap[order.currentStatus] || statusMap.pending;
+    }
+
+    // Legacy status logic (fallback)
     if (order.isDelivered) {
       return {
         status: 'delivered',
@@ -173,6 +239,7 @@ const TrackOrderScreen = () => {
         'shipped',
         'out_for_delivery',
         'delivered',
+        'cancelled', // Add cancelled to the main flow
       ];
 
       return allStatuses
@@ -185,17 +252,29 @@ const TrackOrderScreen = () => {
 
           return {
             ...statusInfo,
+            status: status, // Add status for proper filtering
             date: historyItem?.timestamp,
             completed: isCompleted,
             notes: historyItem?.notes,
           };
         })
         .filter((step) => {
+          // Handle cancelled status separately - always show if it exists
+          if (
+            step.status === 'cancelled' &&
+            completedStatuses.includes('cancelled')
+          ) {
+            return true;
+          }
+
+          // For cancelled orders, only show cancelled status
+          if (order.currentStatus === 'cancelled') {
+            return step.status === 'cancelled';
+          }
+
           // Only show steps up to current status + next step
           const currentIndex = allStatuses.indexOf(order.currentStatus);
-          const stepIndex = allStatuses.indexOf(
-            step.title.toLowerCase().replace(/\s+/g, '_')
-          );
+          const stepIndex = allStatuses.indexOf(step.status);
           return stepIndex <= currentIndex + 1;
         });
     }
@@ -470,7 +549,7 @@ const TrackOrderScreen = () => {
                           >
                             {statusInfo.label}
                           </Badge>
-                          <p className='status-message text-muted mb-0'>
+                          <p className='status-message text-black mb-0'>
                             {statusInfo.message}
                           </p>
                         </div>
@@ -494,15 +573,19 @@ const TrackOrderScreen = () => {
                   <Col md={4} className='text-md-end'>
                     <div className='order-summary'>
                       <div className='summary-item'>
-                        <small className='text-muted'>Order Date</small>
+                        <small className='text-black'>Order Date</small>
                         <div className='fw-bold'>
-                          {formatDate(order.createdAt)}
+                          <span style={{ color: 'black' }}>
+                            {formatDate(order.createdAt)}
+                          </span>
                         </div>
                       </div>
                       <div className='summary-item mt-2'>
-                        <small className='text-muted'>Total Amount</small>
+                        <small className='text-black'>Total Amount</small>
                         <div className='fw-bold text-success'>
-                          ৳{order.totalPrice}
+                          <span style={{ color: 'black' }}>
+                            ৳{order.totalPrice}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -543,6 +626,15 @@ const TrackOrderScreen = () => {
                             <p className='timeline-description'>
                               {step.description}
                             </p>
+                            <div className='timeline-notes'>
+                              <small style={{ color: '#333' }}>
+                                <i className='fas fa-sticky-note me-1'></i>
+                                <strong>Note:</strong>{' '}
+                                {step.notes && step.notes.trim()
+                                  ? step.notes
+                                  : 'N/A'}
+                              </small>
+                            </div>
                           </div>
                         </div>
                       ))}
@@ -637,7 +729,7 @@ const TrackOrderScreen = () => {
                         </Col>
                         <Col xs={6}>
                           <h6 className='item-name'>{item.name}</h6>
-                          <small className='text-muted'>
+                          <small className='text-black'>
                             Quantity: {item.qty}
                           </small>
                         </Col>
@@ -645,7 +737,7 @@ const TrackOrderScreen = () => {
                           <div className='item-price'>
                             <span className='price'>৳{item.price}</span>
                             <div>
-                              <small className='text-muted'>
+                              <small className='text-black'>
                                 Total: ৳{(item.qty * item.price).toFixed(2)}
                               </small>
                             </div>
