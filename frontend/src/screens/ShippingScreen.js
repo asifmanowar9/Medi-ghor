@@ -21,24 +21,21 @@ const ShippingScreen = () => {
   const cart = useSelector((state) => state.cart);
   const { shippingAddress, cartItems } = cart;
 
-  // Form states
-  const [address, setAddress] = useState(shippingAddress?.address || '');
-  const [city, setCity] = useState(shippingAddress?.city || '');
-  const [district, setDistrict] = useState(shippingAddress?.district || '');
-  const [postalCode, setPostalCode] = useState(
-    shippingAddress?.postalCode || ''
-  );
+  // Form states - Start with empty form for new orders
+  const [address, setAddress] = useState('');
+  const [city, setCity] = useState('');
+  const [district, setDistrict] = useState('');
+  const [postalCode, setPostalCode] = useState('');
   // Country is fixed as Bangladesh
   const country = 'Bangladesh';
-  const [phone, setPhone] = useState(shippingAddress?.phone || '');
-  const [landmark, setLandmark] = useState(shippingAddress?.landmark || '');
-  const [deliveryInstructions, setDeliveryInstructions] = useState(
-    shippingAddress?.deliveryInstructions || ''
-  );
+  const [phone, setPhone] = useState('');
+  const [landmark, setLandmark] = useState('');
+  const [deliveryInstructions, setDeliveryInstructions] = useState('');
 
   // UI states
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [showPreviousAddress, setShowPreviousAddress] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -142,6 +139,32 @@ const ShippingScreen = () => {
       navigate('/cart');
     }
   }, [cartItems, navigate]);
+
+  // Function to load previous shipping address
+  const loadPreviousAddress = () => {
+    if (shippingAddress) {
+      setAddress(shippingAddress.address || '');
+      setCity(shippingAddress.city || '');
+      setDistrict(shippingAddress.district || '');
+      setPostalCode(shippingAddress.postalCode || '');
+      setPhone(shippingAddress.phone || '');
+      setLandmark(shippingAddress.landmark || '');
+      setDeliveryInstructions(shippingAddress.deliveryInstructions || '');
+      setShowPreviousAddress(false);
+    }
+  };
+
+  // Function to clear form
+  const clearForm = () => {
+    setAddress('');
+    setCity('');
+    setDistrict('');
+    setPostalCode('');
+    setPhone('');
+    setLandmark('');
+    setDeliveryInstructions('');
+    setErrors({});
+  };
 
   // Form validation
   const validateForm = () => {
@@ -281,6 +304,42 @@ const ShippingScreen = () => {
                 </Badge>
               </Card.Header>
               <Card.Body>
+                {/* Previous Address Options */}
+                {shippingAddress && (
+                  <Alert
+                    variant='info'
+                    className='d-flex justify-content-between align-items-center mb-4'
+                  >
+                    <div>
+                      <i className='fas fa-info-circle me-2'></i>
+                      <strong>Previous Address Available:</strong> Would you
+                      like to use your previous shipping address or start fresh?
+                    </div>
+                    <div>
+                      <Button
+                        variant='outline-primary'
+                        size='sm'
+                        onClick={loadPreviousAddress}
+                        className='me-2'
+                      >
+                        <i
+                          style={{ color: 'black' }}
+                          className='fas fa-history me-1'
+                        ></i>
+                        <span style={{ color: 'black' }}>Use Previous</span>
+                      </Button>
+                      <Button
+                        variant='outline-secondary'
+                        size='sm'
+                        onClick={clearForm}
+                      >
+                        <i className='fas fa-broom me-1'></i>
+                        Clear Form
+                      </Button>
+                    </div>
+                  </Alert>
+                )}
+
                 {/* Quick Address Selection */}
                 <div className='quick-addresses mb-4'>
                   <h6 className='quick-address-title'>

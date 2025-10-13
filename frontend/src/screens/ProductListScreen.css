@@ -48,6 +48,72 @@
   transform: scale(1.05);
 }
 
+/* Low Stock Warning Styles */
+.stock-warning-banner {
+  animation: pulseWarning 2s infinite;
+}
+
+@keyframes pulseWarning {
+  0% { opacity: 1; }
+  50% { opacity: 0.8; }
+  100% { opacity: 1; }
+}
+
+.low-stock-card {
+  border: 2px solid #f39c12 !important;
+  box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3) !important;
+}
+
+.out-of-stock-card {
+  border: 2px solid #e74c3c !important;
+  box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3) !important;
+}
+
+.stock-alert-section {
+  animation: slideInTop 0.5s ease-out;
+}
+
+@keyframes slideInTop {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stock-indicator-enhanced {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Edit Button Styles */
+.btn-outline-light {
+  color: #000000 !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  font-weight: 600 !important;
+}
+
+.btn-outline-light:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  color: #000000 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+}
+
+.btn-outline-light:focus {
+  color: #000000 !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25) !important;
+}
+
 .prescription-badge {
   animation: pulse 2s infinite;
   box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3) !important;

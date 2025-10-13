@@ -452,7 +452,7 @@ const ProfileScreen = () => {
                                 <Row className='align-items-center'>
                                   <Col md={2}>
                                     <div className='order-id'>
-                                      <small className='text-muted'>
+                                      <small className='text-black'>
                                         Order ID
                                       </small>
                                       <div className='fw-bold'>
@@ -462,13 +462,13 @@ const ProfileScreen = () => {
                                   </Col>
                                   <Col md={2}>
                                     <div className='order-date'>
-                                      <small className='text-muted'>Date</small>
+                                      <small className='text-black'>Date</small>
                                       <div>{formatDate(order.createdAt)}</div>
                                     </div>
                                   </Col>
                                   <Col md={2}>
                                     <div className='order-total'>
-                                      <small className='text-muted'>
+                                      <small className='text-black'>
                                         Total
                                       </small>
                                       <div className='fw-bold text-success'>
@@ -478,7 +478,7 @@ const ProfileScreen = () => {
                                   </Col>
                                   <Col md={2}>
                                     <div className='order-payment'>
-                                      <small className='text-muted'>
+                                      <small className='text-black'>
                                         Payment
                                       </small>
                                       <div>
@@ -498,7 +498,7 @@ const ProfileScreen = () => {
                                   </Col>
                                   <Col md={2}>
                                     <div className='order-status'>
-                                      <small className='text-muted'>
+                                      <small className='text-black'>
                                         Status
                                       </small>
                                       <div>{getOrderStatusBadge(order)}</div>

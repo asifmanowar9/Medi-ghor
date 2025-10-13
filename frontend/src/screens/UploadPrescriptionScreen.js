@@ -425,7 +425,13 @@ const UploadPrescriptionScreen = () => {
                   <Card key={index} className='mb-3 border'>
                     <Card.Body>
                       <div className='d-flex justify-content-between align-items-center mb-3'>
-                        <h6 className='mb-0'>
+                        <h6
+                          className='mb-0'
+                          style={{
+                            color: '#000000 !important',
+                            fontWeight: '600 !important',
+                          }}
+                        >
                           <i className='fas fa-prescription-bottle me-2'></i>
                           Medication {index + 1}
                         </h6>
@@ -442,7 +448,15 @@ const UploadPrescriptionScreen = () => {
                       <Row>
                         <Col md={6}>
                           <Form.Group className='mb-3'>
-                            <Form.Label>Medicine Name</Form.Label>
+                            <Form.Label
+                              style={{
+                                color: '#000000 !important',
+                                fontWeight: '600 !important',
+                                display: 'block',
+                              }}
+                            >
+                              Medicine Name
+                            </Form.Label>
                             <Form.Control
                               type='text'
                               placeholder='e.g., Paracetamol'
@@ -455,7 +469,15 @@ const UploadPrescriptionScreen = () => {
                         </Col>
                         <Col md={6}>
                           <Form.Group className='mb-3'>
-                            <Form.Label>Dosage</Form.Label>
+                            <Form.Label
+                              style={{
+                                color: '#000000 !important',
+                                fontWeight: '600 !important',
+                                display: 'block',
+                              }}
+                            >
+                              Dosage
+                            </Form.Label>
                             <Form.Control
                               type='text'
                               placeholder='e.g., 500mg'
@@ -472,7 +494,15 @@ const UploadPrescriptionScreen = () => {
                         </Col>
                         <Col md={6}>
                           <Form.Group className='mb-3'>
-                            <Form.Label>Frequency</Form.Label>
+                            <Form.Label
+                              style={{
+                                color: '#000000 !important',
+                                fontWeight: '600 !important',
+                                display: 'block',
+                              }}
+                            >
+                              Frequency
+                            </Form.Label>
                             <Form.Control
                               type='text'
                               placeholder='e.g., 3 times daily'
@@ -489,7 +519,15 @@ const UploadPrescriptionScreen = () => {
                         </Col>
                         <Col md={6}>
                           <Form.Group className='mb-3'>
-                            <Form.Label>Duration</Form.Label>
+                            <Form.Label
+                              style={{
+                                color: '#000000 !important',
+                                fontWeight: '600 !important',
+                                display: 'block',
+                              }}
+                            >
+                              Duration
+                            </Form.Label>
                             <Form.Control
                               type='text'
                               placeholder='e.g., 7 days'

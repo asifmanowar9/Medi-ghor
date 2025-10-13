@@ -143,8 +143,10 @@ const CartScreen = () => {
                 <div className='empty-cart-icon mb-4'>
                   <i className='fas fa-shopping-cart'></i>
                 </div>
-                <h3 className='empty-cart-title'>Your cart is empty</h3>
-                <p className='empty-cart-subtitle'>
+                <h3 style={{ color: 'white' }} className='empty-cart-title'>
+                  Your cart is empty
+                </h3>
+                <p style={{ color: 'white' }} className='empty-cart-subtitle'>
                   Looks like you haven't added any medicines to your cart yet.
                   <br />
                   Explore our wide range of authentic medicines and health

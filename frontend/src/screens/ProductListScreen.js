@@ -19,6 +19,9 @@ import { listProducts, deleteProduct } from '../actions/productActions';
 import { listCategories } from '../actions/categoryActions';
 import './ProductListScreen.css';
 
+// Low stock threshold constant
+const LOW_STOCK_THRESHOLD = 10;
+
 const ProductListScreen = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -155,7 +158,7 @@ const ProductListScreen = () => {
         filtered = filtered.filter((p) => p.countInStock === 0);
       } else if (filterStatus === 'lowStock') {
         filtered = filtered.filter(
-          (p) => p.countInStock > 0 && p.countInStock <= 10
+          (p) => p.countInStock > 0 && p.countInStock <= LOW_STOCK_THRESHOLD
         );
       }
     }
@@ -227,8 +230,8 @@ const ProductListScreen = () => {
       <div className='mb-4'>
         <Row className='align-items-center mb-3'>
           <Col>
-            <h2 className='text-white mb-0'>Products Management</h2>
-            <p className='text-muted mb-0'>
+            <h2 className='text-black mb-0'>Products Management</h2>
+            <p className='text-black mb-0'>
               {loading
                 ? 'Loading...'
                 : (() => {
@@ -259,6 +262,96 @@ const ProductListScreen = () => {
             </Button>
           </Col>
         </Row>
+
+        {/* Low Stock Warning Section */}
+        {(() => {
+          const lowStockProducts = products
+            ? products.filter(
+                (p) =>
+                  p.countInStock > 0 && p.countInStock <= LOW_STOCK_THRESHOLD
+              )
+            : [];
+          const outOfStockProducts = products
+            ? products.filter((p) => p.countInStock === 0)
+            : [];
+
+          if (lowStockProducts.length === 0 && outOfStockProducts.length === 0)
+            return null;
+
+          return (
+            <Card
+              className='border-0 shadow-lg mb-4 stock-alert-section'
+              style={{
+                background: 'linear-gradient(135deg, #e74c3c, #c0392b)',
+                border: '2px solid #e74c3c',
+              }}
+            >
+              <Card.Body>
+                <div className='d-flex align-items-center justify-content-between'>
+                  <div className='d-flex align-items-center'>
+                    <i
+                      className='fas fa-exclamation-triangle text-white me-3'
+                      style={{ fontSize: '1.5rem' }}
+                    ></i>
+                    <div>
+                      <h5 className='text-white mb-1'>
+                        <strong>🚨 Stock Alert!</strong>
+                      </h5>
+                      <p className='text-white mb-0' style={{ opacity: 0.9 }}>
+                        {outOfStockProducts.length > 0 && (
+                          <span className='me-3'>
+                            <i className='fas fa-times-circle me-1'></i>
+                            {outOfStockProducts.length} out of stock
+                          </span>
+                        )}
+                        {lowStockProducts.length > 0 && (
+                          <span>
+                            <i className='fas fa-exclamation-circle me-1'></i>
+                            {lowStockProducts.length} low stock (≤
+                            {LOW_STOCK_THRESHOLD} units)
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                  <div className='d-flex gap-2'>
+                    {outOfStockProducts.length > 0 && (
+                      <Button
+                        variant='light'
+                        size='sm'
+                        onClick={() => setFilterStatus('outOfStock')}
+                        style={{
+                          fontWeight: '600',
+                          background: 'white',
+                          color: '#e74c3c',
+                          border: '2px solid white',
+                        }}
+                      >
+                        <i className='fas fa-eye me-1'></i>
+                        View Out of Stock ({outOfStockProducts.length})
+                      </Button>
+                    )}
+                    {lowStockProducts.length > 0 && (
+                      <Button
+                        variant='outline-light'
+                        size='sm'
+                        onClick={() => setFilterStatus('lowStock')}
+                        style={{
+                          fontWeight: '600',
+                          borderColor: 'white',
+                          color: 'white',
+                        }}
+                      >
+                        <i className='fas fa-exclamation-triangle me-1'></i>
+                        View Low Stock ({lowStockProducts.length})
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </Card.Body>
+            </Card>
+          );
+        })()}
 
         {/* Search Bar */}
         <Card
@@ -768,6 +861,55 @@ const ProductListScreen = () => {
             </div>
           )}
 
+          {/* Active Stock Filter Notification */}
+          {(filterStatus === 'lowStock' || filterStatus === 'outOfStock') && (
+            <Card
+              className='border-0 shadow-sm mb-3'
+              style={{
+                background:
+                  filterStatus === 'outOfStock'
+                    ? 'linear-gradient(135deg, rgba(231, 76, 60, 0.1), rgba(192, 57, 43, 0.1))'
+                    : 'linear-gradient(135deg, rgba(243, 156, 18, 0.1), rgba(230, 126, 34, 0.1))',
+                border: `2px solid ${
+                  filterStatus === 'outOfStock' ? '#e74c3c' : '#f39c12'
+                }`,
+              }}
+            >
+              <Card.Body className='py-2'>
+                <div className='d-flex align-items-center justify-content-between'>
+                  <div className='d-flex align-items-center'>
+                    <i
+                      className={`fas ${
+                        filterStatus === 'outOfStock'
+                          ? 'fa-times-circle text-danger'
+                          : 'fa-exclamation-triangle text-warning'
+                      } me-2`}
+                    ></i>
+                    <span
+                      className='text-black fw-semibold'
+                      style={{ fontSize: '0.9rem' }}
+                    >
+                      Currently showing{' '}
+                      {filterStatus === 'outOfStock'
+                        ? 'out of stock'
+                        : 'low stock'}{' '}
+                      products only
+                    </span>
+                  </div>
+                  <Button
+                    variant='outline-secondary'
+                    size='sm'
+                    onClick={() => setFilterStatus('')}
+                    style={{ fontSize: '0.8rem' }}
+                  >
+                    <i className='fas fa-times me-1'></i>
+                    Show All Products
+                  </Button>
+                </div>
+              </Card.Body>
+            </Card>
+          )}
+
           {/* Products Grid */}
           <Row className='g-3'>
             {(() => {
@@ -776,7 +918,13 @@ const ProductListScreen = () => {
                 filteredProducts.map((product) => (
                   <Col key={product._id} xs={12} sm={6} md={4} lg={3}>
                     <Card
-                      className='h-100 product-card border-0 shadow-sm'
+                      className={`h-100 product-card border-0 shadow-sm ${
+                        product.countInStock === 0
+                          ? 'out-of-stock-card'
+                          : product.countInStock <= LOW_STOCK_THRESHOLD
+                          ? 'low-stock-card'
+                          : ''
+                      }`}
                       style={{
                         background: 'rgba(255, 255, 255, 0.05)',
                         backdropFilter: 'blur(10px)',
@@ -795,6 +943,65 @@ const ProductListScreen = () => {
                             borderRadius: '15px 15px 0 0',
                           }}
                         />
+
+                        {/* Stock Warning Banner */}
+                        {product.countInStock <= LOW_STOCK_THRESHOLD && (
+                          <div
+                            className='position-absolute top-0 start-0 w-100 stock-warning-banner'
+                            style={{
+                              background:
+                                product.countInStock === 0
+                                  ? 'linear-gradient(135deg, #e74c3c, #c0392b)'
+                                  : 'linear-gradient(135deg, #f39c12, #e67e22)',
+                              padding: '8px 12px',
+                              borderRadius: '15px 15px 0 0',
+                              zIndex: 10,
+                            }}
+                          >
+                            <div className='d-flex align-items-center justify-content-between'>
+                              <div className='d-flex align-items-center text-white'>
+                                <i
+                                  className={`fas ${
+                                    product.countInStock === 0
+                                      ? 'fa-times-circle'
+                                      : 'fa-exclamation-triangle'
+                                  } me-2`}
+                                ></i>
+                                <span
+                                  style={{
+                                    fontSize: '0.75rem',
+                                    fontWeight: '600',
+                                  }}
+                                >
+                                  {product.countInStock === 0
+                                    ? 'OUT OF STOCK'
+                                    : `LOW STOCK: ${product.countInStock} left`}
+                                </span>
+                              </div>
+                              <Button
+                                variant='light'
+                                size='sm'
+                                as={Link}
+                                to={`/admin/product/${product._id}/edit`}
+                                style={{
+                                  fontSize: '0.65rem',
+                                  padding: '2px 8px',
+                                  fontWeight: '600',
+                                  background: 'white',
+                                  color:
+                                    product.countInStock === 0
+                                      ? '#e74c3c'
+                                      : '#f39c12',
+                                  border: 'none',
+                                }}
+                              >
+                                <i className='fas fa-plus me-1'></i>
+                                Add Stock
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+
                         {product.isFeatured && (
                           <div
                             className='position-absolute top-0 end-0 p-2'
@@ -955,35 +1162,72 @@ const ProductListScreen = () => {
                                     {parseFloat(product.price).toLocaleString()}
                                   </span>
                                 </div>
-                                <div className='mt-2 d-flex align-items-center justify-content-center'>
-                                  <i
-                                    className={`fas ${
-                                      product.countInStock > 10
-                                        ? 'fa-boxes text-success'
-                                        : product.countInStock > 0
-                                        ? 'fa-box text-warning'
-                                        : 'fa-times-circle text-danger'
-                                    } me-1`}
-                                  ></i>
-                                  <span className='fw-semibold text-black me-1'>
-                                    Stock:
-                                  </span>
-                                  <span
-                                    className={`stock-indicator ${
-                                      product.countInStock > 10
-                                        ? 'text-success'
-                                        : product.countInStock > 0
-                                        ? 'text-warning'
-                                        : 'text-danger'
-                                    }`}
-                                  >
-                                    {product.countInStock} units
-                                    {product.countInStock === 0 &&
-                                      ' (Out of Stock)'}
-                                    {product.countInStock > 0 &&
-                                      product.countInStock <= 10 &&
-                                      ' (Low Stock)'}
-                                  </span>
+                                <div className='mt-2'>
+                                  {product.countInStock <=
+                                  LOW_STOCK_THRESHOLD ? (
+                                    <div
+                                      className='p-2 rounded text-center stock-indicator-enhanced'
+                                      style={{
+                                        background:
+                                          product.countInStock === 0
+                                            ? 'linear-gradient(135deg, rgba(231, 76, 60, 0.2), rgba(192, 57, 43, 0.2))'
+                                            : 'linear-gradient(135deg, rgba(243, 156, 18, 0.2), rgba(230, 126, 34, 0.2))',
+                                        border: `2px solid ${
+                                          product.countInStock === 0
+                                            ? '#e74c3c'
+                                            : '#f39c12'
+                                        }`,
+                                        borderRadius: '8px',
+                                      }}
+                                    >
+                                      <div className='d-flex align-items-center justify-content-center mb-1'>
+                                        <i
+                                          className={`fas ${
+                                            product.countInStock === 0
+                                              ? 'fa-times-circle text-danger'
+                                              : 'fa-exclamation-triangle text-warning'
+                                          } me-2`}
+                                          style={{ fontSize: '1.2rem' }}
+                                        ></i>
+                                        <span
+                                          className='fw-bold'
+                                          style={{
+                                            color:
+                                              product.countInStock === 0
+                                                ? '#e74c3c'
+                                                : '#f39c12',
+                                            fontSize: '0.9rem',
+                                          }}
+                                        >
+                                          {product.countInStock === 0
+                                            ? 'OUT OF STOCK'
+                                            : 'LOW STOCK'}
+                                        </span>
+                                      </div>
+                                      <span
+                                        className='fw-semibold'
+                                        style={{
+                                          color:
+                                            product.countInStock === 0
+                                              ? '#e74c3c'
+                                              : '#f39c12',
+                                          fontSize: '0.85rem',
+                                        }}
+                                      >
+                                        {product.countInStock} units remaining
+                                      </span>
+                                    </div>
+                                  ) : (
+                                    <div className='d-flex align-items-center justify-content-center'>
+                                      <i className='fas fa-boxes text-success me-1'></i>
+                                      <span className='fw-semibold text-black me-1'>
+                                        Stock:
+                                      </span>
+                                      <span className='text-success fw-bold'>
+                                        {product.countInStock} units
+                                      </span>
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                             </div>
@@ -992,18 +1236,44 @@ const ProductListScreen = () => {
 
                         <div className='d-flex gap-2'>
                           <Button
-                            variant='outline-light'
+                            variant={
+                              product.countInStock <= LOW_STOCK_THRESHOLD
+                                ? 'warning'
+                                : 'outline-light'
+                            }
                             size='sm'
                             className='flex-fill'
                             as={Link}
                             to={`/admin/product/${product._id}/edit`}
-                            style={{
-                              borderColor: 'rgba(255, 255, 255, 0.3)',
-                              backdropFilter: 'blur(5px)',
-                            }}
+                            style={
+                              product.countInStock <= LOW_STOCK_THRESHOLD
+                                ? {
+                                    background:
+                                      'linear-gradient(135deg, #f39c12, #e67e22)',
+                                    border: 'none',
+                                    color: 'white',
+                                    fontWeight: '600',
+                                    boxShadow:
+                                      '0 2px 8px rgba(243, 156, 18, 0.3)',
+                                  }
+                                : {
+                                    borderColor: 'rgba(255, 255, 255, 0.3)',
+                                    backdropFilter: 'blur(5px)',
+                                    color: '#000000',
+                                    fontWeight: '600',
+                                  }
+                            }
                           >
-                            <i className='fas fa-edit me-1'></i>
-                            Edit
+                            <i
+                              className={`fas ${
+                                product.countInStock <= LOW_STOCK_THRESHOLD
+                                  ? 'fa-plus'
+                                  : 'fa-edit'
+                              } me-1`}
+                            ></i>
+                            {product.countInStock <= LOW_STOCK_THRESHOLD
+                              ? 'Add Stock'
+                              : 'Edit'}
                           </Button>
                           <Button
                             variant='outline-danger'

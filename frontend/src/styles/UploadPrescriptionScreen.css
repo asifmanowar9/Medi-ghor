@@ -50,6 +50,18 @@
   color: #ffffff !important;
 }
 
+/* Override for medication cards - make labels black */
+.upload-prescription-screen .card .card .card-body .form-label {
+  color: #000000 !important;
+  font-weight: 600 !important;
+}
+
+/* Specific override for medication form labels */
+.upload-prescription-screen .card .card-body .form-label[style*="color: #000000"] {
+  color: #000000 !important;
+}
+
+
 .upload-prescription-screen .form-control {
   border: 2px solid #e9ecef;
   border-radius: 10px;

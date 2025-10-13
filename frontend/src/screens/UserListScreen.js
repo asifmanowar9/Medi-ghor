@@ -198,7 +198,7 @@ const UserListScreen = () => {
               <i className='fas fa-users me-3'></i>
               User Management
             </h2>
-            <p className='text-muted mb-0'>
+            <p className='text-black mb-0'>
               Manage and monitor all registered users
             </p>
           </Col>
@@ -452,9 +452,9 @@ const UserListScreen = () => {
           }}
         >
           <Card.Body>
-            <i className='fas fa-user-slash fa-3x text-muted mb-3'></i>
+            <i className='fas fa-user-slash fa-3x text-black mb-3'></i>
             <h5 className='text-black'>No Users Found</h5>
-            <p className='text-muted'>
+            <p className='text-black'>
               {searchTerm || filterRole
                 ? 'Try adjusting your search criteria or filters'
                 : 'No users are registered yet'}
@@ -532,7 +532,7 @@ const UserListScreen = () => {
 
                       <div className='user-details mb-3'>
                         <div className='mb-2'>
-                          <small className='text-muted'>
+                          <small className='text-black'>
                             <i className='fas fa-envelope me-2'></i>
                             Email
                           </small>
@@ -550,7 +550,7 @@ const UserListScreen = () => {
                           </p>
                         </div>
                         <div className='mb-2'>
-                          <small className='text-muted'>
+                          <small className='text-black'>
                             <i className='fas fa-id-card me-2'></i>
                             User ID
                           </small>
@@ -566,7 +566,7 @@ const UserListScreen = () => {
                           </p>
                         </div>
                         <div>
-                          <small className='text-muted'>
+                          <small className='text-black'>
                             <i className='fas fa-calendar me-2'></i>
                             Joined
                           </small>
