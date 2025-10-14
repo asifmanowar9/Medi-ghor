@@ -849,9 +849,9 @@ const ProductEditScreen = () => {
                       <i
                         className={`${newCategoryIcon} fa-3x text-primary`}
                       ></i>
-                      <div className='small text-dark mt-2 fw-bold'>
+                      {/* <div className='small text-dark mt-2 fw-bold'>
                         Selected: {newCategoryIcon}
-                      </div>
+                      </div> */}
                     </div>
                   )}
 
