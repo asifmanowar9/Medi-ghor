@@ -15,10 +15,16 @@ import {
   CHAT_IMAGE_ANALYZE_REQUEST,
   CHAT_IMAGE_ANALYZE_SUCCESS,
   CHAT_IMAGE_ANALYZE_FAIL,
+  CHAT_DELETE_REQUEST,
+  CHAT_DELETE_SUCCESS,
+  CHAT_DELETE_FAIL,
+  CHAT_UPDATE_REQUEST,
+  CHAT_UPDATE_SUCCESS,
+  CHAT_UPDATE_FAIL,
 } from '../constants/chatConstants';
 
 // Create a new chat
-export const createChat = (title) => async (dispatch, getState) => {
+export const createChat = (chatData) => async (dispatch, getState) => {
   try {
     dispatch({ type: CHAT_CREATE_REQUEST });
 
@@ -33,7 +39,11 @@ export const createChat = (title) => async (dispatch, getState) => {
       },
     };
 
-    const { data } = await axios.post('/api/chats', { title }, config);
+    // Support both old format (just title) and new format (object with title, category, priority)
+    const requestData =
+      typeof chatData === 'string' ? { title: chatData } : chatData;
+
+    const { data } = await axios.post('/api/chats', requestData, config);
 
     dispatch({
       type: CHAT_CREATE_SUCCESS,
@@ -227,6 +237,88 @@ export const analyzeImage =
 
       dispatch({
         type: CHAT_IMAGE_ANALYZE_FAIL,
+        payload:
+          error.response && error.response.data.message
+            ? error.response.data.message
+            : error.message,
+      });
+      throw error;
+    }
+  };
+
+// Delete a chat
+export const deleteChat = (chatId) => async (dispatch, getState) => {
+  try {
+    dispatch({ type: CHAT_DELETE_REQUEST });
+
+    const {
+      userLogin: { userInfo },
+    } = getState();
+
+    const config = {
+      headers: {
+        Authorization: `Bearer ${userInfo.token}`,
+      },
+    };
+
+    await axios.delete(`/api/chats/${chatId}`, config);
+
+    dispatch({
+      type: CHAT_DELETE_SUCCESS,
+      payload: chatId,
+    });
+
+    return chatId;
+  } catch (error) {
+    dispatch({
+      type: CHAT_DELETE_FAIL,
+      payload:
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message,
+    });
+    throw error;
+  }
+};
+
+// Update a chat
+export const updateChat =
+  (chatId, updateData) => async (dispatch, getState) => {
+    try {
+      dispatch({ type: CHAT_UPDATE_REQUEST });
+
+      const {
+        userLogin: { userInfo },
+      } = getState();
+
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userInfo.token}`,
+        },
+      };
+
+      const { data } = await axios.put(
+        `/api/chats/${chatId}`,
+        updateData,
+        config
+      );
+
+      dispatch({
+        type: CHAT_UPDATE_SUCCESS,
+        payload: data,
+      });
+
+      // Also update chat details
+      dispatch({
+        type: CHAT_DETAILS_SUCCESS,
+        payload: data,
+      });
+
+      return data;
+    } catch (error) {
+      dispatch({
+        type: CHAT_UPDATE_FAIL,
         payload:
           error.response && error.response.data.message
             ? error.response.data.message

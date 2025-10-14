@@ -14,6 +14,12 @@ import {
   CHAT_IMAGE_ANALYZE_REQUEST,
   CHAT_IMAGE_ANALYZE_SUCCESS,
   CHAT_IMAGE_ANALYZE_FAIL,
+  CHAT_DELETE_REQUEST,
+  CHAT_DELETE_SUCCESS,
+  CHAT_DELETE_FAIL,
+  CHAT_UPDATE_REQUEST,
+  CHAT_UPDATE_SUCCESS,
+  CHAT_UPDATE_FAIL,
 } from '../constants/chatConstants';
 
 export const chatCreateReducer = (state = {}, action) => {
@@ -34,9 +40,22 @@ export const chatListReducer = (state = { chats: [] }, action) => {
     case CHAT_LIST_REQUEST:
       return { loading: true, chats: [] };
     case CHAT_LIST_SUCCESS:
-      return { loading: false, chats: action.payload };
+      // Handle both array response (old format) and object response (new format)
+      if (Array.isArray(action.payload)) {
+        return { loading: false, chats: action.payload };
+      } else if (action.payload && Array.isArray(action.payload.chats)) {
+        return {
+          loading: false,
+          chats: action.payload.chats,
+          totalPages: action.payload.totalPages,
+          currentPage: action.payload.currentPage,
+          stats: action.payload.stats,
+        };
+      } else {
+        return { loading: false, chats: [] };
+      }
     case CHAT_LIST_FAIL:
-      return { loading: false, error: action.payload };
+      return { loading: false, error: action.payload, chats: [] };
     default:
       return state;
   }
@@ -83,6 +102,32 @@ export const chatImageAnalyzeReducer = (state = {}, action) => {
         imageUrl: action.payload.imageUrl,
       };
     case CHAT_IMAGE_ANALYZE_FAIL:
+      return { loading: false, error: action.payload };
+    default:
+      return state;
+  }
+};
+
+export const chatDeleteReducer = (state = {}, action) => {
+  switch (action.type) {
+    case CHAT_DELETE_REQUEST:
+      return { loading: true };
+    case CHAT_DELETE_SUCCESS:
+      return { loading: false, success: true };
+    case CHAT_DELETE_FAIL:
+      return { loading: false, error: action.payload };
+    default:
+      return state;
+  }
+};
+
+export const chatUpdateReducer = (state = {}, action) => {
+  switch (action.type) {
+    case CHAT_UPDATE_REQUEST:
+      return { loading: true };
+    case CHAT_UPDATE_SUCCESS:
+      return { loading: false, success: true, chat: action.payload };
+    case CHAT_UPDATE_FAIL:
       return { loading: false, error: action.payload };
     default:
       return state;

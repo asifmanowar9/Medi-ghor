@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Form, Button, Row, Col, Card, InputGroup } from 'react-bootstrap';
+import { Form, Button, Row, Col, Card, InputGroup, Modal } from 'react-bootstrap';
 import Message from '../components/Message';
 import Loader from '../components/Loader';
 import FormContainer from '../components/FormContainer';
@@ -11,11 +11,12 @@ import {
   updateProduct,
   createProduct,
 } from '../actions/productActions';
-import { listCategories } from '../actions/categoryActions';
+import { listCategories, createCategory } from '../actions/categoryActions';
 import {
   PRODUCT_UPDATE_RESET,
   PRODUCT_CREATE_RESET,
 } from '../constants/productConstants';
+import { CATEGORY_CREATE_RESET } from '../constants/categoryConstants';
 import '../styles/ProductEditScreen.css';
 
 const ProductEditScreen = () => {
@@ -35,6 +36,14 @@ const ProductEditScreen = () => {
   const [isFeatured, setIsFeatured] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [imageFile, setImageFile] = useState(null);
+
+  // New Category Modal states
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [newCategoryDescription, setNewCategoryDescription] = useState('');
+  const [newCategoryIcon, setNewCategoryIcon] = useState('');
+  const [newCategoryColor, setNewCategoryColor] = useState('#007bff');
+  const [categorySuccess, setCategorySuccess] = useState('');
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -60,6 +69,14 @@ const ProductEditScreen = () => {
 
   const categoryList = useSelector((state) => state.categoryList);
   const { categories, loading: loadingCategories } = categoryList;
+
+  const categoryCreate = useSelector((state) => state.categoryCreate);
+  const { 
+    loading: loadingCategoryCreate, 
+    success: successCategoryCreate, 
+    category: createdCategory,
+    error: errorCategoryCreate 
+  } = categoryCreate;
 
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
@@ -103,6 +120,28 @@ const ProductEditScreen = () => {
       navigate('/admin/productlist');
     }
   }, [successUpdate, dispatch, navigate]);
+
+  // Handle successful category creation
+  useEffect(() => {
+    if (successCategoryCreate && createdCategory) {
+      // Add the new category to the category list and select it
+      setCategory(createdCategory._id);
+      setCategorySuccess(`Category "${createdCategory.name}" created successfully!`);
+      setShowCategoryModal(false);
+      // Reset form
+      setNewCategoryName('');
+      setNewCategoryDescription('');
+      setNewCategoryIcon('');
+      setNewCategoryColor('#007bff');
+      // Reset category create state
+      dispatch({ type: CATEGORY_CREATE_RESET });
+      // Refresh categories list
+      dispatch(listCategories());
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setCategorySuccess(''), 3000);
+    }
+  }, [successCategoryCreate, createdCategory, dispatch]);
 
   // Handle product loading for edit mode
   useEffect(() => {
@@ -178,6 +217,40 @@ const ProductEditScreen = () => {
       const fileInput = document.getElementById('productImageFile');
       if (fileInput) fileInput.value = '';
     }
+  };
+
+  // Category Modal Functions
+  const handleCategorySelectChange = (e) => {
+    const value = e.target.value;
+    if (value === 'add_new') {
+      setShowCategoryModal(true);
+    } else {
+      setCategory(value);
+    }
+  };
+
+  const handleCategorySubmit = (e) => {
+    e.preventDefault();
+    if (!newCategoryName.trim()) {
+      return;
+    }
+
+    const categoryData = {
+      name: newCategoryName.trim(),
+      description: newCategoryDescription.trim(),
+      icon: newCategoryIcon.trim(),
+      color: newCategoryColor,
+    };
+
+    dispatch(createCategory(categoryData));
+  };
+
+  const handleCategoryModalClose = () => {
+    setShowCategoryModal(false);
+    setNewCategoryName('');
+    setNewCategoryDescription('');
+    setNewCategoryIcon('');
+    setNewCategoryColor('#007bff');
   };
 
   const submitHandler = (e) => {
@@ -261,6 +334,7 @@ const ProductEditScreen = () => {
       {errorCreate && <Message variant='danger'>{errorCreate}</Message>}
       {!isNewProduct && loading && <Loader />}
       {error && !isNewProduct && <Message variant='danger'>{error}</Message>}
+      {categorySuccess && <Message variant='success'>{categorySuccess}</Message>}
 
       {/* Main Form */}
       <Card className='shadow-sm'>
@@ -373,7 +447,7 @@ const ProductEditScreen = () => {
                   </Form.Label>
                   <Form.Select
                     value={category}
-                    onChange={(e) => setCategory(e.target.value)}
+                    onChange={handleCategorySelectChange}
                     required
                   >
                     <option value=''>Select a category...</option>
@@ -383,6 +457,9 @@ const ProductEditScreen = () => {
                           {cat.name}
                         </option>
                       ))}
+                    <option value='add_new' style={{ borderTop: '1px solid #dee2e6', fontWeight: 'bold', color: '#007bff' }}>
+                      + Add New Category
+                    </option>
                   </Form.Select>
                   {loadingCategories && (
                     <Form.Text className='text-muted'>
@@ -665,6 +742,96 @@ const ProductEditScreen = () => {
           </Form>
         </Card.Body>
       </Card>
+
+      {/* Add New Category Modal */}
+      <Modal show={showCategoryModal} onHide={handleCategoryModalClose} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>
+            <i className='fas fa-plus-circle me-2 text-primary'></i>
+            Add New Category
+          </Modal.Title>
+        </Modal.Header>
+        <Form onSubmit={handleCategorySubmit}>
+          <Modal.Body>
+            {errorCategoryCreate && (
+              <Message variant='danger'>{errorCategoryCreate}</Message>
+            )}
+            
+            <Form.Group className='mb-3'>
+              <Form.Label className='fw-bold'>
+                Category Name <span className='text-danger'>*</span>
+              </Form.Label>
+              <Form.Control
+                type='text'
+                placeholder='Enter category name'
+                value={newCategoryName}
+                onChange={(e) => setNewCategoryName(e.target.value)}
+                required
+              />
+            </Form.Group>
+
+            <Form.Group className='mb-3'>
+              <Form.Label className='fw-bold'>Description</Form.Label>
+              <Form.Control
+                as='textarea'
+                rows={2}
+                placeholder='Enter category description (optional)'
+                value={newCategoryDescription}
+                onChange={(e) => setNewCategoryDescription(e.target.value)}
+              />
+            </Form.Group>
+
+            <Row>
+              <Col md={6}>
+                <Form.Group className='mb-3'>
+                  <Form.Label className='fw-bold'>Icon Class</Form.Label>
+                  <Form.Control
+                    type='text'
+                    placeholder='e.g., fas fa-pills'
+                    value={newCategoryIcon}
+                    onChange={(e) => setNewCategoryIcon(e.target.value)}
+                  />
+                  <Form.Text className='text-muted'>
+                    FontAwesome icon class (optional)
+                  </Form.Text>
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group className='mb-3'>
+                  <Form.Label className='fw-bold'>Color</Form.Label>
+                  <Form.Control
+                    type='color'
+                    value={newCategoryColor}
+                    onChange={(e) => setNewCategoryColor(e.target.value)}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant='secondary' onClick={handleCategoryModalClose}>
+              Cancel
+            </Button>
+            <Button 
+              type='submit' 
+              variant='primary'
+              disabled={loadingCategoryCreate || !newCategoryName.trim()}
+            >
+              {loadingCategoryCreate ? (
+                <>
+                  <i className='fas fa-spinner fa-spin me-2'></i>
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <i className='fas fa-plus me-2'></i>
+                  Create Category
+                </>
+              )}
+            </Button>
+          </Modal.Footer>
+        </Form>
+      </Modal>
     </div>
   );
 };

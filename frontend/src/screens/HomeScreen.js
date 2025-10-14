@@ -158,7 +158,7 @@ const HomeScreen = () => {
               )}
             </h1>
             {currentCategory && (
-              <p className='text-muted'>{currentCategory.description}</p>
+              <p className='text-black'>{currentCategory.description}</p>
             )}
           </div>
 
@@ -286,7 +286,7 @@ const HomeScreen = () => {
               )}
             </h1>
             {currentBrand && (
-              <p className='text-muted'>{currentBrand.description}</p>
+              <p className='text-black'>{currentBrand.description}</p>
             )}
           </div>
 

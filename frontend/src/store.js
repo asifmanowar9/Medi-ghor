@@ -34,6 +34,8 @@ import {
   chatDetailsReducer,
   chatMessageAddReducer,
   chatImageAnalyzeReducer,
+  chatDeleteReducer,
+  chatUpdateReducer,
   aiResponseWaitingReducer,
 } from './reducers/chatReducers';
 import {
@@ -44,7 +46,7 @@ import {
   bannerUpdateReducer,
   bannerDeleteReducer,
 } from './reducers/bannerReducers';
-import { categoryListReducer } from './reducers/categoryReducers';
+import { categoryListReducer, categoryCreateReducer } from './reducers/categoryReducers';
 import { brandListReducer } from './reducers/brandReducers';
 import { healthConditionListReducer } from './reducers/healthConditionReducers';
 import { wishlistReducer } from './reducers/wishlistReducers';
@@ -84,6 +86,8 @@ const reducer = combineReducers({
   chatDetails: chatDetailsReducer,
   chatMessageAdd: chatMessageAddReducer,
   chatImageAnalyze: chatImageAnalyzeReducer,
+  chatDelete: chatDeleteReducer,
+  chatUpdate: chatUpdateReducer,
   aiResponseWaiting: aiResponseWaitingReducer,
   bannerList: bannerListReducer,
   bannerAdminList: bannerAdminListReducer,
@@ -92,6 +96,7 @@ const reducer = combineReducers({
   bannerUpdate: bannerUpdateReducer,
   bannerDelete: bannerDeleteReducer,
   categoryList: categoryListReducer,
+  categoryCreate: categoryCreateReducer,
   brandList: brandListReducer,
   healthConditionList: healthConditionListReducer,
   wishlist: wishlistReducer,

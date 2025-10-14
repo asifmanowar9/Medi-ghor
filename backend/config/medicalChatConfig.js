@@ -32,7 +32,7 @@ export const generateMedicalResponse = async (
     const recentMessages = chatHistory.slice(-6); // Last 6 messages for context
 
     const prompt = `
-      You are a helpful medical assistant providing information about medical test reports, medications, and general health questions.
+      You are a helpful medical assistant providing information about health questions, symptoms, medications, and general medical topics.
       Always remind users to consult healthcare professionals for medical advice, diagnosis, or treatment.
       Base your responses on established medical knowledge and avoid speculative statements.
       
@@ -48,11 +48,11 @@ export const generateMedicalResponse = async (
       
       Provide a helpful, informative response about this medical topic. If discussing medications or treatments, 
       explain general information and always advise consulting a healthcare provider.
-      If discussing test reports, explain what tests measure and general interpretation guidelines.
+      If discussing symptoms, provide general information about possible causes and when to seek medical attention.
       Format your response using markdown for better readability.
     `;
 
-    // Use gemini-1.5-flash instead of gemini-pro (which might be deprecated in the current API version)
+    // Use gemini-1.5-flash which is the current stable model
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     const result = await model.generateContent(prompt);
@@ -64,7 +64,7 @@ export const generateMedicalResponse = async (
     console.error('Error generating medical response:', error);
 
     // Return a graceful fallback response
-    return "I apologize, but I'm currently experiencing technical difficulties. Please try again with your question in a moment, or upload a medical test report for analysis using the clip button below.";
+    return "I apologize, but I'm currently experiencing technical difficulties. Please try again with your question in a moment.";
   }
 };
 

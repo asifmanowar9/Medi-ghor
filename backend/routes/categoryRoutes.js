@@ -7,16 +7,16 @@ import {
   updateCategory,
   deleteCategory,
 } from '../controllers/categoryController.js';
-import { protect, admin } from '../middleWare/authMiddleware.js';
+import { protect, adminOrHigher } from '../middleWare/authMiddleware.js';
 
 const router = express.Router();
 
-router.route('/').get(getCategories).post(protect, admin, createCategory);
+router.route('/').get(getCategories).post(protect, adminOrHigher, createCategory);
 router.route('/featured').get(getFeaturedCategories);
 router
   .route('/:id')
   .get(getCategoryById)
-  .put(protect, admin, updateCategory)
-  .delete(protect, admin, deleteCategory);
+  .put(protect, adminOrHigher, updateCategory)
+  .delete(protect, adminOrHigher, deleteCategory);
 
 export default router;

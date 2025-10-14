@@ -22,10 +22,10 @@ export const analyzeTestReport = async (imagePath, imageType) => {
     console.log('Image path:', imagePath);
     console.log('Image type:', imageType);
 
-    // Use the updated model names for Gemini API
+    // Use stable model names for Gemini API
     const models = [
-      { name: 'gemini-1.5-pro-vision', maxRetries: 2 }, // Updated model name
-      { name: 'gemini-1.5-flash-vision', maxRetries: 2 }, // Fallback model
+      { name: 'gemini-pro-vision', maxRetries: 2 }, // Primary model for vision
+      { name: 'gemini-pro', maxRetries: 2 }, // Fallback model
     ];
 
     // Read the image file
