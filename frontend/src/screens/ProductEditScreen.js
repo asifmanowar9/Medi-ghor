@@ -837,7 +837,7 @@ const ProductEditScreen = () => {
             </Form.Group>
 
             <Row>
-              <Col md={6}>
+              <Col md={9}>
                 <Form.Group className='mb-3'>
                   <Form.Label className='fw-bold'>
                     <span style={{ color: 'white' }}>Icon (Optional)</span>
@@ -845,44 +845,67 @@ const ProductEditScreen = () => {
 
                   {/* Selected Icon Display */}
                   {newCategoryIcon && (
-                    <div className='mb-2 p-3 selected-icon-display text-center'>
+                    <div className='mb-3 p-3 selected-icon-display text-center border rounded bg-light'>
                       <i
-                        className={`${newCategoryIcon} fa-2x text-primary`}
+                        className={`${newCategoryIcon} fa-3x text-primary`}
                       ></i>
-                      {/* <div className='small text-black mt-2'>
+                      <div className='small text-dark mt-2 fw-bold'>
                         Selected: {newCategoryIcon}
-                      </div> */}
+                      </div>
                     </div>
                   )}
 
                   {/* Icon Grid */}
                   <div
-                    className='border rounded p-3 icon-selector-grid'
-                    style={{ maxHeight: '220px', overflowY: 'auto' }}
+                    className='border rounded p-3 icon-selector-grid bg-white'
+                    style={{ maxHeight: '300px', overflowY: 'auto' }}
                   >
-                    <div className='row g-2'>
+                    <div className='row g-3'>
                       {/* No Icon Option */}
-                      <div className='col-4 col-sm-3'>
+                      <div className='col-6 col-sm-4 col-md-3'>
                         <button
                           type='button'
-                          className={`btn btn-sm w-100 d-flex flex-column align-items-center p-2 ${
+                          className={`btn w-100 d-flex flex-column align-items-center p-3 ${
                             newCategoryIcon === ''
                               ? 'btn-primary'
-                              : 'btn-outline-secondary'
+                              : 'btn-outline-dark'
                           }`}
                           onClick={() => setNewCategoryIcon('')}
                           title='No Icon'
-                          style={{ minHeight: '65px' }}
+                          style={{
+                            minHeight: '90px',
+                            transition: 'all 0.2s ease',
+                            border: '2px solid #dee2e6',
+                          }}
+                          onMouseEnter={(e) => {
+                            if (newCategoryIcon !== '') {
+                              e.target.style.backgroundColor = '#f8f9fa';
+                              e.target.style.borderColor = '#6c757d';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (newCategoryIcon !== '') {
+                              e.target.style.backgroundColor = '';
+                              e.target.style.borderColor = '#dee2e6';
+                            }
+                          }}
                         >
                           <i
-                            className='fas fa-ban mb-1 text-muted'
-                            style={{ fontSize: '1.2rem' }}
+                            className='fas fa-ban mb-2'
+                            style={{
+                              fontSize: '1.8rem',
+                              color:
+                                newCategoryIcon === '' ? '#fff' : '#6c757d',
+                            }}
                           ></i>
                           <small
                             style={{
-                              fontSize: '0.65rem',
-                              lineHeight: '1.1',
+                              fontSize: '0.75rem',
+                              lineHeight: '1.2',
                               textAlign: 'center',
+                              fontWeight: '500',
+                              color:
+                                newCategoryIcon === '' ? '#fff' : '#495057',
                             }}
                           >
                             No Icon
@@ -890,27 +913,54 @@ const ProductEditScreen = () => {
                         </button>
                       </div>
                       {popularIcons.map((icon, index) => (
-                        <div key={index} className='col-4 col-sm-3'>
+                        <div key={index} className='col-6 col-sm-4 col-md-3'>
                           <button
                             type='button'
-                            className={`btn btn-sm w-100 d-flex flex-column align-items-center p-2 ${
+                            className={`btn w-100 d-flex flex-column align-items-center p-3 ${
                               newCategoryIcon === icon.class
                                 ? 'btn-primary'
-                                : 'btn-outline-secondary'
+                                : 'btn-outline-dark'
                             }`}
                             onClick={() => setNewCategoryIcon(icon.class)}
                             title={icon.name}
-                            style={{ minHeight: '65px' }}
+                            style={{
+                              minHeight: '90px',
+                              transition: 'all 0.2s ease',
+                              border: '2px solid #dee2e6',
+                            }}
+                            onMouseEnter={(e) => {
+                              if (newCategoryIcon !== icon.class) {
+                                e.target.style.backgroundColor = '#f8f9fa';
+                                e.target.style.borderColor = '#6c757d';
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              if (newCategoryIcon !== icon.class) {
+                                e.target.style.backgroundColor = '';
+                                e.target.style.borderColor = '#dee2e6';
+                              }
+                            }}
                           >
                             <i
-                              className={`${icon.class} mb-1`}
-                              style={{ fontSize: '1.2rem' }}
+                              className={`${icon.class} mb-2`}
+                              style={{
+                                fontSize: '1.8rem',
+                                color:
+                                  newCategoryIcon === icon.class
+                                    ? '#fff'
+                                    : '#495057',
+                              }}
                             ></i>
                             <small
                               style={{
-                                fontSize: '0.65rem',
-                                lineHeight: '1.1',
+                                fontSize: '0.75rem',
+                                lineHeight: '1.2',
                                 textAlign: 'center',
+                                fontWeight: '500',
+                                color:
+                                  newCategoryIcon === icon.class
+                                    ? '#fff'
+                                    : '#495057',
                               }}
                             >
                               {icon.name}
@@ -926,7 +976,7 @@ const ProductEditScreen = () => {
                   </Form.Text>
                 </Form.Group>
               </Col>
-              <Col md={6}>
+              <Col md={3}>
                 <Form.Group className='mb-3'>
                   <Form.Label className='fw-bold'>
                     <span style={{ color: 'white' }}>Color</span>
@@ -935,7 +985,11 @@ const ProductEditScreen = () => {
                     type='color'
                     value={newCategoryColor}
                     onChange={(e) => setNewCategoryColor(e.target.value)}
+                    style={{ height: '50px' }}
                   />
+                  <Form.Text className='text-muted mt-2'>
+                    Category theme color
+                  </Form.Text>
                 </Form.Group>
               </Col>
             </Row>
