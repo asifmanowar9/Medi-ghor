@@ -46,7 +46,10 @@ import {
   bannerUpdateReducer,
   bannerDeleteReducer,
 } from './reducers/bannerReducers';
-import { categoryListReducer, categoryCreateReducer } from './reducers/categoryReducers';
+import {
+  categoryListReducer,
+  categoryCreateReducer,
+} from './reducers/categoryReducers';
 import { brandListReducer } from './reducers/brandReducers';
 import { healthConditionListReducer } from './reducers/healthConditionReducers';
 import { wishlistReducer } from './reducers/wishlistReducers';

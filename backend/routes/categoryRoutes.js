@@ -11,7 +11,10 @@ import { protect, adminOrHigher } from '../middleWare/authMiddleware.js';
 
 const router = express.Router();
 
-router.route('/').get(getCategories).post(protect, adminOrHigher, createCategory);
+router
+  .route('/')
+  .get(getCategories)
+  .post(protect, adminOrHigher, createCategory);
 router.route('/featured').get(getFeaturedCategories);
 router
   .route('/:id')

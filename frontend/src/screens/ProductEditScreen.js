@@ -2,7 +2,15 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Form, Button, Row, Col, Card, InputGroup, Modal } from 'react-bootstrap';
+import {
+  Form,
+  Button,
+  Row,
+  Col,
+  Card,
+  InputGroup,
+  Modal,
+} from 'react-bootstrap';
 import Message from '../components/Message';
 import Loader from '../components/Loader';
 import FormContainer from '../components/FormContainer';
@@ -45,6 +53,34 @@ const ProductEditScreen = () => {
   const [newCategoryColor, setNewCategoryColor] = useState('#007bff');
   const [categorySuccess, setCategorySuccess] = useState('');
 
+  // Popular medical/pharmacy icons for easy selection
+  const popularIcons = [
+    { class: 'fas fa-pills', name: 'Pills' },
+    { class: 'fas fa-capsules', name: 'Capsules' },
+    { class: 'fas fa-prescription-bottle', name: 'Prescription Bottle' },
+    { class: 'fas fa-prescription-bottle-alt', name: 'Medicine Bottle' },
+    { class: 'fas fa-syringe', name: 'Syringe' },
+    { class: 'fas fa-thermometer', name: 'Thermometer' },
+    { class: 'fas fa-stethoscope', name: 'Stethoscope' },
+    { class: 'fas fa-heartbeat', name: 'Heartbeat' },
+    { class: 'fas fa-heart', name: 'Heart' },
+    { class: 'fas fa-eye', name: 'Eye Care' },
+    { class: 'fas fa-tooth', name: 'Dental' },
+    { class: 'fas fa-hand-holding-medical', name: 'Medical Care' },
+    { class: 'fas fa-first-aid', name: 'First Aid' },
+    { class: 'fas fa-band-aid', name: 'Band Aid' },
+    { class: 'fas fa-virus', name: 'Virus/Infection' },
+    { class: 'fas fa-dna', name: 'DNA/Genetics' },
+    { class: 'fas fa-lungs', name: 'Respiratory' },
+    { class: 'fas fa-brain', name: 'Neurological' },
+    { class: 'fas fa-bone', name: 'Orthopedic' },
+    { class: 'fas fa-baby', name: 'Pediatric' },
+    { class: 'fas fa-female', name: 'Women Health' },
+    { class: 'fas fa-male', name: 'Men Health' },
+    { class: 'fas fa-leaf', name: 'Herbal/Natural' },
+    { class: 'fas fa-flask', name: 'Laboratory' },
+  ];
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { productId } = useParams();
@@ -71,11 +107,11 @@ const ProductEditScreen = () => {
   const { categories, loading: loadingCategories } = categoryList;
 
   const categoryCreate = useSelector((state) => state.categoryCreate);
-  const { 
-    loading: loadingCategoryCreate, 
-    success: successCategoryCreate, 
+  const {
+    loading: loadingCategoryCreate,
+    success: successCategoryCreate,
     category: createdCategory,
-    error: errorCategoryCreate 
+    error: errorCategoryCreate,
   } = categoryCreate;
 
   const userLogin = useSelector((state) => state.userLogin);
@@ -126,7 +162,9 @@ const ProductEditScreen = () => {
     if (successCategoryCreate && createdCategory) {
       // Add the new category to the category list and select it
       setCategory(createdCategory._id);
-      setCategorySuccess(`Category "${createdCategory.name}" created successfully!`);
+      setCategorySuccess(
+        `Category "${createdCategory.name}" created successfully!`
+      );
       setShowCategoryModal(false);
       // Reset form
       setNewCategoryName('');
@@ -137,7 +175,7 @@ const ProductEditScreen = () => {
       dispatch({ type: CATEGORY_CREATE_RESET });
       // Refresh categories list
       dispatch(listCategories());
-      
+
       // Clear success message after 3 seconds
       setTimeout(() => setCategorySuccess(''), 3000);
     }
@@ -334,7 +372,9 @@ const ProductEditScreen = () => {
       {errorCreate && <Message variant='danger'>{errorCreate}</Message>}
       {!isNewProduct && loading && <Loader />}
       {error && !isNewProduct && <Message variant='danger'>{error}</Message>}
-      {categorySuccess && <Message variant='success'>{categorySuccess}</Message>}
+      {categorySuccess && (
+        <Message variant='success'>{categorySuccess}</Message>
+      )}
 
       {/* Main Form */}
       <Card className='shadow-sm'>
@@ -457,7 +497,14 @@ const ProductEditScreen = () => {
                           {cat.name}
                         </option>
                       ))}
-                    <option value='add_new' style={{ borderTop: '1px solid #dee2e6', fontWeight: 'bold', color: '#007bff' }}>
+                    <option
+                      value='add_new'
+                      style={{
+                        borderTop: '1px solid #dee2e6',
+                        fontWeight: 'bold',
+                        color: '#007bff',
+                      }}
+                    >
                       + Add New Category
                     </option>
                   </Form.Select>
@@ -744,11 +791,16 @@ const ProductEditScreen = () => {
       </Card>
 
       {/* Add New Category Modal */}
-      <Modal show={showCategoryModal} onHide={handleCategoryModalClose} centered>
+      <Modal
+        show={showCategoryModal}
+        onHide={handleCategoryModalClose}
+        centered
+        className='category-modal'
+      >
         <Modal.Header closeButton>
           <Modal.Title>
             <i className='fas fa-plus-circle me-2 text-primary'></i>
-            Add New Category
+            Create New Category
           </Modal.Title>
         </Modal.Header>
         <Form onSubmit={handleCategorySubmit}>
@@ -756,10 +808,11 @@ const ProductEditScreen = () => {
             {errorCategoryCreate && (
               <Message variant='danger'>{errorCategoryCreate}</Message>
             )}
-            
+
             <Form.Group className='mb-3'>
               <Form.Label className='fw-bold'>
-                Category Name <span className='text-danger'>*</span>
+                <span style={{ color: 'white' }}>Category Name</span>{' '}
+                <span className='text-danger'>*</span>
               </Form.Label>
               <Form.Control
                 type='text'
@@ -771,7 +824,9 @@ const ProductEditScreen = () => {
             </Form.Group>
 
             <Form.Group className='mb-3'>
-              <Form.Label className='fw-bold'>Description</Form.Label>
+              <Form.Label className='fw-bold'>
+                <span style={{ color: 'white' }}>Description</span>
+              </Form.Label>
               <Form.Control
                 as='textarea'
                 rows={2}
@@ -784,21 +839,98 @@ const ProductEditScreen = () => {
             <Row>
               <Col md={6}>
                 <Form.Group className='mb-3'>
-                  <Form.Label className='fw-bold'>Icon Class</Form.Label>
-                  <Form.Control
-                    type='text'
-                    placeholder='e.g., fas fa-pills'
-                    value={newCategoryIcon}
-                    onChange={(e) => setNewCategoryIcon(e.target.value)}
-                  />
-                  <Form.Text className='text-muted'>
-                    FontAwesome icon class (optional)
+                  <Form.Label className='fw-bold'>
+                    <span style={{ color: 'white' }}>Icon (Optional)</span>
+                  </Form.Label>
+
+                  {/* Selected Icon Display */}
+                  {newCategoryIcon && (
+                    <div className='mb-2 p-3 selected-icon-display text-center'>
+                      <i
+                        className={`${newCategoryIcon} fa-2x text-primary`}
+                      ></i>
+                      {/* <div className='small text-black mt-2'>
+                        Selected: {newCategoryIcon}
+                      </div> */}
+                    </div>
+                  )}
+
+                  {/* Icon Grid */}
+                  <div
+                    className='border rounded p-3 icon-selector-grid'
+                    style={{ maxHeight: '220px', overflowY: 'auto' }}
+                  >
+                    <div className='row g-2'>
+                      {/* No Icon Option */}
+                      <div className='col-4 col-sm-3'>
+                        <button
+                          type='button'
+                          className={`btn btn-sm w-100 d-flex flex-column align-items-center p-2 ${
+                            newCategoryIcon === ''
+                              ? 'btn-primary'
+                              : 'btn-outline-secondary'
+                          }`}
+                          onClick={() => setNewCategoryIcon('')}
+                          title='No Icon'
+                          style={{ minHeight: '65px' }}
+                        >
+                          <i
+                            className='fas fa-ban mb-1 text-muted'
+                            style={{ fontSize: '1.2rem' }}
+                          ></i>
+                          <small
+                            style={{
+                              fontSize: '0.65rem',
+                              lineHeight: '1.1',
+                              textAlign: 'center',
+                            }}
+                          >
+                            No Icon
+                          </small>
+                        </button>
+                      </div>
+                      {popularIcons.map((icon, index) => (
+                        <div key={index} className='col-4 col-sm-3'>
+                          <button
+                            type='button'
+                            className={`btn btn-sm w-100 d-flex flex-column align-items-center p-2 ${
+                              newCategoryIcon === icon.class
+                                ? 'btn-primary'
+                                : 'btn-outline-secondary'
+                            }`}
+                            onClick={() => setNewCategoryIcon(icon.class)}
+                            title={icon.name}
+                            style={{ minHeight: '65px' }}
+                          >
+                            <i
+                              className={`${icon.class} mb-1`}
+                              style={{ fontSize: '1.2rem' }}
+                            ></i>
+                            <small
+                              style={{
+                                fontSize: '0.65rem',
+                                lineHeight: '1.1',
+                                textAlign: 'center',
+                              }}
+                            >
+                              {icon.name}
+                            </small>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <Form.Text className='text-muted mt-2'>
+                    Choose an icon from the grid above or select "No Icon"
                   </Form.Text>
                 </Form.Group>
               </Col>
               <Col md={6}>
                 <Form.Group className='mb-3'>
-                  <Form.Label className='fw-bold'>Color</Form.Label>
+                  <Form.Label className='fw-bold'>
+                    <span style={{ color: 'white' }}>Color</span>
+                  </Form.Label>
                   <Form.Control
                     type='color'
                     value={newCategoryColor}
@@ -812,8 +944,8 @@ const ProductEditScreen = () => {
             <Button variant='secondary' onClick={handleCategoryModalClose}>
               Cancel
             </Button>
-            <Button 
-              type='submit' 
+            <Button
+              type='submit'
               variant='primary'
               disabled={loadingCategoryCreate || !newCategoryName.trim()}
             >

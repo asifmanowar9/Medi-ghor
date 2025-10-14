@@ -20,6 +20,40 @@
   margin-bottom: 8px;
 }
 
+/* Icon Selector Styles */
+.icon-selector-grid .btn {
+  min-height: 60px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.icon-selector-grid .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.icon-selector-grid .btn-primary {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.icon-selector-grid .btn-outline-secondary:hover {
+  background-color: #f8f9fa;
+  border-color: #007bff;
+  color: #007bff;
+}
+
+.selected-icon-display {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border: 2px solid #007bff;
+  border-radius: 8px;
+}
+
+.category-modal .modal-body {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
 .admin-product-form .form-control,
 .admin-product-form .form-select {
   border-radius: 8px;
