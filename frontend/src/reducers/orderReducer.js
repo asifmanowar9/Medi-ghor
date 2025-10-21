@@ -6,6 +6,7 @@ import {
   ORDER_DETAILS_REQUEST,
   ORDER_DETAILS_SUCCESS,
   ORDER_DETAILS_FAIL,
+  ORDER_DETAILS_RESET,
   ORDER_PAY_REQUEST,
   ORDER_PAY_SUCCESS,
   ORDER_PAY_FAIL,
@@ -48,7 +49,7 @@ export const orderCreateReducer = (state = {}, action) => {
 };
 
 export const orderDetailsReducer = (
-  state = { loading: true, orderItems: [], shippingAddress: {} },
+  state = { loading: false, orderItems: [], shippingAddress: {} },
   action
 ) => {
   switch (action.type) {
@@ -67,6 +68,8 @@ export const orderDetailsReducer = (
         loading: false,
         error: action.payload,
       };
+    case ORDER_DETAILS_RESET:
+      return { loading: false, orderItems: [], shippingAddress: {} };
     default:
       return state;
   }

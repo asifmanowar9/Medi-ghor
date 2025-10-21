@@ -6,6 +6,7 @@ import {
   ORDER_DETAILS_REQUEST,
   ORDER_DETAILS_SUCCESS,
   ORDER_DETAILS_FAIL,
+  ORDER_DETAILS_RESET,
   ORDER_PAY_REQUEST,
   ORDER_PAY_SUCCESS,
   ORDER_PAY_FAIL,
@@ -142,6 +143,11 @@ export const trackOrder = (id) => async (dispatch) => {
           : error.message,
     });
   }
+};
+
+// Reset order details
+export const resetOrderDetails = () => (dispatch) => {
+  dispatch({ type: ORDER_DETAILS_RESET });
 };
 
 // Update order status (admin/operator only)

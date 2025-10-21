@@ -14,7 +14,11 @@ import {
   ProgressBar,
   Image,
 } from 'react-bootstrap';
-import { getOrderDetails, trackOrder } from '../actions/orderActions';
+import {
+  getOrderDetails,
+  trackOrder,
+  resetOrderDetails,
+} from '../actions/orderActions';
 import Message from '../components/Message';
 import Loader from '../components/Loader';
 import './TrackOrderScreen.css';
@@ -34,10 +38,14 @@ const TrackOrderScreen = () => {
   const { userInfo } = userLogin;
 
   useEffect(() => {
-    if (urlOrderId) {
+    if (urlOrderId && urlOrderId.trim().length > 0) {
       setTrackingId(urlOrderId);
       dispatch(trackOrder(urlOrderId));
       setSearchAttempted(true);
+    } else {
+      // Clear any previous order data when no ID is provided
+      dispatch(resetOrderDetails());
+      setSearchAttempted(false);
     }
   }, [dispatch, urlOrderId]);
 
@@ -452,7 +460,7 @@ const TrackOrderScreen = () => {
         </div>
 
         {/* Loading State */}
-        {loading && (
+        {loading && searchAttempted && (
           <div className='text-center py-5'>
             <Loader />
             <p className='mt-3 text-muted'>Searching for your order...</p>
