@@ -394,7 +394,9 @@ const ProductEditScreen = () => {
               <Col md={8}>
                 <Form.Group className='mb-3'>
                   <Form.Label className='fw-bold'>
-                    Product Name <span className='text-danger'>*</span>
+                    <span style={{ color: 'white' }}>
+                      Product Name <span className='text-danger'>*</span>
+                    </span>
                   </Form.Label>
                   <Form.Control
                     type='text'
@@ -409,7 +411,9 @@ const ProductEditScreen = () => {
               <Col md={4}>
                 <Form.Group className='mb-3'>
                   <Form.Label className='fw-bold'>
-                    Price (BDT) <span className='text-danger'>*</span>
+                    <span style={{ color: 'white' }}>
+                      Price (BDT) <span className='text-danger'>*</span>
+                    </span>
                   </Form.Label>
                   <InputGroup>
                     <InputGroup.Text>৳</InputGroup.Text>
@@ -430,7 +434,9 @@ const ProductEditScreen = () => {
             <Row className='mb-3'>
               <Col md={6}>
                 <Form.Group className='mb-3'>
-                  <Form.Label className='fw-bold'>Generic Name</Form.Label>
+                  <Form.Label className='fw-bold'>
+                    <span style={{ color: 'white' }}>Generic Name</span>
+                  </Form.Label>
                   <Form.Control
                     type='text'
                     placeholder='Enter generic name'
@@ -442,7 +448,9 @@ const ProductEditScreen = () => {
               <Col md={6}>
                 <Form.Group className='mb-3'>
                   <Form.Label className='fw-bold'>
-                    Brand <span className='text-danger'>*</span>
+                    <span style={{ color: 'white' }}>
+                      Brand <span className='text-danger'>*</span>
+                    </span>
                   </Form.Label>
                   <Form.Control
                     type='text'
@@ -457,7 +465,9 @@ const ProductEditScreen = () => {
 
             <Form.Group className='mb-4'>
               <Form.Label className='fw-bold'>
-                Description <span className='text-danger'>*</span>
+                <span style={{ color: 'white' }}>
+                  Description <span className='text-danger'>*</span>
+                </span>
               </Form.Label>
               <Form.Control
                 as='textarea'
@@ -483,7 +493,9 @@ const ProductEditScreen = () => {
               <Col md={4}>
                 <Form.Group className='mb-3'>
                   <Form.Label className='fw-bold'>
-                    Category <span className='text-danger'>*</span>
+                    <span style={{ color: 'white' }}>
+                      Category <span className='text-danger'>*</span>
+                    </span>
                   </Form.Label>
                   <Form.Select
                     value={category}
@@ -518,7 +530,9 @@ const ProductEditScreen = () => {
               </Col>
               <Col md={4}>
                 <Form.Group className='mb-3'>
-                  <Form.Label className='fw-bold'>Dosage Form</Form.Label>
+                  <Form.Label className='fw-bold'>
+                    <span style={{ color: 'white' }}>Dosage Form</span>
+                  </Form.Label>
                   <Form.Select
                     value={dosageForm}
                     onChange={(e) => setDosageForm(e.target.value)}
@@ -537,7 +551,9 @@ const ProductEditScreen = () => {
               </Col>
               <Col md={4}>
                 <Form.Group className='mb-3'>
-                  <Form.Label className='fw-bold'>Strength</Form.Label>
+                  <Form.Label className='fw-bold'>
+                    <span style={{ color: 'white' }}>Strength</span>
+                  </Form.Label>
                   <Form.Control
                     type='text'
                     placeholder='e.g., 500mg, 10ml'
@@ -551,7 +567,9 @@ const ProductEditScreen = () => {
             <Row className='mb-4'>
               <Col md={6}>
                 <Form.Group className='mb-3'>
-                  <Form.Label className='fw-bold'>Manufacturer</Form.Label>
+                  <Form.Label className='fw-bold'>
+                    <span style={{ color: 'white' }}>Manufacturer</span>
+                  </Form.Label>
                   <Form.Control
                     type='text'
                     placeholder='Enter manufacturer name'
@@ -562,7 +580,9 @@ const ProductEditScreen = () => {
               </Col>
               <Col md={6}>
                 <Form.Group className='mb-3'>
-                  <Form.Label className='fw-bold'>Stock Quantity</Form.Label>
+                  <Form.Label className='fw-bold'>
+                    <span style={{ color: 'white' }}>Stock Quantity</span>
+                  </Form.Label>
                   <Form.Control
                     type='number'
                     placeholder='Enter stock quantity'
@@ -587,7 +607,9 @@ const ProductEditScreen = () => {
             <Row className='mb-4'>
               <Col md={8}>
                 <Form.Group className='mb-3'>
-                  <Form.Label className='fw-bold'>Image URL</Form.Label>
+                  <Form.Label className='fw-bold'>
+                    <span style={{ color: 'white' }}>Image URL</span>
+                  </Form.Label>
                   <Form.Control
                     type='url'
                     placeholder='Enter image URL'
@@ -605,7 +627,9 @@ const ProductEditScreen = () => {
               </Col>
               <Col md={4}>
                 <Form.Group>
-                  <Form.Label className='fw-bold'>Or Upload File</Form.Label>
+                  <Form.Label className='fw-bold'>
+                    <span style={{ color: 'white' }}>Or Upload File</span>
+                  </Form.Label>
                   <Form.Control
                     type='file'
                     id='productImageFile'

@@ -207,7 +207,7 @@ const CartScreen = () => {
                         </Col>
 
                         {/* Product Info */}
-                        <Col xs={12} sm={9} md={6}>
+                        <Col xs={12} sm={12} md={4} lg={6}>
                           <div className='cart-item-info'>
                             <Link
                               to={`/product/${item.product}`}
@@ -239,7 +239,7 @@ const CartScreen = () => {
                         </Col>
 
                         {/* Quantity Controls */}
-                        <Col xs={6} md={2}>
+                        <Col xs={12} sm={6} md={3} lg={2}>
                           <div className='quantity-controls'>
                             <label className='quantity-label'>Quantity</label>
                             <InputGroup size='sm'>
@@ -307,16 +307,16 @@ const CartScreen = () => {
                         </Col>
 
                         {/* Total Price and Actions */}
-                        <Col xs={6} md={2}>
+                        <Col xs={12} sm={6} md={3} lg={2}>
                           <div className='cart-item-actions'>
-                            <div className='item-total-price'>
+                            <div className='item-total-price mb-2'>
                               ৳{(item.qty * item.price).toFixed(2)}
                             </div>
                             <Button
                               variant='outline-danger'
                               size='sm'
                               onClick={() => handleRemoveConfirmation(item)}
-                              className='remove-btn'
+                              className='remove-btn w-100'
                             >
                               <i className='fas fa-trash me-1'></i>
                               Remove
