@@ -1,5 +1,5 @@
 {
-  "name": "medi-ghor",
+  "name": "medmart",
   "version": "1.0.0",
   "description": "Mern E-commerce project",
   "main": "server.js",
@@ -12,7 +12,7 @@
     "data:import": "node backend/seeder",
     "data:destroy": "node backend/seeder -d"
   },
-  "author": "Asif Manowar",
+  "author": "Shanto",
   "license": "ISC",
   "dependencies": {
     "@azure/cognitiveservices-computervision": "^8.2.0",

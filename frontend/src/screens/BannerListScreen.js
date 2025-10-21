@@ -62,6 +62,31 @@ const BannerListScreen = () => {
     order: 0,
   });
 
+  // Image upload state
+  const [uploading, setUploading] = useState(false);
+  const [imageFile, setImageFile] = useState(null);
+
+  // Available navigation options
+  const navigationOptions = [
+    { value: '/', label: 'Home Page' },
+    { value: '/products', label: 'All Products' },
+    { value: '/cart', label: 'Shopping Cart' },
+    { value: '/profile', label: 'User Profile' },
+    { value: '/wishlist', label: 'Wishlist' },
+    { value: '/upload-prescription', label: 'Upload Prescription' },
+    { value: '/track-order', label: 'Track Order' },
+    { value: '/chats', label: 'Chat Support' },
+    { value: '/login', label: 'Login Page' },
+    { value: '/register', label: 'Register Page' },
+    { value: '/category/medicine', label: 'Medicine Category' },
+    { value: '/category/supplements', label: 'Supplements Category' },
+    { value: '/category/baby-care', label: 'Baby Care Category' },
+    { value: '/category/personal-care', label: 'Personal Care Category' },
+    { value: '/search/pain-relief', label: 'Search Pain Relief' },
+    { value: '/search/vitamins', label: 'Search Vitamins' },
+    { value: '#', label: 'No Action (Just Display)' },
+  ];
+
   const bannerAdminList = useSelector((state) => state.bannerAdminList);
   const { loading, error, banners } = bannerAdminList;
 
@@ -141,6 +166,7 @@ const BannerListScreen = () => {
       order: 0,
     });
     setSelectedBanner(null);
+    setImageFile(null);
   };
 
   const handleCreateBanner = () => {
@@ -190,6 +216,64 @@ const BannerListScreen = () => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }));
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      alert('Please select a valid image file (JPEG, PNG, WebP)');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File size must be less than 5MB');
+      return;
+    }
+
+    setImageFile(file);
+    setUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const config = {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${userInfo.token}`,
+        },
+      };
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${userInfo.token}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const data = await response.json();
+
+      setFormData((prev) => ({
+        ...prev,
+        image: data.image, // The uploaded image URL
+      }));
+
+      setUploading(false);
+    } catch (error) {
+      console.error('Upload error:', error);
+      alert('Image upload failed. Please try again.');
+      setUploading(false);
+    }
   };
 
   // Filter and sort banners
@@ -540,14 +624,37 @@ const BannerListScreen = () => {
               <Row>
                 <Col md={6}>
                   <Form.Group className='mb-3'>
-                    <Form.Label>Image URL</Form.Label>
+                    <Form.Label>Banner Image</Form.Label>
                     <Form.Control
-                      type='url'
-                      name='image'
-                      value={formData.image}
-                      onChange={handleInputChange}
-                      required
+                      type='file'
+                      accept='image/jpeg,image/jpg,image/png,image/webp'
+                      onChange={handleImageUpload}
+                      required={!formData.image}
                     />
+                    {uploading && (
+                      <div className='mt-2'>
+                        <small className='text-info'>
+                          <i className='fas fa-spinner fa-spin me-1'></i>
+                          Uploading image...
+                        </small>
+                      </div>
+                    )}
+                    {formData.image && (
+                      <div className='mt-2'>
+                        <small className='text-success'>
+                          <i className='fas fa-check me-1'></i>
+                          Image uploaded successfully
+                        </small>
+                        <div className='mt-1'>
+                          <Image
+                            src={formData.image}
+                            alt='Preview'
+                            thumbnail
+                            style={{ maxHeight: '100px', maxWidth: '200px' }}
+                          />
+                        </div>
+                      </div>
+                    )}
                   </Form.Group>
                 </Col>
                 <Col md={6}>
@@ -566,14 +673,26 @@ const BannerListScreen = () => {
               <Row>
                 <Col md={6}>
                   <Form.Group className='mb-3'>
-                    <Form.Label>Link URL</Form.Label>
-                    <Form.Control
-                      type='text'
+                    <Form.Label>Navigation Destination</Form.Label>
+                    <Form.Select
                       name='link'
                       value={formData.link}
                       onChange={handleInputChange}
                       required
-                    />
+                    >
+                      <option value=''>
+                        Select where button should navigate
+                      </option>
+                      {navigationOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </Form.Select>
+                    <Form.Text className='text-muted'>
+                      Choose the page or section where users will go when they
+                      click the banner button
+                    </Form.Text>
                   </Form.Group>
                 </Col>
                 <Col md={6}>
@@ -695,14 +814,36 @@ const BannerListScreen = () => {
               <Row>
                 <Col md={6}>
                   <Form.Group className='mb-3'>
-                    <Form.Label>Image URL</Form.Label>
+                    <Form.Label>Banner Image</Form.Label>
                     <Form.Control
-                      type='url'
-                      name='image'
-                      value={formData.image}
-                      onChange={handleInputChange}
-                      required
+                      type='file'
+                      accept='image/jpeg,image/jpg,image/png,image/webp'
+                      onChange={handleImageUpload}
                     />
+                    {uploading && (
+                      <div className='mt-2'>
+                        <small className='text-info'>
+                          <i className='fas fa-spinner fa-spin me-1'></i>
+                          Uploading new image...
+                        </small>
+                      </div>
+                    )}
+                    {formData.image && (
+                      <div className='mt-2'>
+                        <small className='text-muted'>Current image:</small>
+                        <div className='mt-1'>
+                          <Image
+                            src={formData.image}
+                            alt='Current banner'
+                            thumbnail
+                            style={{ maxHeight: '100px', maxWidth: '200px' }}
+                          />
+                        </div>
+                        <Form.Text className='text-muted'>
+                          Upload a new image to replace the current one
+                        </Form.Text>
+                      </div>
+                    )}
                   </Form.Group>
                 </Col>
                 <Col md={6}>
@@ -721,14 +862,26 @@ const BannerListScreen = () => {
               <Row>
                 <Col md={6}>
                   <Form.Group className='mb-3'>
-                    <Form.Label>Link URL</Form.Label>
-                    <Form.Control
-                      type='text'
+                    <Form.Label>Navigation Destination</Form.Label>
+                    <Form.Select
                       name='link'
                       value={formData.link}
                       onChange={handleInputChange}
                       required
-                    />
+                    >
+                      <option value=''>
+                        Select where button should navigate
+                      </option>
+                      {navigationOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </Form.Select>
+                    <Form.Text className='text-muted'>
+                      Choose the page or section where users will go when they
+                      click the banner button
+                    </Form.Text>
                   </Form.Group>
                 </Col>
                 <Col md={6}>
