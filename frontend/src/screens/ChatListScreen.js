@@ -64,7 +64,7 @@ const ChatListScreen = () => {
   // Debug logging
   console.log('ChatList Redux State:', chatList);
   console.log('Raw chats data:', rawChats);
-  
+
   // Debug individual chat messages
   if (Array.isArray(rawChats)) {
     rawChats.forEach((chat, index) => {
@@ -72,7 +72,7 @@ const ChatListScreen = () => {
         title: chat.title,
         messagesCount: chat.messages ? chat.messages.length : 0,
         messages: chat.messages,
-        createdAt: chat.createdAt
+        createdAt: chat.createdAt,
       });
     });
   }
