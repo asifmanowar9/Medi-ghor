@@ -104,7 +104,7 @@ const ModernHeader = () => {
             {/* Right Side Icons */}
             <div className='header-icons d-flex align-items-center'>
               {/* AI Test Reports */}
-              {/* <LinkContainer
+              <LinkContainer
                 to={userInfo ? '/chats' : '/login?redirect=/chats'}
               >
                 <Nav.Link className='header-icon-link'>
@@ -113,7 +113,7 @@ const ModernHeader = () => {
                     <span className='icon-text'>AI Chat</span>
                   </div>
                 </Nav.Link>
-              </LinkContainer> */}
+              </LinkContainer>
 
               {/* Track Order */}
               <LinkContainer to='/track-order'>

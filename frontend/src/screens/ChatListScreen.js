@@ -32,10 +32,11 @@ import {
   FaArrowLeft,
   FaComments,
   FaStethoscope,
+  FaSync,
 } from 'react-icons/fa';
 import Message from '../components/Message';
 import Loader from '../components/Loader';
-import { listUserChats, createChat, deleteChat } from '../actions/chatActions';
+import { listChats, createChat, deleteChat } from '../actions/chatActions';
 import './ChatListScreen.css';
 
 const ChatListScreen = () => {
@@ -63,6 +64,18 @@ const ChatListScreen = () => {
   // Debug logging
   console.log('ChatList Redux State:', chatList);
   console.log('Raw chats data:', rawChats);
+  
+  // Debug individual chat messages
+  if (Array.isArray(rawChats)) {
+    rawChats.forEach((chat, index) => {
+      console.log(`Chat ${index + 1} (${chat._id}):`, {
+        title: chat.title,
+        messagesCount: chat.messages ? chat.messages.length : 0,
+        messages: chat.messages,
+        createdAt: chat.createdAt
+      });
+    });
+  }
 
   // Ensure chats is always an array
   const chats = Array.isArray(rawChats) ? rawChats : [];
@@ -87,15 +100,38 @@ const ChatListScreen = () => {
     return date.toLocaleDateString();
   };
 
-  // Load chats on component mount
+  // Load chats on component mount and refresh periodically
   useEffect(() => {
     if (!userInfo) {
       navigate('/login');
       return;
     }
 
-    dispatch(listUserChats());
+    dispatch(listChats());
   }, [dispatch, navigate, userInfo, successCreate, successDelete]);
+
+  // Refresh chats when component becomes visible (user returns to this page)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && userInfo) {
+        dispatch(listChats());
+      }
+    };
+
+    const handleFocus = () => {
+      if (userInfo) {
+        dispatch(listChats());
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [dispatch, userInfo]);
 
   // Handle create chat
   const handleCreateChat = () => {
@@ -126,6 +162,11 @@ const ChatListScreen = () => {
       setShowDeleteModal(false);
       setChatToDelete(null);
     }
+  };
+
+  // Handle refresh chat list
+  const handleRefresh = () => {
+    dispatch(listChats());
   };
 
   // Filter chats based on search
@@ -160,15 +201,27 @@ const ChatListScreen = () => {
                 Chat with AI about your medical questions and reports
               </p>
             </div>
-            <Button
-              variant='primary'
-              size='lg'
-              onClick={handleCreateChat}
-              className='create-btn'
-            >
-              <FaPlus className='me-2' />
-              New Chat
-            </Button>
+            <div className='d-flex gap-2'>
+              <Button
+                variant='outline-primary'
+                size='lg'
+                onClick={handleRefresh}
+                disabled={loading}
+                className='refresh-btn'
+              >
+                <FaSync className={`me-2 ${loading ? 'fa-spin' : ''}`} />
+                Refresh
+              </Button>
+              <Button
+                variant='primary'
+                size='lg'
+                onClick={handleCreateChat}
+                className='create-btn'
+              >
+                <FaPlus className='me-2' />
+                New Chat
+              </Button>
+            </div>
           </div>
         </Col>
       </Row>

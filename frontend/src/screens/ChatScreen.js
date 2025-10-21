@@ -502,14 +502,14 @@ const ChatScreen = () => {
                   />
 
                   {/* Voice Recording */}
-                  <Button
+                  {/* <Button
                     variant={isRecording ? 'danger' : 'outline-secondary'}
                     onClick={isRecording ? stopRecording : startRecording}
                     disabled={loadingAddMessage}
                     title={isRecording ? 'Stop recording' : 'Voice message'}
                   >
                     {isRecording ? <FaStop /> : <FaMicrophone />}
-                  </Button>
+                  </Button> */}
 
                   {/* Send Button */}
                   <Button
