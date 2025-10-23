@@ -414,7 +414,7 @@ const AllProducts = () => {
       <Row className='align-items-center mb-3'>
         <Col md={6}>
           <div className='results-info'>
-            <span className='text-muted'>
+            <span className='text-black'>
               {loading ? (
                 'Loading products...'
               ) : (
