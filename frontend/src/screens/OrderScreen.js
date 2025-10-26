@@ -202,7 +202,7 @@ const OrderScreen = () => {
   }
 
   // If order is not yet loaded (undefined or empty), show loader to avoid rendering errors
-  if (!order || (Object.keys(order || {}).length === 0)) {
+  if (!order || Object.keys(order || {}).length === 0) {
     return (
       <Container fluid className='py-4'>
         <Loader />
