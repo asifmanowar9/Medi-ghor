@@ -468,20 +468,20 @@ const ProductSections = () => {
                       boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
                     }}
                   >
-                    {[
-                      ...Array(selectedProduct.countInStock).keys(),
-                    ].map((x) => (
-                      <option
-                        key={x + 1}
-                        value={x + 1}
-                        style={{
-                          backgroundColor: '#2c3e50',
-                          color: 'white',
-                        }}
-                      >
-                        {x + 1}
-                      </option>
-                    ))}
+                    {[...Array(selectedProduct.countInStock).keys()].map(
+                      (x) => (
+                        <option
+                          key={x + 1}
+                          value={x + 1}
+                          style={{
+                            backgroundColor: '#2c3e50',
+                            color: 'white',
+                          }}
+                        >
+                          {x + 1}
+                        </option>
+                      )
+                    )}
                   </Form.Control>
                 </Form.Group>
 

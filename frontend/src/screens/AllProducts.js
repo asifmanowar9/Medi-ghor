@@ -717,9 +717,7 @@ const AllProducts = () => {
                     boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
                   }}
                 >
-                  {[
-                    ...Array(selectedProduct.countInStock).keys(),
-                  ].map((x) => (
+                  {[...Array(selectedProduct.countInStock).keys()].map((x) => (
                     <option
                       key={x + 1}
                       value={x + 1}
