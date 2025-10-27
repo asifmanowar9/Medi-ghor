@@ -718,7 +718,7 @@ const AllProducts = () => {
                   }}
                 >
                   {[
-                    ...Array(Math.min(selectedProduct.countInStock, 12)).keys(),
+                    ...Array(selectedProduct.countInStock).keys(),
                   ].map((x) => (
                     <option
                       key={x + 1}

@@ -290,7 +290,7 @@ const CartScreen = () => {
                               <Button
                                 variant='outline-secondary'
                                 disabled={
-                                  item.qty >= Math.min(item.countInStock, 12) ||
+                                  item.qty >= item.countInStock ||
                                   isLoading
                                 }
                                 onClick={() =>
