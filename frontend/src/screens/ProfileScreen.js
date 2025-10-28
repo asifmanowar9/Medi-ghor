@@ -25,7 +25,8 @@ import {
 import { LinkContainer } from 'react-router-bootstrap';
 import Message from '../components/Message';
 import Loader from '../components/Loader';
-import { listMyOrders } from '../actions/orderActions';
+import { listMyOrders, resetOrderPay } from '../actions/orderActions';
+import { ORDER_DELIVER_RESET } from '../constants/orderConstants';
 import { USER_UPDATE_PROFILE_RESET } from '../constants/userConstants';
 import { PRESCRIPTION_DELETE_REQUEST } from '../constants/prescriptionConstants';
 import './ProfileScreen.css';
@@ -61,6 +62,12 @@ const ProfileScreen = () => {
 
   const orderListMy = useSelector((state) => state.orderListMy);
   const { loading: loadingOrders, error: errorOrders, orders } = orderListMy;
+
+  const orderPay = useSelector((state) => state.orderPay);
+  const { success: successPay } = orderPay;
+
+  const orderDeliver = useSelector((state) => state.orderDeliver);
+  const { success: successDeliver } = orderDeliver;
 
   const prescriptionList = useSelector((state) => state.prescriptionList);
   const {
@@ -98,6 +105,32 @@ const ProfileScreen = () => {
     }
   }, [dispatch, navigate, user, userInfo, success, searchParams]);
 
+  // Re-fetch user's orders when payment or delivery status changes
+  useEffect(() => {
+    if (successPay || successDeliver) {
+      dispatch(listMyOrders());
+      // reset flags so we don't continuously re-fetch
+      if (successPay) dispatch(resetOrderPay());
+      if (successDeliver) dispatch({ type: ORDER_DELIVER_RESET });
+    }
+  }, [dispatch, successPay, successDeliver]);
+
+  // When the Orders tab is active, poll for updates every 15 seconds
+  // REMOVED: User doesn't want auto-refresh every 15 seconds
+  // useEffect(() => {
+  //   let intervalId = null;
+  //   if (activeTab === 'orders') {
+  //     // initial fetch
+  //     dispatch(listMyOrders());
+  //     intervalId = setInterval(() => {
+  //       dispatch(listMyOrders());
+  //     }, 15000);
+  //   }
+  //   return () => {
+  //     if (intervalId) clearInterval(intervalId);
+  //   };
+  // }, [dispatch, activeTab]);
+
   useEffect(() => {
     if (successDelete) {
       dispatch(listPrescriptions());
@@ -116,6 +149,31 @@ const ProfileScreen = () => {
   };
 
   const getOrderStatusBadge = (order) => {
+    // Use currentStatus if available, fallback to legacy isPaid/isDelivered logic
+    const status = order.currentStatus;
+
+    if (status) {
+      switch (status) {
+        case 'pending':
+          return <Badge bg='danger'>Pending Payment</Badge>;
+        case 'payment_confirmed':
+          return <Badge bg='info'>Payment Confirmed</Badge>;
+        case 'processing':
+          return <Badge bg='warning'>Processing</Badge>;
+        case 'shipped':
+          return <Badge bg='primary'>Shipped</Badge>;
+        case 'out_for_delivery':
+          return <Badge bg='warning'>Out for Delivery</Badge>;
+        case 'delivered':
+          return <Badge bg='success'>Delivered</Badge>;
+        case 'cancelled':
+          return <Badge bg='dark'>Cancelled</Badge>;
+        default:
+          return <Badge bg='secondary'>Unknown</Badge>;
+      }
+    }
+
+    // Fallback to legacy logic for older orders
     if (order.isDelivered) {
       return <Badge bg='success'>Delivered</Badge>;
     } else if (order.isPaid) {
@@ -191,8 +249,14 @@ const ProfileScreen = () => {
             <Col xs='auto'>
               <div className='profile-stats'>
                 <div className='stat-item text-center'>
-                  <div className='stat-number'>{orders?.length || 0}</div>
-                  <div className='stat-label'>Total Orders</div>
+                  <div className='stat-number'>
+                    <span style={{ color: 'white' }}>
+                      {orders?.length || 0}
+                    </span>
+                  </div>
+                  <div className='stat-label'>
+                    <span style={{ color: 'white' }}>Total Orders</span>+{' '}
+                  </div>
                 </div>
               </div>
             </Col>
@@ -420,6 +484,31 @@ const ProfileScreen = () => {
                     }
                   >
                     <div className='tab-content-wrapper'>
+                      <div className='d-flex justify-content-between align-items-center mb-3'>
+                        <h5 className='mb-0'>
+                          <i className='fas fa-shopping-bag me-2'></i>
+                          Order History
+                        </h5>
+                        <Button
+                          variant='outline-primary'
+                          size='sm'
+                          onClick={() => dispatch(listMyOrders())}
+                          disabled={loadingOrders}
+                        >
+                          {loadingOrders ? (
+                            <>
+                              <i className='fas fa-spinner fa-spin me-1'></i>
+                              Refreshing...
+                            </>
+                          ) : (
+                            <>
+                              <i className='fas fa-sync-alt me-1'></i>
+                              Refresh Orders
+                            </>
+                          )}
+                        </Button>
+                      </div>
+
                       {loadingOrders ? (
                         <div className='text-center py-5'>
                           <Loader />
@@ -474,6 +563,26 @@ const ProfileScreen = () => {
                                       <div className='fw-bold text-success'>
                                         ৳{order.totalPrice}
                                       </div>
+                                      {/* Show first few medicine names for quick reference */}
+                                      {order.orderItems &&
+                                        order.orderItems.length > 0 && (
+                                          <div className='mt-2'>
+                                            <small className='text-black'>
+                                              {order.orderItems
+                                                .slice(0, 3)
+                                                .map((it) => it.name)
+                                                .join(', ')}
+                                              {order.orderItems.length > 3 && (
+                                                <span>
+                                                  {' '}
+                                                  +{order.orderItems.length -
+                                                    3}{' '}
+                                                  more
+                                                </span>
+                                              )}
+                                            </small>
+                                          </div>
+                                        )}
                                     </div>
                                   </Col>
                                   <Col md={2}>
