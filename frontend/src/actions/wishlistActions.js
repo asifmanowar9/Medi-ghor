@@ -72,11 +72,7 @@ export const addToWishlist = (productId) => async (dispatch, getState) => {
       },
     };
 
-    const { data } = await axios.post(
-      '/api/wishlist',
-      { productId },
-      config
-    );
+    const { data } = await axios.post('/api/wishlist', { productId }, config);
 
     dispatch({
       type: WISHLIST_ADD_SUCCESS,

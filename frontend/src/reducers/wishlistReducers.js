@@ -14,13 +14,13 @@ import {
 } from '../constants/wishlistConstants';
 
 export const wishlistReducer = (
-  state = { 
-    wishlistItems: [], 
-    loading: false, 
+  state = {
+    wishlistItems: [],
+    loading: false,
     error: null,
     addLoading: false,
     removeLoading: false,
-  }, 
+  },
   action
 ) => {
   switch (action.type) {
@@ -35,7 +35,7 @@ export const wishlistReducer = (
       return {
         ...state,
         loading: false,
-        wishlistItems: action.payload.map(item => ({
+        wishlistItems: action.payload.map((item) => ({
           product: item.product._id,
           name: item.product.name,
           image: item.product.image,

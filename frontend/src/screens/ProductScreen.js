@@ -484,7 +484,9 @@ const ProductScreen = () => {
                                   size='sm'
                                   disabled={qty >= product.countInStock}
                                   onClick={() =>
-                                    setQty(Math.min(product.countInStock, qty + 1))
+                                    setQty(
+                                      Math.min(product.countInStock, qty + 1)
+                                    )
                                   }
                                   style={{
                                     width: '32px',

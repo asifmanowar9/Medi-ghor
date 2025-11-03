@@ -13,10 +13,10 @@ import {
   Spinner,
 } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
-import { 
+import {
   fetchWishlist,
-  removeFromWishlist, 
-  clearWishlist 
+  removeFromWishlist,
+  clearWishlist,
 } from '../actions/wishlistActions';
 import { addToCart } from '../actions/cartActions';
 import { useCartAuth } from '../hooks/useCartAuth';
@@ -71,23 +71,23 @@ const WishlistScreen = () => {
 
   if (loading) {
     return (
-      <Container className="text-center py-5">
-        <Spinner animation="border" role="status">
-          <span className="visually-hidden">Loading...</span>
+      <Container className='text-center py-5'>
+        <Spinner animation='border' role='status'>
+          <span className='visually-hidden'>Loading...</span>
         </Spinner>
-        <p className="mt-2">Loading your wishlist...</p>
+        <p className='mt-2'>Loading your wishlist...</p>
       </Container>
     );
   }
 
   if (error) {
     return (
-      <Container className="py-5">
-        <Alert variant="danger">
+      <Container className='py-5'>
+        <Alert variant='danger'>
           <Alert.Heading>Error Loading Wishlist</Alert.Heading>
           <p>{error}</p>
-          <Button 
-            variant="outline-danger" 
+          <Button
+            variant='outline-danger'
             onClick={() => dispatch(fetchWishlist())}
           >
             Try Again

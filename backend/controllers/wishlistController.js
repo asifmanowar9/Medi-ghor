@@ -110,7 +110,7 @@ const clearWishlist = asyncHandler(async (req, res) => {
 const checkRestockedProductsUtil = async (productIds = null) => {
   try {
     let query = { notified: false };
-    
+
     // If specific product IDs are provided, filter by them
     if (productIds && productIds.length > 0) {
       query.product = { $in: productIds };
@@ -139,7 +139,9 @@ const checkRestockedProductsUtil = async (productIds = null) => {
           // Mark as notified
           await Wishlist.findByIdAndUpdate(item._id, { notified: true });
           notificationsSent++;
-          console.log(`Restock notification sent to ${item.user.email} for ${item.product.name}`);
+          console.log(
+            `Restock notification sent to ${item.user.email} for ${item.product.name}`
+          );
         }
       } catch (error) {
         console.error(
@@ -168,7 +170,7 @@ const checkRestockedProductsUtil = async (productIds = null) => {
 // @access  Private (Admin only)
 const checkRestockedProducts = asyncHandler(async (req, res) => {
   const result = await checkRestockedProductsUtil();
-  
+
   if (result.success) {
     res.json({
       success: true,
