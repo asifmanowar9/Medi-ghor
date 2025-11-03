@@ -15,6 +15,7 @@ import {
 } from 'react-bootstrap';
 import { logout } from '../actions/userActions';
 import { listCategories } from '../actions/categoryActions';
+import { fetchWishlist } from '../actions/wishlistActions';
 import SearchBox from './SearchBox';
 import '../styles/ModernHeader.css';
 
@@ -43,6 +44,12 @@ const ModernHeader = () => {
       dispatch(listCategories());
     }
   }, [dispatch]);
+
+  useEffect(() => {
+    if (userInfo) {
+      dispatch(fetchWishlist());
+    }
+  }, [dispatch, userInfo]);
 
   return (
     <>

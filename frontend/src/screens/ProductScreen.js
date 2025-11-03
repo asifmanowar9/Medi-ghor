@@ -448,15 +448,14 @@ const ProductScreen = () => {
                                 <Form.Control
                                   type='number'
                                   min='1'
-                                  max={Math.min(product.countInStock, 12)}
+                                  max={product.countInStock}
                                   value={qty}
                                   onChange={(e) => {
                                     const newQty =
                                       parseInt(e.target.value) || 1;
                                     if (
                                       newQty >= 1 &&
-                                      newQty <=
-                                        Math.min(product.countInStock, 12)
+                                      newQty <= product.countInStock
                                     ) {
                                       setQty(newQty);
                                     }
@@ -466,10 +465,7 @@ const ProductScreen = () => {
                                       parseInt(e.target.value) || 1;
                                     const validQty = Math.max(
                                       1,
-                                      Math.min(
-                                        Math.min(product.countInStock, 12),
-                                        newQty
-                                      )
+                                      Math.min(product.countInStock, newQty)
                                     );
                                     setQty(validQty);
                                   }}
@@ -480,21 +476,15 @@ const ProductScreen = () => {
                                     height: '32px',
                                     margin: '0 4px',
                                     padding: '0 4px',
+                                    appearance: 'textfield',
                                   }}
                                 />
                                 <Button
                                   variant='outline-secondary'
                                   size='sm'
-                                  disabled={
-                                    qty >= Math.min(product.countInStock, 12)
-                                  }
+                                  disabled={qty >= product.countInStock}
                                   onClick={() =>
-                                    setQty(
-                                      Math.min(
-                                        Math.min(product.countInStock, 12),
-                                        qty + 1
-                                      )
-                                    )
+                                    setQty(Math.min(product.countInStock, qty + 1))
                                   }
                                   style={{
                                     width: '32px',

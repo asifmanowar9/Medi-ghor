@@ -10,9 +10,14 @@ import {
   Image,
   Badge,
   Alert,
+  Spinner,
 } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
-import { removeFromWishlist, clearWishlist } from '../actions/wishlistActions';
+import { 
+  fetchWishlist,
+  removeFromWishlist, 
+  clearWishlist 
+} from '../actions/wishlistActions';
 import { addToCart } from '../actions/cartActions';
 import { useCartAuth } from '../hooks/useCartAuth';
 import './WishlistScreen.css';
@@ -23,7 +28,14 @@ const WishlistScreen = () => {
   const userInfo = useCartAuth();
 
   const wishlist = useSelector((state) => state.wishlist);
-  const { wishlistItems } = wishlist;
+  const { wishlistItems, loading, error } = wishlist;
+
+  // Fetch wishlist from backend on component mount
+  useEffect(() => {
+    if (userInfo) {
+      dispatch(fetchWishlist());
+    }
+  }, [dispatch, userInfo]);
 
   const handleRemoveFromWishlist = (productId) => {
     dispatch(removeFromWishlist(productId));
@@ -54,10 +66,36 @@ const WishlistScreen = () => {
 
   // Check if products are back in stock
   const checkStockStatus = (item) => {
-    // In a real application, you might want to refetch product data
-    // to check current stock status
     return item.countInStock > 0;
   };
+
+  if (loading) {
+    return (
+      <Container className="text-center py-5">
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </Spinner>
+        <p className="mt-2">Loading your wishlist...</p>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container className="py-5">
+        <Alert variant="danger">
+          <Alert.Heading>Error Loading Wishlist</Alert.Heading>
+          <p>{error}</p>
+          <Button 
+            variant="outline-danger" 
+            onClick={() => dispatch(fetchWishlist())}
+          >
+            Try Again
+          </Button>
+        </Alert>
+      </Container>
+    );
+  }
 
   return (
     <div className='wishlist-screen-container'>
@@ -144,10 +182,17 @@ const WishlistScreen = () => {
 
                     <Card.Body className='d-flex flex-column'>
                       <div className='product-badges mb-2'>
-                        <Badge bg='secondary' className='stock-badge'>
-                          <i className='fas fa-times-circle me-1'></i>
-                          Out of Stock
-                        </Badge>
+                        {checkStockStatus(item) ? (
+                          <Badge bg='success' className='stock-badge'>
+                            <i className='fas fa-check-circle me-1'></i>
+                            In Stock ({item.countInStock} available)
+                          </Badge>
+                        ) : (
+                          <Badge bg='secondary' className='stock-badge'>
+                            <i className='fas fa-times-circle me-1'></i>
+                            Out of Stock
+                          </Badge>
+                        )}
                         {item.category && (
                           <Badge bg='info' className='category-badge'>
                             {typeof item.category === 'object'
@@ -182,41 +227,81 @@ const WishlistScreen = () => {
                       )}
 
                       <div className='stock-notice mb-3'>
-                        <Alert variant='warning' className='mb-0 py-2'>
-                          <i className='fas fa-exclamation-triangle me-2'></i>
-                          <small>
-                            We'll notify you when this item is back in stock
-                          </small>
-                        </Alert>
+                        {checkStockStatus(item) ? (
+                          <Alert variant='success' className='mb-0 py-2'>
+                            <i className='fas fa-check me-2'></i>
+                            <small>
+                              Great news! This item is back in stock
+                            </small>
+                          </Alert>
+                        ) : (
+                          <Alert variant='warning' className='mb-0 py-2'>
+                            <i className='fas fa-exclamation-triangle me-2'></i>
+                            <small>
+                              We'll notify you when this item is back in stock
+                            </small>
+                          </Alert>
+                        )}
                       </div>
 
                       <div className='product-actions mt-auto'>
                         <Row className='g-2'>
-                          <Col>
-                            <LinkContainer to={`/product/${item.product}`}>
-                              <Button
-                                variant='outline-primary'
-                                size='sm'
-                                className='w-100'
-                              >
-                                <i className='fas fa-eye me-1'></i>
-                                View Details
-                              </Button>
-                            </LinkContainer>
-                          </Col>
-                          <Col>
-                            <Button
-                              variant='outline-danger'
-                              size='sm'
-                              className='w-100'
-                              onClick={() =>
-                                handleRemoveFromWishlist(item.product)
-                              }
-                            >
-                              <i className='fas fa-heart-broken me-1'></i>
-                              Remove
-                            </Button>
-                          </Col>
+                          {checkStockStatus(item) ? (
+                            <>
+                              <Col>
+                                <Button
+                                  variant='success'
+                                  size='sm'
+                                  className='w-100'
+                                  onClick={() => handleAddToCart(item)}
+                                >
+                                  <i className='fas fa-shopping-cart me-1'></i>
+                                  Add to Cart
+                                </Button>
+                              </Col>
+                              <Col>
+                                <Button
+                                  variant='outline-danger'
+                                  size='sm'
+                                  className='w-100'
+                                  onClick={() =>
+                                    handleRemoveFromWishlist(item.product)
+                                  }
+                                >
+                                  <i className='fas fa-heart-broken me-1'></i>
+                                  Remove
+                                </Button>
+                              </Col>
+                            </>
+                          ) : (
+                            <>
+                              <Col>
+                                <LinkContainer to={`/product/${item.product}`}>
+                                  <Button
+                                    variant='outline-primary'
+                                    size='sm'
+                                    className='w-100'
+                                  >
+                                    <i className='fas fa-eye me-1'></i>
+                                    View Details
+                                  </Button>
+                                </LinkContainer>
+                              </Col>
+                              <Col>
+                                <Button
+                                  variant='outline-danger'
+                                  size='sm'
+                                  className='w-100'
+                                  onClick={() =>
+                                    handleRemoveFromWishlist(item.product)
+                                  }
+                                >
+                                  <i className='fas fa-heart-broken me-1'></i>
+                                  Remove
+                                </Button>
+                              </Col>
+                            </>
+                          )}
                         </Row>
                       </div>
                     </Card.Body>

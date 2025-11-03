@@ -3,9 +3,168 @@ import {
   WISHLIST_ADD_ITEM,
   WISHLIST_REMOVE_ITEM,
   WISHLIST_CLEAR_ITEMS,
+  WISHLIST_FETCH_REQUEST,
+  WISHLIST_FETCH_SUCCESS,
+  WISHLIST_FETCH_FAIL,
+  WISHLIST_ADD_REQUEST,
+  WISHLIST_ADD_SUCCESS,
+  WISHLIST_ADD_FAIL,
+  WISHLIST_REMOVE_REQUEST,
+  WISHLIST_REMOVE_SUCCESS,
+  WISHLIST_REMOVE_FAIL,
 } from '../constants/wishlistConstants';
 
-export const addToWishlist = (id) => async (dispatch, getState) => {
+// Fetch wishlist from backend
+export const fetchWishlist = () => async (dispatch, getState) => {
+  try {
+    dispatch({ type: WISHLIST_FETCH_REQUEST });
+
+    const {
+      userLogin: { userInfo },
+    } = getState();
+
+    if (!userInfo) {
+      dispatch({ type: WISHLIST_FETCH_FAIL, payload: 'User not logged in' });
+      return;
+    }
+
+    const config = {
+      headers: {
+        Authorization: `Bearer ${userInfo.token}`,
+      },
+    };
+
+    const { data } = await axios.get('/api/wishlist', config);
+
+    dispatch({
+      type: WISHLIST_FETCH_SUCCESS,
+      payload: data.data, // Backend returns { success: true, data: [...] }
+    });
+  } catch (error) {
+    dispatch({
+      type: WISHLIST_FETCH_FAIL,
+      payload:
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message,
+    });
+  }
+};
+
+// Add to wishlist (backend)
+export const addToWishlist = (productId) => async (dispatch, getState) => {
+  try {
+    dispatch({ type: WISHLIST_ADD_REQUEST });
+
+    const {
+      userLogin: { userInfo },
+    } = getState();
+
+    if (!userInfo) {
+      dispatch({ type: WISHLIST_ADD_FAIL, payload: 'User not logged in' });
+      return;
+    }
+
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${userInfo.token}`,
+      },
+    };
+
+    const { data } = await axios.post(
+      '/api/wishlist',
+      { productId },
+      config
+    );
+
+    dispatch({
+      type: WISHLIST_ADD_SUCCESS,
+      payload: data.data,
+    });
+
+    // Refresh the entire wishlist to get updated data
+    dispatch(fetchWishlist());
+  } catch (error) {
+    dispatch({
+      type: WISHLIST_ADD_FAIL,
+      payload:
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message,
+    });
+  }
+};
+
+// Remove from wishlist (backend)
+export const removeFromWishlist = (productId) => async (dispatch, getState) => {
+  try {
+    dispatch({ type: WISHLIST_REMOVE_REQUEST });
+
+    const {
+      userLogin: { userInfo },
+    } = getState();
+
+    if (!userInfo) {
+      dispatch({ type: WISHLIST_REMOVE_FAIL, payload: 'User not logged in' });
+      return;
+    }
+
+    const config = {
+      headers: {
+        Authorization: `Bearer ${userInfo.token}`,
+      },
+    };
+
+    await axios.delete(`/api/wishlist/${productId}`, config);
+
+    dispatch({
+      type: WISHLIST_REMOVE_SUCCESS,
+      payload: productId,
+    });
+
+    // Refresh the entire wishlist to get updated data
+    dispatch(fetchWishlist());
+  } catch (error) {
+    dispatch({
+      type: WISHLIST_REMOVE_FAIL,
+      payload:
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message,
+    });
+  }
+};
+
+// Clear wishlist (backend)
+export const clearWishlist = () => async (dispatch, getState) => {
+  try {
+    const {
+      userLogin: { userInfo },
+    } = getState();
+
+    if (!userInfo) {
+      return;
+    }
+
+    const config = {
+      headers: {
+        Authorization: `Bearer ${userInfo.token}`,
+      },
+    };
+
+    await axios.delete('/api/wishlist', config);
+
+    dispatch({
+      type: WISHLIST_CLEAR_ITEMS,
+    });
+  } catch (error) {
+    console.error('Error clearing wishlist:', error);
+  }
+};
+
+// Legacy local storage functions (for backwards compatibility)
+export const addToWishlistLocal = (id) => async (dispatch, getState) => {
   try {
     const { data } = await axios.get(`/api/products/${id}`);
 
@@ -50,7 +209,7 @@ export const addToWishlist = (id) => async (dispatch, getState) => {
   }
 };
 
-export const removeFromWishlist = (id) => (dispatch, getState) => {
+export const removeFromWishlistLocal = (id) => (dispatch, getState) => {
   const {
     userLogin: { userInfo },
   } = getState();
@@ -68,22 +227,6 @@ export const removeFromWishlist = (id) => (dispatch, getState) => {
     storageKey,
     JSON.stringify(getState().wishlist.wishlistItems)
   );
-};
-
-export const clearWishlist = () => (dispatch, getState) => {
-  const {
-    userLogin: { userInfo },
-  } = getState();
-
-  dispatch({
-    type: WISHLIST_CLEAR_ITEMS,
-  });
-
-  // Clear localStorage
-  const storageKey = userInfo
-    ? `wishlistItems_${userInfo._id}`
-    : 'wishlistItems_guest';
-  localStorage.removeItem(storageKey);
 };
 
 export const loadUserWishlist = () => (dispatch, getState) => {

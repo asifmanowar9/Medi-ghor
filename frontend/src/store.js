@@ -135,14 +135,13 @@ try {
 //   ? JSON.parse(localStorage.getItem('paymentMethod'))
 //   : '';
 
-// Get user-specific cart data
+// Get user-specific cart data (removed wishlist localStorage as it now comes from backend)
 const getUserSpecificCartData = (userInfo) => {
   const userId = userInfo ? userInfo._id : 'guest';
 
   let cartItems = [];
   let shippingAddress = {};
   let paymentMethod = '';
-  let wishlistItems = [];
 
   try {
     const cartItemsData = localStorage.getItem(`cartItems_${userId}`);
@@ -179,21 +178,10 @@ const getUserSpecificCartData = (userInfo) => {
     paymentMethod = '';
   }
 
-  try {
-    const wishlistItemsData = localStorage.getItem(`wishlistItems_${userId}`);
-    wishlistItems =
-      wishlistItemsData && wishlistItemsData !== 'undefined'
-        ? JSON.parse(wishlistItemsData)
-        : [];
-  } catch (error) {
-    console.error('Error parsing wishlistItems:', error);
-    wishlistItems = [];
-  }
-
-  return { cartItems, shippingAddress, paymentMethod, wishlistItems };
+  return { cartItems, shippingAddress, paymentMethod };
 };
 
-const { cartItems, shippingAddress, paymentMethod, wishlistItems } =
+const { cartItems, shippingAddress, paymentMethod } =
   getUserSpecificCartData(userInfoFromStorage);
 
 const initialState = {
@@ -203,7 +191,11 @@ const initialState = {
     paymentMethod: paymentMethod,
   },
   wishlist: {
-    wishlistItems: wishlistItems,
+    wishlistItems: [],
+    loading: false,
+    error: null,
+    addLoading: false,
+    removeLoading: false,
   },
   userLogin: { userInfo: userInfoFromStorage },
 };

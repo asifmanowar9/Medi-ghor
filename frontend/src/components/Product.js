@@ -18,7 +18,7 @@ const Product = ({ product }) => {
 
   // Wishlist state
   const wishlist = useSelector((state) => state.wishlist);
-  const { wishlistItems } = wishlist;
+  const { wishlistItems, addLoading, removeLoading } = wishlist;
 
   // Fix the image path handling (keeping existing logic):
   const imagePath =

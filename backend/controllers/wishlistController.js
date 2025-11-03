@@ -105,20 +105,24 @@ const clearWishlist = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Check for restocked products and send notifications
-// @route   POST /api/wishlist/check-restock
-// @access  Private (Admin only)
-const checkRestockedProducts = asyncHandler(async (req, res) => {
+// @desc    Check for restocked products and send notifications (utility function)
+// @access  Internal function
+const checkRestockedProductsUtil = async (productIds = null) => {
   try {
+    let query = { notified: false };
+    
+    // If specific product IDs are provided, filter by them
+    if (productIds && productIds.length > 0) {
+      query.product = { $in: productIds };
+    }
+
     // Find all wishlist items for products that are now in stock but haven't been notified
-    const restockedWishlistItems = await Wishlist.find({
-      notified: false,
-    })
+    const restockedWishlistItems = await Wishlist.find(query)
       .populate('product', 'name price image brand category countInStock')
       .populate('user', 'name email');
 
     const notificationsToSend = restockedWishlistItems.filter(
-      (item) => item.product.countInStock > 0
+      (item) => item.product && item.product.countInStock > 0
     );
 
     let notificationsSent = 0;
@@ -135,6 +139,7 @@ const checkRestockedProducts = asyncHandler(async (req, res) => {
           // Mark as notified
           await Wishlist.findByIdAndUpdate(item._id, { notified: true });
           notificationsSent++;
+          console.log(`Restock notification sent to ${item.user.email} for ${item.product.name}`);
         }
       } catch (error) {
         console.error(
@@ -144,15 +149,35 @@ const checkRestockedProducts = asyncHandler(async (req, res) => {
       }
     }
 
-    res.json({
+    return {
       success: true,
-      message: `Sent ${notificationsSent} restock notifications`,
+      notificationsSent,
       totalChecked: notificationsToSend.length,
-    });
+    };
   } catch (error) {
     console.error('Error checking restocked products:', error);
+    return {
+      success: false,
+      error: error.message,
+    };
+  }
+};
+
+// @desc    Check for restocked products and send notifications (HTTP endpoint)
+// @route   POST /api/wishlist/check-restock
+// @access  Private (Admin only)
+const checkRestockedProducts = asyncHandler(async (req, res) => {
+  const result = await checkRestockedProductsUtil();
+  
+  if (result.success) {
+    res.json({
+      success: true,
+      message: `Sent ${result.notificationsSent} restock notifications`,
+      totalChecked: result.totalChecked,
+    });
+  } else {
     res.status(500);
-    throw new Error('Failed to check restocked products');
+    throw new Error(result.error || 'Failed to check restocked products');
   }
 });
 
@@ -215,5 +240,6 @@ export {
   getWishlist,
   clearWishlist,
   checkRestockedProducts,
+  checkRestockedProductsUtil,
   syncWishlist,
 };

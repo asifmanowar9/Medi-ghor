@@ -2,7 +2,7 @@ import asyncHandler from 'express-async-handler';
 import Product from '../models/productModel.js';
 import Category from '../models/categoryModel.js';
 import HealthCondition from '../models/healthConditionModel.js';
-import { checkRestockedProducts } from './wishlistController.js';
+import { checkRestockedProductsUtil } from './wishlistController.js';
 
 // @description  Fetch all products
 // @route        Get /api/products
@@ -248,9 +248,9 @@ const updateProduct = asyncHandler(async (req, res) => {
     if (wasOutOfStock && isNowInStock) {
       try {
         // Trigger restock notifications for users who have this product in their wishlist
-        await checkRestockedProducts([updatedProduct._id]);
+        const result = await checkRestockedProductsUtil([updatedProduct._id]);
         console.log(
-          `Restock notifications sent for product: ${updatedProduct.name}`
+          `Restock notifications sent for product: ${updatedProduct.name}. Sent: ${result.notificationsSent}`
         );
       } catch (error) {
         console.error('Error sending restock notifications:', error);
