@@ -227,20 +227,29 @@ const updateProduct = asyncHandler(async (req, res) => {
       countInStock !== undefined ? countInStock : product.countInStock;
     const isNowInStock = newCountInStock > 0;
 
-    product.name = name;
-    product.price = price;
-    product.description = description;
-    product.image = image;
-    product.brand = brand;
-    product.category = category;
+    product.name = name || product.name;
+    product.price = price !== undefined ? price : product.price;
+    product.description =
+      description !== undefined ? description : product.description;
+    // Only update image if a new value is provided, otherwise keep existing
+    product.image = image || product.image;
+    product.brand = brand !== undefined ? brand : product.brand;
+    product.category = category || product.category;
     product.countInStock = newCountInStock;
-    product.genericName = genericName || '';
-    product.dosageForm = dosageForm || '';
-    product.strength = strength || '';
-    product.manufacturer = manufacturer || '';
-    product.prescriptionRequired = prescriptionRequired || false;
-    product.isActive = isActive !== undefined ? isActive : true;
-    product.isFeatured = isFeatured || false;
+    product.genericName =
+      genericName !== undefined ? genericName : product.genericName;
+    product.dosageForm =
+      dosageForm !== undefined ? dosageForm : product.dosageForm;
+    product.strength = strength !== undefined ? strength : product.strength;
+    product.manufacturer =
+      manufacturer !== undefined ? manufacturer : product.manufacturer;
+    product.prescriptionRequired =
+      prescriptionRequired !== undefined
+        ? prescriptionRequired
+        : product.prescriptionRequired;
+    product.isActive = isActive !== undefined ? isActive : product.isActive;
+    product.isFeatured =
+      isFeatured !== undefined ? isFeatured : product.isFeatured;
 
     const updatedProduct = await product.save();
 

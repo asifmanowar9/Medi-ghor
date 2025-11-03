@@ -611,8 +611,8 @@ const ProductEditScreen = () => {
                     <span style={{ color: 'white' }}>Image URL</span>
                   </Form.Label>
                   <Form.Control
-                    type='url'
-                    placeholder='Enter image URL'
+                    type='text'
+                    placeholder='Enter image URL or upload a file below'
                     value={image}
                     onChange={handleImageUrlChange}
                     disabled={uploading || imageFile}
