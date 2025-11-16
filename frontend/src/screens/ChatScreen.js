@@ -14,7 +14,6 @@ import {
   Alert,
   Modal,
   Badge,
-  Dropdown,
   InputGroup,
   Tooltip,
   OverlayTrigger,
@@ -64,6 +63,7 @@ const ChatScreen = () => {
   });
   const [isRecording, setIsRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Refs
   const messagesEndRef = useRef(null);
@@ -184,6 +184,38 @@ const ChatScreen = () => {
     },
     [loadingAddMessage, aiResponseWaiting, message, chat, dispatch, chatId]
   );
+
+  // Handle share chat
+  const handleShareChat = () => {
+    const shareUrl = `${window.location.origin}/chats/${chatId}`;
+    if (navigator.share) {
+      navigator
+        .share({
+          title: chat.title || 'AI Medical Chat',
+          text: 'Check out this AI medical consultation',
+          url: shareUrl,
+        })
+        .catch(console.error);
+    } else {
+      navigator.clipboard.writeText(shareUrl);
+      setSuccessMessage('Chat link copied to clipboard!');
+    }
+    setShowSettingsModal(false);
+  };
+
+  // Handle delete chat
+  const handleDeleteChat = () => {
+    setShowSettingsModal(false);
+    setShowDeleteConfirm(true);
+  };
+
+  // Confirm delete chat
+  const confirmDeleteChat = () => {
+    // Add delete chat action here when available
+    console.log('Delete chat:', chatId);
+    setShowDeleteConfirm(false);
+    navigate('/chats');
+  };
 
   const handleUpdateChat = useCallback(() => {
     dispatch(updateChat(chatId, chatSettings))
@@ -367,8 +399,9 @@ const ChatScreen = () => {
                 </h2>
                 <div className='chat-meta'>
                   <span className='text-muted'>
-                    {chat.messages ? chat.messages.length : 0} messages •
-                    Created {new Date(chat.createdAt).toLocaleDateString()}
+                    {/* {chat.messages ? chat.messages.length : 0} messages • */}
+                    Created{' '}
+                    {new Date(chat.createdAt).toLocaleDateString('en-GB')}
                   </span>
                 </div>
               </div>
@@ -378,27 +411,9 @@ const ChatScreen = () => {
                 variant='outline-light'
                 size='sm'
                 onClick={() => setShowSettingsModal(true)}
-                className='me-2'
               >
-                <FaCog />
+                <FaCog /> Settings
               </Button>
-              <Dropdown>
-                <Dropdown.Toggle variant='outline-light' size='sm'>
-                  <i className='fas fa-ellipsis-v' />
-                </Dropdown.Toggle>
-                <Dropdown.Menu>
-                  <Dropdown.Item onClick={() => setShowSettingsModal(true)}>
-                    <FaEdit className='me-2' /> Edit Chat
-                  </Dropdown.Item>
-                  <Dropdown.Item>
-                    <FaShare className='me-2' /> Share
-                  </Dropdown.Item>
-                  <Dropdown.Divider />
-                  <Dropdown.Item className='text-danger'>
-                    <FaTrash className='me-2' /> Delete
-                  </Dropdown.Item>
-                </Dropdown.Menu>
-              </Dropdown>
             </div>
           </div>
         </Col>
@@ -572,7 +587,9 @@ const ChatScreen = () => {
         <Modal.Body>
           <Form>
             <Form.Group className='mb-3'>
-              <Form.Label>Title</Form.Label>
+              <Form.Label>
+                <span style={{ color: 'white' }}>Title</span>
+              </Form.Label>
               <Form.Control
                 type='text'
                 value={chatSettings.title}
@@ -585,7 +602,9 @@ const ChatScreen = () => {
               />
             </Form.Group>
             <Form.Group className='mb-3'>
-              <Form.Label>Description</Form.Label>
+              <Form.Label>
+                <span style={{ color: 'white' }}>Description</span>
+              </Form.Label>
               <Form.Control
                 as='textarea'
                 rows={3}
@@ -599,6 +618,25 @@ const ChatScreen = () => {
               />
             </Form.Group>
           </Form>
+
+          <hr className='my-4' />
+
+          <div className='d-flex flex-column gap-2'>
+            {/* <Button
+              variant='outline-primary'
+              onClick={handleShareChat}
+              className='d-flex align-items-center justify-content-start'
+            >
+              <FaShare className='me-2' /> Share Chat
+            </Button> */}
+            <Button
+              variant='outline-danger'
+              onClick={handleDeleteChat}
+              className='d-flex align-items-center justify-content-start'
+            >
+              <FaTrash className='me-2' /> Delete Chat
+            </Button>
+          </div>
         </Modal.Body>
         <Modal.Footer>
           <Button
@@ -609,6 +647,40 @@ const ChatScreen = () => {
           </Button>
           <Button variant='primary' onClick={handleUpdateChat}>
             Save Changes
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        show={showDeleteConfirm}
+        onHide={() => setShowDeleteConfirm(false)}
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title className='text-danger'>
+            <FaTrash className='me-2' />
+            Delete Chat
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>
+            Are you sure you want to delete this chat? This action cannot be
+            undone.
+          </p>
+          <div className='alert alert-warning'>
+            <strong>Chat:</strong> {chat.title || 'Untitled Chat'}
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant='secondary'
+            onClick={() => setShowDeleteConfirm(false)}
+          >
+            Cancel
+          </Button>
+          <Button variant='danger' onClick={confirmDeleteChat}>
+            <FaTrash className='me-2' /> Delete Forever
           </Button>
         </Modal.Footer>
       </Modal>

@@ -4,7 +4,8 @@
   height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 0;
-  overflow: hidden;
+  /* allow dropdowns and menus to overflow the header area */
+  overflow: visible;
   display: flex;
   flex-direction: column;
 }
@@ -42,6 +43,12 @@
   background: rgba(255, 255, 255, 0.2);
   border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-1px);
+}
+
+/* Ensure dropdown menu displays above other content and isn't clipped */
+.chat-actions .dropdown-menu {
+  z-index: 9999; /* much higher to ensure it's above all chat elements */
+  position: absolute !important;
 }
 
 /* Messages Area */

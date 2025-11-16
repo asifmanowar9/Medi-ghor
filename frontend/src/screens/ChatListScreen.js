@@ -241,7 +241,7 @@ const ChatListScreen = () => {
             </Card.Body>
           </Card>
         </Col>
-        <Col md={4}>
+        {/* <Col md={4}>
           <Card className='stat-card bg-success'>
             <Card.Body>
               <div className='d-flex align-items-center'>
@@ -259,7 +259,7 @@ const ChatListScreen = () => {
               </div>
             </Card.Body>
           </Card>
-        </Col>
+        </Col> */}
         <Col md={4}>
           <Card className='stat-card bg-info'>
             <Card.Body>
@@ -346,12 +346,14 @@ const ChatListScreen = () => {
                             {chat.title || 'AI Medical Chat'}
                           </h6>
                           <small className='text-black'>
-                            {new Date(chat.createdAt).toLocaleDateString()}
+                            {new Date(chat.createdAt).toLocaleDateString(
+                              'en-GB'
+                            )}
                           </small>
                         </div>
                       </div>
                       <Dropdown align='end'>
-                        <Dropdown.Toggle variant='link' className='text-muted'>
+                        <Dropdown.Toggle variant='link' className='text-black'>
                           <i className='fas fa-ellipsis-v'></i>
                         </Dropdown.Toggle>
                         <Dropdown.Menu>
@@ -375,21 +377,21 @@ const ChatListScreen = () => {
                     </Card.Header>
 
                     <Card.Body>
-                      <p className='text-black mb-3'>
+                      {/* <p className='text-black mb-3'>
                         {chat.messages && chat.messages.length > 0
                           ? chat.messages[
                               chat.messages.length - 1
                             ].content?.substring(0, 100) + '...'
                           : 'No messages yet'}
-                      </p>
+                      </p> */}
                     </Card.Body>
 
                     <Card.Footer>
                       <div className='d-flex justify-content-between align-items-center'>
-                        <small className='text-black'>
+                        {/* <small className='text-black'>
                           <FaComments className='me-1' />
                           {chat.messages ? chat.messages.length : 0} messages
-                        </small>
+                        </small> */}
                         <Button
                           variant='primary'
                           size='sm'

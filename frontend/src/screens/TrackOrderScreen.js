@@ -247,10 +247,9 @@ const TrackOrderScreen = () => {
         'shipped',
         'out_for_delivery',
         'delivered',
-        'cancelled', // Add cancelled to the main flow
       ];
 
-      return allStatuses
+      const timelineSteps = allStatuses
         .map((status) => {
           const statusInfo = statusMap[status];
           const historyItem = order.statusHistory.find(
@@ -260,24 +259,22 @@ const TrackOrderScreen = () => {
 
           return {
             ...statusInfo,
-            status: status, // Add status for proper filtering
+            status: status,
             date: historyItem?.timestamp,
             completed: isCompleted,
             notes: historyItem?.notes,
           };
         })
         .filter((step) => {
-          // Handle cancelled status separately - always show if it exists
-          if (
-            step.status === 'cancelled' &&
-            completedStatuses.includes('cancelled')
-          ) {
-            return true;
-          }
-
-          // For cancelled orders, only show cancelled status
+          // For cancelled orders, only show the cancelled status
           if (order.currentStatus === 'cancelled') {
             return step.status === 'cancelled';
+          }
+
+          // For non-cancelled orders, only show normal flow statuses
+          // Exclude cancelled status from normal flow
+          if (step.status === 'cancelled') {
+            return false;
           }
 
           // Only show steps up to current status + next step
@@ -285,6 +282,25 @@ const TrackOrderScreen = () => {
           const stepIndex = allStatuses.indexOf(step.status);
           return stepIndex <= currentIndex + 1;
         });
+
+      // If the order is cancelled, add the cancelled step separately
+      if (order.currentStatus === 'cancelled') {
+        const cancelledHistoryItem = order.statusHistory.find(
+          (h) => h.status === 'cancelled'
+        );
+
+        return [
+          {
+            ...statusMap.cancelled,
+            status: 'cancelled',
+            date: cancelledHistoryItem?.timestamp,
+            completed: true,
+            notes: cancelledHistoryItem?.notes,
+          },
+        ];
+      }
+
+      return timelineSteps;
     }
 
     // Legacy timeline logic (fallback)

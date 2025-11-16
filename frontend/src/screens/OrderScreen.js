@@ -124,8 +124,13 @@ const OrderScreen = () => {
       const isPast = statusIndex !== -1 && statusIndex < currentIndex;
       const isCancelled = value === 'cancelled';
 
+      // Special rule: If current status is 'delivered', disable all other options
+      // This prevents changing from delivered status to any other status
+      const isDeliveredAndChanging =
+        currentStatus === 'delivered' && value !== 'delivered';
+
       // Determine if this option should be disabled
-      const isDisabled = isPast || isCurrent;
+      const isDisabled = isPast || isCurrent || isDeliveredAndChanging;
 
       // Create display label with indicators
       let displayLabel = label;
@@ -133,6 +138,8 @@ const OrderScreen = () => {
         displayLabel = `${label} (Current)`;
       } else if (isPast) {
         displayLabel = `${label} (Completed)`;
+      } else if (isDeliveredAndChanging) {
+        displayLabel = `${label} (Cannot change from delivered)`;
       }
 
       return {
@@ -142,6 +149,7 @@ const OrderScreen = () => {
         isCurrent,
         isPast,
         isCancelled,
+        isDeliveredAndChanging,
       };
     });
   };
@@ -790,6 +798,8 @@ const OrderScreen = () => {
                         ? '#e7f3ff'
                         : option.isPast
                         ? '#f8f9fa'
+                        : option.isDeliveredAndChanging
+                        ? '#ffe6e6'
                         : 'white',
                       color: option.disabled ? '#6c757d' : 'black',
                       fontWeight: option.isCurrent ? 'bold' : 'normal',
@@ -804,8 +814,9 @@ const OrderScreen = () => {
                 style={{ color: '#b8c5d1' }}
               >
                 <i className='fas fa-info-circle me-1'></i>
-                You can only move forward in the order process or cancel the
-                order.
+                {getEffectiveCurrentStatus() === 'delivered'
+                  ? 'Orders marked as delivered cannot be changed to other statuses.'
+                  : 'You can only move forward in the order process or cancel the order.'}
               </small>
             </Form.Group>
 
