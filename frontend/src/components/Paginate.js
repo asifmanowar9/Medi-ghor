@@ -1,7 +1,6 @@
 import React from 'react';
 import { Pagination } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
-import { useLocation } from 'react-router-dom';
 
 const Paginate = ({
   pages,
@@ -12,8 +11,6 @@ const Paginate = ({
   condition = '',
   brand = '',
 }) => {
-  const location = useLocation();
-
   return (
     pages > 1 && (
       <Pagination className='justify-content-center my-3'>

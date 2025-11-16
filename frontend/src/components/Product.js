@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Card, Button, Badge, Row, Col, Modal, Form } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
-import Rating from './Rating';
 import { addToCart } from '../actions/cartActions';
 import { addToWishlist, removeFromWishlist } from '../actions/wishlistActions';
 import './Product.css';
@@ -18,7 +17,7 @@ const Product = ({ product }) => {
 
   // Wishlist state
   const wishlist = useSelector((state) => state.wishlist);
-  const { wishlistItems, addLoading, removeLoading } = wishlist;
+  const { wishlistItems } = wishlist;
 
   // Fix the image path handling (keeping existing logic):
   const imagePath =

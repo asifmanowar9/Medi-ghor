@@ -35,7 +35,7 @@ import {
 } from '../constants/userConstants';
 
 import { ORDER_LIST_MY_RESET } from '../constants/orderConstants';
-import { CART_ADD_ITEM, CART_CLEAR_ITEMS } from '../constants/cartConstants';
+import { CART_ADD_ITEM } from '../constants/cartConstants';
 import { loadUserCart, clearCart } from '../actions/cartActions';
 import {
   syncWishlistWithBackend,

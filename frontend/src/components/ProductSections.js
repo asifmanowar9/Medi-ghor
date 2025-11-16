@@ -40,10 +40,6 @@ const ProductSections = () => {
   }, [dispatch]);
 
   // Filter products based on different criteria
-  const getFeaturedProducts = () => {
-    return products?.filter((product) => product.isFeatured) || [];
-  };
-
   const getFlashSaleProducts = () => {
     return products?.filter((product) => product.isFlashSale) || [];
   };

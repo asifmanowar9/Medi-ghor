@@ -23,12 +23,10 @@ import {
   deletePrescription,
 } from '../actions/prescriptionActions';
 import { LinkContainer } from 'react-router-bootstrap';
-import Message from '../components/Message';
 import Loader from '../components/Loader';
 import { listMyOrders, resetOrderPay } from '../actions/orderActions';
 import { ORDER_DELIVER_RESET } from '../constants/orderConstants';
 import { USER_UPDATE_PROFILE_RESET } from '../constants/userConstants';
-import { PRESCRIPTION_DELETE_REQUEST } from '../constants/prescriptionConstants';
 import './ProfileScreen.css';
 
 const ProfileScreen = () => {
@@ -77,11 +75,7 @@ const ProfileScreen = () => {
   } = prescriptionList;
 
   const prescriptionDelete = useSelector((state) => state.prescriptionDelete);
-  const {
-    loading: loadingDelete,
-    error: errorDelete,
-    success: successDelete,
-  } = prescriptionDelete;
+  const { loading: loadingDelete, success: successDelete } = prescriptionDelete;
 
   useEffect(() => {
     // Check URL params for active tab

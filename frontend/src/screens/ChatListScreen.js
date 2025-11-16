@@ -8,11 +8,8 @@ import {
   Button,
   Form,
   InputGroup,
-  Badge,
   Dropdown,
   Modal,
-  Table,
-  Pagination,
   Alert,
   Spinner,
 } from 'react-bootstrap';
@@ -20,22 +17,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
   FaPlus,
   FaSearch,
-  FaFilter,
-  FaSort,
   FaEye,
-  FaEdit,
   FaTrash,
-  FaFileAlt,
-  FaImage,
   FaClock,
-  FaChartLine,
   FaArrowLeft,
   FaComments,
   FaStethoscope,
   FaSync,
 } from 'react-icons/fa';
-import Message from '../components/Message';
-import Loader from '../components/Loader';
 import { listChats, createChat, deleteChat } from '../actions/chatActions';
 import './ChatListScreen.css';
 
@@ -53,13 +42,7 @@ const ChatListScreen = () => {
   const { userInfo } = userLogin;
 
   const chatList = useSelector((state) => state.chatList) || {};
-  const {
-    loading,
-    error,
-    chats: rawChats,
-    totalPages = 1,
-    stats = {},
-  } = chatList;
+  const { loading, error, chats: rawChats } = chatList;
 
   // Debug logging
   console.log('ChatList Redux State:', chatList);
@@ -81,7 +64,7 @@ const ChatListScreen = () => {
   const chats = Array.isArray(rawChats) ? rawChats : [];
 
   const chatCreate = useSelector((state) => state.chatCreate) || {};
-  const { loading: loadingCreate, success: successCreate } = chatCreate;
+  const { success: successCreate } = chatCreate;
 
   const chatDelete = useSelector((state) => state.chatDelete) || {};
   const { loading: loadingDelete, success: successDelete } = chatDelete;

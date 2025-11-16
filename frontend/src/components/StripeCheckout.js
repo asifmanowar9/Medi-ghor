@@ -6,7 +6,7 @@ import {
   useStripe,
   useElements,
 } from '@stripe/react-stripe-js';
-import { Form, Button, InputGroup, Spinner, Row, Col } from 'react-bootstrap';
+import { Form, Button, Row, Col } from 'react-bootstrap';
 import { useDispatch } from 'react-redux';
 import axios from 'axios';
 import { payOrder } from '../actions/orderActions';
@@ -256,12 +256,42 @@ const StripeCheckout = ({ orderId, totalPrice, onSuccess }) => {
                 className='modern-select'
                 aria-label='Country selection'
               >
-                <option value='Bangladesh'>🇧🇩 Bangladesh</option>
-                <option value='US'>🇺🇸 United States</option>
-                <option value='CA'>🇨🇦 Canada</option>
-                <option value='GB'>🇬🇧 United Kingdom</option>
-                <option value='AU'>🇦🇺 Australia</option>
-                <option value='IN'>🇮🇳 India</option>
+                <option value='Bangladesh'>
+                  <span role='img' aria-label='Bangladesh flag'>
+                    🇧🇩
+                  </span>{' '}
+                  Bangladesh
+                </option>
+                <option value='US'>
+                  <span role='img' aria-label='United States flag'>
+                    🇺🇸
+                  </span>{' '}
+                  United States
+                </option>
+                <option value='CA'>
+                  <span role='img' aria-label='Canada flag'>
+                    🇨🇦
+                  </span>{' '}
+                  Canada
+                </option>
+                <option value='GB'>
+                  <span role='img' aria-label='United Kingdom flag'>
+                    🇬🇧
+                  </span>{' '}
+                  United Kingdom
+                </option>
+                <option value='AU'>
+                  <span role='img' aria-label='Australia flag'>
+                    🇦🇺
+                  </span>{' '}
+                  Australia
+                </option>
+                <option value='IN'>
+                  <span role='img' aria-label='India flag'>
+                    🇮🇳
+                  </span>{' '}
+                  India
+                </option>
               </Form.Select>
             </div>
           </Form.Group>

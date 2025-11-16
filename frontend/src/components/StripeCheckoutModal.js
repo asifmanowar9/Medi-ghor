@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Modal, Button } from 'react-bootstrap';
+import React from 'react';
+import { Modal } from 'react-bootstrap';
 import StripeProvider from './StripeProvider';
 import StripeCheckout from './StripeCheckout';
 import './StripeCheckout.css';

@@ -6,8 +6,6 @@ import {
   Nav,
   Container,
   NavDropdown,
-  Form,
-  InputGroup,
   Button,
   Badge,
   Offcanvas,
@@ -43,7 +41,7 @@ const ModernHeader = () => {
     if (!categoriesLoading && (!categories || categories.length === 0)) {
       dispatch(listCategories());
     }
-  }, [dispatch]);
+  }, [dispatch, categories, categoriesLoading]);
 
   useEffect(() => {
     if (userInfo) {

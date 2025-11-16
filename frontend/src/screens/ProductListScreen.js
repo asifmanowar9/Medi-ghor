@@ -25,7 +25,6 @@ const LOW_STOCK_THRESHOLD = 10;
 const ProductListScreen = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const location = useLocation();
   const { pageNumber } = useParams();
 
   // Convert pageNumber to a number and default to 1 if not provided
@@ -295,7 +294,12 @@ const ProductListScreen = () => {
                     ></i>
                     <div>
                       <h5 className='text-white mb-1'>
-                        <strong>🚨 Stock Alert!</strong>
+                        <strong>
+                          <span role='img' aria-label='warning'>
+                            🚨
+                          </span>{' '}
+                          Stock Alert!
+                        </strong>
                       </h5>
                       <p className='text-white mb-0' style={{ opacity: 0.9 }}>
                         {outOfStockProducts.length > 0 && (

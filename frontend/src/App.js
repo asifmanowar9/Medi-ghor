@@ -1,6 +1,5 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Container } from 'react-bootstrap';
 import ModernHeader from './components/ModernHeader';
 import Footer from './components/Footer';
 import './styles/main.css';

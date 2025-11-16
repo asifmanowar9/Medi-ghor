@@ -13,7 +13,6 @@ const EmailVerificationScreen = () => {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [userEmail, setUserEmail] = useState('');
-  const [userPassword, setUserPassword] = useState('');
   const navigate = useNavigate();
   const dispatch = useDispatch();
 

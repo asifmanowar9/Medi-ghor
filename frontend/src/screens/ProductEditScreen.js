@@ -13,7 +13,6 @@ import {
 } from 'react-bootstrap';
 import Message from '../components/Message';
 import Loader from '../components/Loader';
-import FormContainer from '../components/FormContainer';
 import {
   listProductDetails,
   updateProduct,
@@ -133,7 +132,7 @@ const ProductEditScreen = () => {
     if (!categories || categories.length === 0) {
       dispatch(listCategories());
     }
-  }, [dispatch]);
+  }, [dispatch, categories]);
 
   // Handle authentication
   useEffect(() => {

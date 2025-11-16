@@ -24,7 +24,6 @@ import '../styles/AllProducts.css';
 
 const AllProducts = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
   // State for filtering and sorting
@@ -57,7 +56,7 @@ const AllProducts = () => {
 
   // Redux state
   const productList = useSelector((state) => state.productList);
-  const { loading, error, products, page, pages, total } = productList;
+  const { loading, error, products, pages, total } = productList;
 
   const categoryList = useSelector((state) => state.categoryList);
   const { categories: allCategories } = categoryList;

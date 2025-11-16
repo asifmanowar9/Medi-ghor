@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   Container,
   Row,
@@ -55,12 +55,6 @@ const WishlistScreen = () => {
       // Remove from wishlist since it's now in stock and added to cart
       dispatch(removeFromWishlist(product.product));
       navigate('/cart');
-    }
-  };
-
-  const handleMoveToCart = (product) => {
-    if (product.countInStock > 0) {
-      handleAddToCart(product);
     }
   };
 

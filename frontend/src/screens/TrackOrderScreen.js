@@ -14,12 +14,7 @@ import {
   ProgressBar,
   Image,
 } from 'react-bootstrap';
-import {
-  getOrderDetails,
-  trackOrder,
-  resetOrderDetails,
-} from '../actions/orderActions';
-import Message from '../components/Message';
+import { trackOrder, resetOrderDetails } from '../actions/orderActions';
 import Loader from '../components/Loader';
 import './TrackOrderScreen.css';
 

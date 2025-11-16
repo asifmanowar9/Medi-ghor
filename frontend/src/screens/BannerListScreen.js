@@ -14,7 +14,6 @@ import {
   Modal,
   Image,
 } from 'react-bootstrap';
-import { LinkContainer } from 'react-router-bootstrap';
 import Message from '../components/Message';
 import Loader from '../components/Loader';
 import {
@@ -26,7 +25,6 @@ import {
 import {
   BANNER_CREATE_RESET,
   BANNER_UPDATE_RESET,
-  BANNER_DELETE_RESET,
 } from '../constants/bannerConstants';
 import './BannerListScreen.css';
 
@@ -39,7 +37,6 @@ const BannerListScreen = () => {
   const [filterActive, setFilterActive] = useState('');
   const [sortBy, setSortBy] = useState('order');
   const [sortOrder, setSortOrder] = useState('asc');
-  const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState('grid');
 
   // Modal states
@@ -241,13 +238,6 @@ const BannerListScreen = () => {
     try {
       const formData = new FormData();
       formData.append('image', file);
-
-      const config = {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${userInfo.token}`,
-        },
-      };
 
       const response = await fetch('/api/upload', {
         method: 'POST',

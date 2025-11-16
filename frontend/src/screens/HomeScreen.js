@@ -6,7 +6,6 @@ import Product from '../components/Product';
 import Message from '../components/Message';
 import Loader from '../components/Loader';
 import Paginate from '../components/Paginate';
-import ProductCarousel from '../components/ProductCarousel';
 import HeroBanner from '../components/HeroBanner';
 import FeaturedCategories from '../components/FeaturedCategories';
 import ProductSections from '../components/ProductSections';
@@ -55,8 +54,8 @@ const HomeScreen = () => {
     return condition ? condition._id : '';
   };
 
-  const categoryId = getCategoryId(categoryName);
-  const conditionId = getHealthConditionId(conditionName);
+  // const categoryId = getCategoryId(categoryName);
+  // const conditionId = getHealthConditionId(conditionName);
 
   useEffect(() => {
     // Fetch categories, health conditions, and brands first

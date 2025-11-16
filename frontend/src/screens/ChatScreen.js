@@ -21,28 +21,17 @@ import {
 import {
   FaPaperPlane,
   FaArrowLeft,
-  FaImage,
   FaDownload,
-  FaThumbsUp,
-  FaThumbsDown,
   FaCopy,
   FaExpand,
-  FaCompress,
-  FaEye,
-  FaMicrophone,
-  FaStop,
-  FaEdit,
   FaTrash,
   FaCog,
-  FaShare,
   FaStethoscope,
   FaRobot,
   FaUser,
   FaExclamationTriangle,
 } from 'react-icons/fa';
 import ReactMarkdown from 'react-markdown';
-import Message from '../components/Message';
-import Loader from '../components/Loader';
 import { getChatDetails, addMessage, updateChat } from '../actions/chatActions';
 import { CHAT_DETAILS_SUCCESS } from '../constants/chatConstants';
 import './ChatScreen.css';
@@ -51,7 +40,6 @@ const ChatScreen = () => {
   // State management
   const [message, setMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [analysisProgress, setAnalysisProgress] = useState(0);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [showImageModal, setShowImageModal] = useState(false);
@@ -61,13 +49,10 @@ const ChatScreen = () => {
     title: '',
     description: '',
   });
-  const [isRecording, setIsRecording] = useState(false);
-  const [audioBlob, setAudioBlob] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Refs
   const messagesEndRef = useRef(null);
-  const mediaRecorderRef = useRef(null);
 
   // Hooks
   const dispatch = useDispatch();
@@ -79,13 +64,10 @@ const ChatScreen = () => {
   const { userInfo } = userLogin;
 
   const chatDetails = useSelector((state) => state.chatDetails);
-  const { loading, error, chat = {} } = chatDetails;
+  const { loading, chat = {} } = chatDetails;
 
   const chatMessageAdd = useSelector((state) => state.chatMessageAdd) || {};
   const { loading: loadingAddMessage = false } = chatMessageAdd;
-
-  const chatImageAnalyze = useSelector((state) => state.chatImageAnalyze) || {};
-  const { loading: loadingAnalysis = false } = chatImageAnalyze;
 
   const aiResponseWaiting = useSelector((state) => state.aiResponseWaiting);
 
@@ -119,7 +101,7 @@ const ChatScreen = () => {
         }
       }, 100);
     }
-  }, [chat.messages && chat.messages.length, loading]);
+  }, [chat.messages?.length, loading]);
 
   // Clear messages after timeout
   useEffect(() => {
@@ -186,22 +168,22 @@ const ChatScreen = () => {
   );
 
   // Handle share chat
-  const handleShareChat = () => {
-    const shareUrl = `${window.location.origin}/chats/${chatId}`;
-    if (navigator.share) {
-      navigator
-        .share({
-          title: chat.title || 'AI Medical Chat',
-          text: 'Check out this AI medical consultation',
-          url: shareUrl,
-        })
-        .catch(console.error);
-    } else {
-      navigator.clipboard.writeText(shareUrl);
-      setSuccessMessage('Chat link copied to clipboard!');
-    }
-    setShowSettingsModal(false);
-  };
+  // const handleShareChat = () => {
+  //   const shareUrl = `${window.location.origin}/chats/${chatId}`;
+  //   if (navigator.share) {
+  //     navigator
+  //       .share({
+  //         title: chat.title || 'AI Medical Chat',
+  //         text: 'Check out this AI medical consultation',
+  //         url: shareUrl,
+  //       })
+  //       .catch(console.error);
+  //   } else {
+  //     navigator.clipboard.writeText(shareUrl);
+  //     setSuccessMessage('Chat link copied to clipboard!');
+  //   }
+  //   setShowSettingsModal(false);
+  // };
 
   // Handle delete chat
   const handleDeleteChat = () => {
@@ -227,36 +209,6 @@ const ChatScreen = () => {
         setErrorMessage('Failed to update chat settings');
       });
   }, [dispatch, chatId, chatSettings]);
-
-  const startRecording = useCallback(() => {
-    navigator.mediaDevices
-      .getUserMedia({ audio: true })
-      .then((stream) => {
-        const mediaRecorder = new MediaRecorder(stream);
-        mediaRecorderRef.current = mediaRecorder;
-
-        const chunks = [];
-        mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
-        mediaRecorder.onstop = () => {
-          const blob = new Blob(chunks, { type: 'audio/wav' });
-          setAudioBlob(blob);
-          stream.getTracks().forEach((track) => track.stop());
-        };
-
-        mediaRecorder.start();
-        setIsRecording(true);
-      })
-      .catch(() => {
-        setErrorMessage('Microphone access denied');
-      });
-  }, []);
-
-  const stopRecording = useCallback(() => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-      setIsRecording(false);
-    }
-  }, [isRecording]);
 
   // Message components
   const MessageItem = React.memo(({ msg, index }) => {

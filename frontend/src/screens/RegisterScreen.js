@@ -11,11 +11,7 @@ import {
   Card,
   ProgressBar,
 } from 'react-bootstrap';
-import {
-  register,
-  googleLogin,
-  firebaseRegister,
-} from '../actions/userActions';
+import { googleLogin, firebaseRegister } from '../actions/userActions';
 import Message from '../components/Message';
 import Loader from '../components/Loader';
 import { validatePassword } from '../utils/passwordValidator';
