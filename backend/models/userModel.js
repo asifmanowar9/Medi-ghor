@@ -65,6 +65,30 @@ const userSchema = mongoose.Schema(
         ref: 'Prescription',
       },
     ],
+    savedAddresses: {
+      type: [
+        {
+          address: { type: String, required: true },
+          city: { type: String, required: true },
+          district: { type: String, required: true },
+          postalCode: { type: String },
+          country: { type: String, default: 'Bangladesh' },
+          phone: { type: String, required: true },
+          landmark: { type: String },
+          deliveryInstructions: { type: String },
+          isDefault: { type: Boolean, default: false },
+          label: { type: String, default: 'Address' },
+        },
+      ],
+      validate: [
+        {
+          validator: function (arr) {
+            return arr.length <= 3;
+          },
+          message: 'You can save a maximum of 3 addresses',
+        },
+      ],
+    },
   },
   {
     timestamps: true,

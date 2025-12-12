@@ -32,6 +32,18 @@ import {
   USER_GOOGLE_LOGIN_REQUEST,
   USER_GOOGLE_LOGIN_SUCCESS,
   USER_GOOGLE_LOGIN_FAIL,
+  USER_ADDRESSES_REQUEST,
+  USER_ADDRESSES_SUCCESS,
+  USER_ADDRESSES_FAIL,
+  USER_ADDRESS_ADD_REQUEST,
+  USER_ADDRESS_ADD_SUCCESS,
+  USER_ADDRESS_ADD_FAIL,
+  USER_ADDRESS_UPDATE_REQUEST,
+  USER_ADDRESS_UPDATE_SUCCESS,
+  USER_ADDRESS_UPDATE_FAIL,
+  USER_ADDRESS_DELETE_REQUEST,
+  USER_ADDRESS_DELETE_SUCCESS,
+  USER_ADDRESS_DELETE_FAIL,
 } from '../constants/userConstants';
 
 import { ORDER_LIST_MY_RESET } from '../constants/orderConstants';
@@ -580,6 +592,139 @@ export const updateUser = (user) => async (dispatch, getState) => {
   } catch (error) {
     dispatch({
       type: USER_UPDATE_FAIL,
+      payload:
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message,
+    });
+  }
+};
+
+// Saved Addresses Actions
+export const getSavedAddresses = () => async (dispatch, getState) => {
+  try {
+    dispatch({ type: USER_ADDRESSES_REQUEST });
+
+    const {
+      userLogin: { userInfo },
+    } = getState();
+
+    const config = {
+      headers: {
+        Authorization: `Bearer ${userInfo.token}`,
+      },
+    };
+
+    const { data } = await axios.get('/api/users/addresses', config);
+
+    dispatch({
+      type: USER_ADDRESSES_SUCCESS,
+      payload: data,
+    });
+  } catch (error) {
+    dispatch({
+      type: USER_ADDRESSES_FAIL,
+      payload:
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message,
+    });
+  }
+};
+
+export const addSavedAddress = (addressData) => async (dispatch, getState) => {
+  try {
+    dispatch({ type: USER_ADDRESS_ADD_REQUEST });
+
+    const {
+      userLogin: { userInfo },
+    } = getState();
+
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${userInfo.token}`,
+      },
+    };
+
+    const { data } = await axios.post('/api/users/addresses', addressData, config);
+
+    dispatch({
+      type: USER_ADDRESS_ADD_SUCCESS,
+      payload: data,
+    });
+
+    // Refresh the addresses list
+    dispatch(getSavedAddresses());
+  } catch (error) {
+    dispatch({
+      type: USER_ADDRESS_ADD_FAIL,
+      payload:
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message,
+    });
+  }
+};
+
+export const updateSavedAddress = (id, addressData) => async (dispatch, getState) => {
+  try {
+    dispatch({ type: USER_ADDRESS_UPDATE_REQUEST });
+
+    const {
+      userLogin: { userInfo },
+    } = getState();
+
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${userInfo.token}`,
+      },
+    };
+
+    const { data } = await axios.put(`/api/users/addresses/${id}`, addressData, config);
+
+    dispatch({
+      type: USER_ADDRESS_UPDATE_SUCCESS,
+      payload: data,
+    });
+
+    // Refresh the addresses list
+    dispatch(getSavedAddresses());
+  } catch (error) {
+    dispatch({
+      type: USER_ADDRESS_UPDATE_FAIL,
+      payload:
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message,
+    });
+  }
+};
+
+export const deleteSavedAddress = (id) => async (dispatch, getState) => {
+  try {
+    dispatch({ type: USER_ADDRESS_DELETE_REQUEST });
+
+    const {
+      userLogin: { userInfo },
+    } = getState();
+
+    const config = {
+      headers: {
+        Authorization: `Bearer ${userInfo.token}`,
+      },
+    };
+
+    await axios.delete(`/api/users/addresses/${id}`, config);
+
+    dispatch({ type: USER_ADDRESS_DELETE_SUCCESS });
+
+    // Refresh the addresses list
+    dispatch(getSavedAddresses());
+  } catch (error) {
+    dispatch({
+      type: USER_ADDRESS_DELETE_FAIL,
       payload:
         error.response && error.response.data.message
           ? error.response.data.message

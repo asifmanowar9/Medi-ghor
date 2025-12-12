@@ -245,6 +245,168 @@ const updateUser = asyncHandler(async (req, res) => {
   }
 });
 
+// @description  Get user's saved addresses
+// @route        GET /api/users/addresses
+// @access       Private
+const getSavedAddresses = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+
+  if (user) {
+    res.json(user.savedAddresses || []);
+  } else {
+    res.status(404);
+    throw new Error('User not found');
+  }
+});
+
+// @description  Add a new saved address
+// @route        POST /api/users/addresses
+// @access       Private
+const addSavedAddress = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+
+  if (user.savedAddresses && user.savedAddresses.length >= 3) {
+    res.status(400);
+    throw new Error('You can save a maximum of 3 addresses');
+  }
+
+  const {
+    address,
+    city,
+    district,
+    postalCode,
+    country,
+    phone,
+    landmark,
+    deliveryInstructions,
+    isDefault,
+    label,
+  } = req.body;
+
+  // If this is set as default, unset other defaults
+  if (isDefault && user.savedAddresses) {
+    user.savedAddresses.forEach((addr) => {
+      addr.isDefault = false;
+    });
+  }
+
+  const newAddress = {
+    address,
+    city,
+    district,
+    postalCode,
+    country: country || 'Bangladesh',
+    phone,
+    landmark,
+    deliveryInstructions,
+    isDefault: isDefault || false,
+    label: label || 'Address',
+  };
+
+  if (!user.savedAddresses) {
+    user.savedAddresses = [];
+  }
+
+  user.savedAddresses.push(newAddress);
+  await user.save();
+
+  res.status(201).json(user.savedAddresses[user.savedAddresses.length - 1]);
+});
+
+// @description  Update a saved address
+// @route        PUT /api/users/addresses/:id
+// @access       Private
+const updateSavedAddress = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+
+  const addressIndex = user.savedAddresses.findIndex(
+    (addr) => addr._id.toString() === req.params.id
+  );
+
+  if (addressIndex === -1) {
+    res.status(404);
+    throw new Error('Address not found');
+  }
+
+  const {
+    address,
+    city,
+    district,
+    postalCode,
+    country,
+    phone,
+    landmark,
+    deliveryInstructions,
+    isDefault,
+    label,
+  } = req.body;
+
+  // If this is set as default, unset other defaults
+  if (isDefault) {
+    user.savedAddresses.forEach((addr, idx) => {
+      if (idx !== addressIndex) {
+        addr.isDefault = false;
+      }
+    });
+  }
+
+  const existingAddr = user.savedAddresses[addressIndex];
+  
+  user.savedAddresses[addressIndex] = {
+    _id: existingAddr._id,
+    address: address || existingAddr.address,
+    city: city || existingAddr.city,
+    district: district || existingAddr.district,
+    postalCode: postalCode !== undefined ? postalCode : existingAddr.postalCode,
+    country: country || existingAddr.country,
+    phone: phone || existingAddr.phone,
+    landmark: landmark !== undefined ? landmark : existingAddr.landmark,
+    deliveryInstructions: deliveryInstructions !== undefined ? deliveryInstructions : existingAddr.deliveryInstructions,
+    isDefault: isDefault !== undefined ? isDefault : existingAddr.isDefault,
+    label: label || existingAddr.label,
+  };
+
+  await user.save();
+
+  res.json(user.savedAddresses[addressIndex]);
+});
+
+// @description  Delete a saved address
+// @route        DELETE /api/users/addresses/:id
+// @access       Private
+const deleteSavedAddress = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+
+  const addressIndex = user.savedAddresses.findIndex(
+    (addr) => addr._id.toString() === req.params.id
+  );
+
+  if (addressIndex === -1) {
+    res.status(404);
+    throw new Error('Address not found');
+  }
+
+  user.savedAddresses.splice(addressIndex, 1);
+  await user.save();
+
+  res.json({ message: 'Address removed' });
+});
+
 export {
   authUser,
   getUserProfile,
@@ -254,4 +416,8 @@ export {
   deleteUser,
   getUserById,
   updateUser,
+  getSavedAddresses,
+  addSavedAddress,
+  updateSavedAddress,
+  deleteSavedAddress,
 };

@@ -11,15 +11,42 @@ import {
   Alert,
   InputGroup,
   Badge,
+  Modal,
+  Spinner,
 } from 'react-bootstrap';
 import CheckoutSteps from '../components/CheckoutSteps';
 import { saveShippingAddress } from '../actions/cartActions';
 import { resetOrderCreate } from '../actions/orderActions';
+import {
+  getSavedAddresses,
+  addSavedAddress,
+  updateSavedAddress,
+  deleteSavedAddress,
+} from '../actions/userActions';
+import {
+  USER_ADDRESS_ADD_RESET,
+  USER_ADDRESS_UPDATE_RESET,
+} from '../constants/userConstants';
 import '../styles/ShippingScreen.css';
 
 const ShippingScreen = () => {
   const cart = useSelector((state) => state.cart);
-  const { shippingAddress, cartItems } = cart;
+  const { cartItems } = cart;
+
+  const userLogin = useSelector((state) => state.userLogin);
+  const { userInfo } = userLogin;
+
+  const userAddresses = useSelector((state) => state.userAddresses);
+  const { loading: addressesLoading, addresses = [] } = userAddresses;
+
+  const userAddressAdd = useSelector((state) => state.userAddressAdd);
+  const { loading: addLoading, success: addSuccess, error: addError } = userAddressAdd;
+
+  const userAddressUpdate = useSelector((state) => state.userAddressUpdate);
+  const { loading: updateLoading, success: updateSuccess, error: updateError } = userAddressUpdate;
+
+  const userAddressDelete = useSelector((state) => state.userAddressDelete);
+  const { loading: deleteLoading } = userAddressDelete;
 
   // Form states - Start with empty form for new orders
   const [address, setAddress] = useState('');
@@ -35,7 +62,15 @@ const ShippingScreen = () => {
   // UI states
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const [showPreviousAddress, setShowPreviousAddress] = useState(false);
+
+  // Saved addresses modal states
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [addressLabel, setAddressLabel] = useState('');
+  const [isDefaultAddress, setIsDefaultAddress] = useState(false);
+  const [editingAddressId, setEditingAddressId] = useState(null);
+  const [deletingAddressId, setDeletingAddressId] = useState(null);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -131,7 +166,27 @@ const ShippingScreen = () => {
   // Reset order state when starting new checkout process
   useEffect(() => {
     dispatch(resetOrderCreate());
-  }, [dispatch]);
+    if (userInfo) {
+      dispatch(getSavedAddresses());
+    }
+  }, [dispatch, userInfo]);
+
+  // Handle save/update success
+  useEffect(() => {
+    if (addSuccess) {
+      setShowSaveModal(false);
+      setAddressLabel('');
+      setIsDefaultAddress(false);
+      dispatch({ type: USER_ADDRESS_ADD_RESET });
+    }
+    if (updateSuccess) {
+      setShowEditModal(false);
+      setEditingAddressId(null);
+      setAddressLabel('');
+      setIsDefaultAddress(false);
+      dispatch({ type: USER_ADDRESS_UPDATE_RESET });
+    }
+  }, [addSuccess, updateSuccess, dispatch]);
 
   // Check if user has items in cart
   useEffect(() => {
@@ -139,20 +194,6 @@ const ShippingScreen = () => {
       navigate('/cart');
     }
   }, [cartItems, navigate]);
-
-  // Function to load previous shipping address
-  const loadPreviousAddress = () => {
-    if (shippingAddress) {
-      setAddress(shippingAddress.address || '');
-      setCity(shippingAddress.city || '');
-      setDistrict(shippingAddress.district || '');
-      setPostalCode(shippingAddress.postalCode || '');
-      setPhone(shippingAddress.phone || '');
-      setLandmark(shippingAddress.landmark || '');
-      setDeliveryInstructions(shippingAddress.deliveryInstructions || '');
-      setShowPreviousAddress(false);
-    }
-  };
 
   // Function to clear form
   const clearForm = () => {
@@ -164,6 +205,83 @@ const ShippingScreen = () => {
     setLandmark('');
     setDeliveryInstructions('');
     setErrors({});
+  };
+
+  // Function to load a saved address into the form
+  const loadSavedAddress = (savedAddr) => {
+    setAddress(savedAddr.address || '');
+    setCity(savedAddr.city || '');
+    setDistrict(savedAddr.district || '');
+    setPostalCode(savedAddr.postalCode || '');
+    setPhone(savedAddr.phone || '');
+    setLandmark(savedAddr.landmark || '');
+    setDeliveryInstructions(savedAddr.deliveryInstructions || '');
+  };
+
+  // Function to save current form as new address
+  const handleSaveAddress = () => {
+    if (!address.trim() || !city.trim() || !district.trim() || !phone.trim()) {
+      return;
+    }
+
+    const addressData = {
+      address: address.trim(),
+      city: city.trim(),
+      district: district.trim(),
+      postalCode: postalCode.trim(),
+      country: country,
+      phone: phone.trim(),
+      landmark: landmark.trim(),
+      deliveryInstructions: deliveryInstructions.trim(),
+      label: addressLabel.trim() || 'Address',
+      isDefault: isDefaultAddress,
+    };
+
+    dispatch(addSavedAddress(addressData));
+  };
+
+  // Function to update existing address
+  const handleUpdateAddress = () => {
+    if (!editingAddressId) return;
+
+    const addressData = {
+      address: address.trim(),
+      city: city.trim(),
+      district: district.trim(),
+      postalCode: postalCode.trim(),
+      country: country,
+      phone: phone.trim(),
+      landmark: landmark.trim(),
+      deliveryInstructions: deliveryInstructions.trim(),
+      label: addressLabel.trim() || 'Address',
+      isDefault: isDefaultAddress,
+    };
+
+    dispatch(updateSavedAddress(editingAddressId, addressData));
+  };
+
+  // Function to delete saved address
+  const handleDeleteAddress = () => {
+    if (deletingAddressId) {
+      dispatch(deleteSavedAddress(deletingAddressId));
+      setShowDeleteModal(false);
+      setDeletingAddressId(null);
+    }
+  };
+
+  // Function to open edit modal for an address
+  const openEditModal = (savedAddr) => {
+    loadSavedAddress(savedAddr);
+    setAddressLabel(savedAddr.label || '');
+    setIsDefaultAddress(savedAddr.isDefault || false);
+    setEditingAddressId(savedAddr._id);
+    setShowEditModal(true);
+  };
+
+  // Function to open delete confirmation modal
+  const openDeleteModal = (addressId) => {
+    setDeletingAddressId(addressId);
+    setShowDeleteModal(true);
   };
 
   // Form validation
@@ -304,40 +422,97 @@ const ShippingScreen = () => {
                 </Badge>
               </Card.Header>
               <Card.Body>
-                {/* Previous Address Options */}
-                {shippingAddress && (
-                  <Alert
-                    variant='info'
-                    className='d-flex justify-content-between align-items-center mb-4'
-                  >
-                    <div>
-                      <i className='fas fa-info-circle me-2'></i>
-                      <strong>Previous Address Available:</strong> Would you
-                      like to use your previous shipping address or start fresh?
+                {/* Saved Addresses Section */}
+                {userInfo && (
+                  <div className='saved-addresses-section mb-4'>
+                    <div className='d-flex justify-content-between align-items-center mb-3'>
+                      <h6 className='mb-0' style={{ color: '#ffffffff' }}>
+                        <i className='fas fa-bookmark me-2'></i>
+                        Saved Addresses ({addresses.length}/3)
+                      </h6>
+                      {addresses.length < 3 && address.trim() && city.trim() && district.trim() && phone.trim() && (
+                        <Button
+                          variant='outline-success'
+                          size='sm'
+                          onClick={() => setShowSaveModal(true)}
+                        >
+                          <i className='fas fa-save me-1'></i>
+                          Save Current Address
+                        </Button>
+                      )}
                     </div>
-                    <div>
-                      <Button
-                        variant='outline-primary'
-                        size='sm'
-                        onClick={loadPreviousAddress}
-                        className='me-2'
-                      >
-                        <i
-                          style={{ color: 'black' }}
-                          className='fas fa-history me-1'
-                        ></i>
-                        <span style={{ color: 'black' }}>Use Previous</span>
-                      </Button>
-                      <Button
-                        variant='outline-secondary'
-                        size='sm'
-                        onClick={clearForm}
-                      >
-                        <i className='fas fa-broom me-1'></i>
-                        Clear Form
-                      </Button>
-                    </div>
-                  </Alert>
+
+                    {addressesLoading ? (
+                      <div className='text-center py-3'>
+                        <Spinner animation='border' size='sm' />
+                        <span className='ms-2' style={{ color: '#000' }}>Loading saved addresses...</span>
+                      </div>
+                    ) : addresses.length > 0 ? (
+                      <Row>
+                        {addresses.map((savedAddr) => (
+                          <Col md={4} key={savedAddr._id} className='mb-2'>
+                            <Card
+                              className={`saved-address-card ${savedAddr.isDefault ? 'default-address' : ''}`}
+                              style={{ cursor: 'pointer', fontSize: '0.85rem' }}
+                            >
+                              <Card.Body className='p-2'>
+                                <div className='d-flex justify-content-between align-items-start mb-1'>
+                                  <strong style={{ color: '#ffffffff' }}>
+                                    {savedAddr.label || 'Address'}
+                                    {savedAddr.isDefault && (
+                                      <Badge bg='success' className='ms-1' style={{ fontSize: '0.7rem' }}>
+                                        Default
+                                      </Badge>
+                                    )}
+                                  </strong>
+                                </div>
+                                <p className='mb-1' style={{ fontSize: '0.75rem', color: '#ffffffff' }}>
+                                  {savedAddr.address}, {savedAddr.district}, {savedAddr.city}
+                                </p>
+                                <p className='mb-2' style={{ fontSize: '0.75rem', color: '#ffffffff' }}>
+                                  <i className='fas fa-phone me-1'></i>
+                                  {savedAddr.phone}
+                                </p>
+                                <div className='d-flex gap-1'>
+                                  <Button
+                                    variant='primary'
+                                    size='sm'
+                                    onClick={() => loadSavedAddress(savedAddr)}
+                                    style={{ fontSize: '0.7rem', padding: '2px 6px' }}
+                                  >
+                                    <i className='fas fa-check me-1'></i>
+                                    Use
+                                  </Button>
+                                  <Button
+                                    variant='outline-secondary'
+                                    size='sm'
+                                    onClick={() => openEditModal(savedAddr)}
+                                    style={{ fontSize: '0.7rem', padding: '2px 6px' }}
+                                  >
+                                    <i className='fas fa-edit'></i>
+                                  </Button>
+                                  <Button
+                                    variant='outline-danger'
+                                    size='sm'
+                                    onClick={() => openDeleteModal(savedAddr._id)}
+                                    disabled={deleteLoading}
+                                    style={{ fontSize: '0.7rem', padding: '2px 6px' }}
+                                  >
+                                    <i className='fas fa-trash'></i>
+                                  </Button>
+                                </div>
+                              </Card.Body>
+                            </Card>
+                          </Col>
+                        ))}
+                      </Row>
+                    ) : (
+                      <Alert variant='info' className='py-2'>
+                        <i className='fas fa-info-circle me-2'></i>
+                        <span style={{ color: '#000' }}>No saved addresses yet. Fill out the form and click "Save Current Address" to save.</span>
+                      </Alert>
+                    )}
+                  </div>
                 )}
 
                 {/* Quick Address Selection */}
@@ -708,6 +883,247 @@ const ShippingScreen = () => {
           </Col>
         </Row>
       </Container>
+
+      {/* Save Address Modal */}
+      <Modal show={showSaveModal} onHide={() => setShowSaveModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>
+            <i className='fas fa-save me-2'></i>
+            Save Address
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {addError && <Alert variant='danger'>{addError}</Alert>}
+          <Form.Group className='mb-3'>
+            <Form.Label style={{ color: 'white' }}>Address Label</Form.Label>
+            <Form.Control
+              type='text'
+              placeholder='e.g., Home, Office, Parents House'
+              value={addressLabel}
+              onChange={(e) => setAddressLabel(e.target.value)}
+              maxLength={30}
+            />
+            <Form.Text className='text-muted'>
+              Give this address a name for easy identification
+            </Form.Text>
+          </Form.Group>
+          <Form.Group>
+            <Form.Check
+              type='checkbox'
+              label='Set as default address'
+              checked={isDefaultAddress}
+              onChange={(e) => setIsDefaultAddress(e.target.checked)}
+            />
+          </Form.Group>
+          <hr />
+          <div className='saved-address-preview'>
+            <p className='mb-1'><strong>Address:</strong> {address}</p>
+            <p className='mb-1'><strong>District:</strong> {district}, {city}</p>
+            <p className='mb-1'><strong>Postal Code:</strong> {postalCode}</p>
+            <p className='mb-0'><strong>Phone:</strong> {phone}</p>
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant='secondary' onClick={() => setShowSaveModal(false)}>
+            Cancel
+          </Button>
+          <Button variant='primary' onClick={handleSaveAddress} disabled={addLoading}>
+            {addLoading ? (
+              <>
+                <Spinner animation='border' size='sm' className='me-2' />
+                Saving...
+              </>
+            ) : (
+              <>
+                <i className='fas fa-save me-2'></i>
+                Save Address
+              </>
+            )}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Edit Address Modal */}
+      <Modal show={showEditModal} onHide={() => setShowEditModal(false)} centered size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>
+            <i className='fas fa-edit me-2'></i>
+            Edit Address
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {updateError && <Alert variant='danger'>{updateError}</Alert>}
+          <Form.Group className='mb-3'>
+            <Form.Label style={{color:'white'}}>Address Label</Form.Label>
+            <Form.Control
+              type='text'
+              placeholder='e.g., Home, Office, Parents House'
+              value={addressLabel}
+              onChange={(e) => setAddressLabel(e.target.value)}
+              maxLength={30}
+            />
+          </Form.Group>
+          <Form.Group className='mb-3'>
+            <Form.Check
+              type='checkbox'
+              label='Set as default address'
+              checked={isDefaultAddress}
+              onChange={(e) => setIsDefaultAddress(e.target.checked)}
+            />
+          </Form.Group>
+          <hr />
+          <Row>
+            <Col md={12} className='mb-3'>
+              <Form.Group>
+                <Form.Label style={{color:'white'}}>Full Address</Form.Label>
+                <Form.Control
+                  type='text'
+                  placeholder='House/Flat No., Street, Area'
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                />
+              </Form.Group>
+            </Col>
+            <Col md={6} className='mb-3'>
+              <Form.Group>
+                <Form.Label style={{color:'white'}}>Division</Form.Label>
+                <Form.Select
+                  value={city}
+                  onChange={(e) => {
+                    setCity(e.target.value);
+                    setDistrict('');
+                  }}
+                >
+                  <option value=''>Select Division</option>
+                  <option value='Dhaka'>Dhaka</option>
+                  <option value='Chittagong'>Chittagong</option>
+                  <option value='Rajshahi'>Rajshahi</option>
+                  <option value='Khulna'>Khulna</option>
+                  <option value='Barishal'>Barishal</option>
+                  <option value='Sylhet'>Sylhet</option>
+                  <option value='Rangpur'>Rangpur</option>
+                  <option value='Mymensingh'>Mymensingh</option>
+                </Form.Select>
+              </Form.Group>
+            </Col>
+            <Col md={6} className='mb-3'>
+              <Form.Group>
+                <Form.Label style={{color:'white'}}>District</Form.Label>
+                <Form.Select
+                  value={district}
+                  onChange={(e) => setDistrict(e.target.value)}
+                  disabled={!city}
+                >
+                  <option value=''>Select District</option>
+                  {getDistrictsForCity(city).map((districtName) => (
+                    <option key={districtName} value={districtName}>
+                      {districtName}
+                    </option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
+            </Col>
+            <Col md={6} className='mb-3'>
+              <Form.Group>
+                <Form.Label style={{color:'white'}}>Postal Code</Form.Label>
+                <Form.Control
+                  type='text'
+                  placeholder='e.g., 1000'
+                  value={postalCode}
+                  onChange={(e) => setPostalCode(e.target.value.replace(/\D/g, ''))}
+                  maxLength='4'
+                />
+              </Form.Group>
+            </Col>
+            <Col md={6} className='mb-3'>
+              <Form.Group>
+                <Form.Label style={{color:'white'}}>Phone Number</Form.Label>
+                <Form.Control
+                  type='tel'
+                  placeholder='01XXXXXXXXX'
+                  value={phone}
+                  onChange={handlePhoneChange}
+                  maxLength='14'
+                />
+              </Form.Group>
+            </Col>
+            <Col md={12} className='mb-3'>
+              <Form.Group>
+                <Form.Label style={{color:'white'}}>Landmark (Optional)</Form.Label>
+                <Form.Control
+                  type='text'
+                  placeholder='e.g., Near City Hospital'
+                  value={landmark}
+                  onChange={(e) => setLandmark(e.target.value)}
+                />
+              </Form.Group>
+            </Col>
+            <Col md={12} className='mb-3'>
+              <Form.Group>
+                <Form.Label style={{color:'white'}}>Delivery Instructions (Optional)</Form.Label>
+                <Form.Control
+                  as='textarea'
+                  rows={2}
+                  placeholder='Special instructions for delivery'
+                  value={deliveryInstructions}
+                  onChange={(e) => setDeliveryInstructions(e.target.value)}
+                  maxLength='200'
+                />
+              </Form.Group>
+            </Col>
+          </Row>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant='secondary' onClick={() => setShowEditModal(false)}>
+            Cancel
+          </Button>
+          <Button variant='primary' onClick={handleUpdateAddress} disabled={updateLoading}>
+            {updateLoading ? (
+              <>
+                <Spinner animation='border' size='sm' className='me-2' />
+                Updating...
+              </>
+            ) : (
+              <>
+                <i className='fas fa-save me-2'></i>
+                Update Address
+              </>
+            )}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>
+            <i className='fas fa-trash me-2 text-danger'></i>
+            Delete Address
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Are you sure you want to delete this saved address?</p>
+          <p className='text-muted mb-0'>This action cannot be undone.</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant='secondary' onClick={() => setShowDeleteModal(false)}>
+            Cancel
+          </Button>
+          <Button variant='danger' onClick={handleDeleteAddress} disabled={deleteLoading}>
+            {deleteLoading ? (
+              <>
+                <Spinner animation='border' size='sm' className='me-2' />
+                Deleting...
+              </>
+            ) : (
+              <>
+                <i className='fas fa-trash me-2'></i>
+                Delete
+              </>
+            )}
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

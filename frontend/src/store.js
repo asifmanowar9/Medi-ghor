@@ -19,6 +19,10 @@ import {
   userListReducer,
   userDeleteReducer,
   userUpdateReducer,
+  userAddressesReducer,
+  userAddressAddReducer,
+  userAddressUpdateReducer,
+  userAddressDeleteReducer,
 } from './reducers/userReducers';
 import {
   orderCreateReducer,
@@ -109,6 +113,10 @@ const reducer = combineReducers({
   prescriptionUpdate: prescriptionUpdateReducer,
   prescriptionDelete: prescriptionDeleteReducer,
   prescriptionUpload: prescriptionUploadReducer,
+  userAddresses: userAddressesReducer,
+  userAddressAdd: userAddressAddReducer,
+  userAddressUpdate: userAddressUpdateReducer,
+  userAddressDelete: userAddressDeleteReducer,
 });
 
 // const cartItemsFromStorage = localStorage.getItem('cartItems')

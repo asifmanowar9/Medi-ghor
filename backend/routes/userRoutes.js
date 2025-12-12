@@ -9,6 +9,10 @@ import {
   deleteUser,
   updateUser,
   getUserById,
+  getSavedAddresses,
+  addSavedAddress,
+  updateSavedAddress,
+  deleteSavedAddress,
 } from '../controllers/userController.js';
 import {
   firebaseLogin,
@@ -33,6 +37,17 @@ router
   .route('/profile')
   .get(protect, getUserProfile)
   .put(protect, updadteUserProfile); // Route to get user profile
+
+// Saved addresses routes
+router
+  .route('/addresses')
+  .get(protect, getSavedAddresses)
+  .post(protect, addSavedAddress);
+router
+  .route('/addresses/:id')
+  .put(protect, updateSavedAddress)
+  .delete(protect, deleteSavedAddress);
+
 router
   .route('/:id')
   .delete(protect, adminOrHigher, deleteUser)

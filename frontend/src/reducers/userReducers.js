@@ -25,6 +25,21 @@ import {
   USER_UPDATE_FAIL,
   USER_UPDATE_RESET,
   USER_UPDATE_PROFILE_RESET,
+  USER_ADDRESSES_REQUEST,
+  USER_ADDRESSES_SUCCESS,
+  USER_ADDRESSES_FAIL,
+  USER_ADDRESSES_RESET,
+  USER_ADDRESS_ADD_REQUEST,
+  USER_ADDRESS_ADD_SUCCESS,
+  USER_ADDRESS_ADD_FAIL,
+  USER_ADDRESS_ADD_RESET,
+  USER_ADDRESS_UPDATE_REQUEST,
+  USER_ADDRESS_UPDATE_SUCCESS,
+  USER_ADDRESS_UPDATE_FAIL,
+  USER_ADDRESS_UPDATE_RESET,
+  USER_ADDRESS_DELETE_REQUEST,
+  USER_ADDRESS_DELETE_SUCCESS,
+  USER_ADDRESS_DELETE_FAIL,
 } from '../constants/userConstants';
 
 export const userLoginReducer = (state = {}, action) => {
@@ -123,6 +138,65 @@ export const userUpdateReducer = (state = { user: {} }, action) => {
       return { loading: false, error: action.payload };
     case USER_UPDATE_RESET:
       return { user: {} };
+    default:
+      return state;
+  }
+};
+
+// Saved Addresses Reducers
+export const userAddressesReducer = (state = { addresses: [] }, action) => {
+  switch (action.type) {
+    case USER_ADDRESSES_REQUEST:
+      return { ...state, loading: true };
+    case USER_ADDRESSES_SUCCESS:
+      return { loading: false, addresses: action.payload };
+    case USER_ADDRESSES_FAIL:
+      return { loading: false, error: action.payload };
+    case USER_ADDRESSES_RESET:
+      return { addresses: [] };
+    default:
+      return state;
+  }
+};
+
+export const userAddressAddReducer = (state = {}, action) => {
+  switch (action.type) {
+    case USER_ADDRESS_ADD_REQUEST:
+      return { loading: true };
+    case USER_ADDRESS_ADD_SUCCESS:
+      return { loading: false, success: true, address: action.payload };
+    case USER_ADDRESS_ADD_FAIL:
+      return { loading: false, error: action.payload };
+    case USER_ADDRESS_ADD_RESET:
+      return {};
+    default:
+      return state;
+  }
+};
+
+export const userAddressUpdateReducer = (state = {}, action) => {
+  switch (action.type) {
+    case USER_ADDRESS_UPDATE_REQUEST:
+      return { loading: true };
+    case USER_ADDRESS_UPDATE_SUCCESS:
+      return { loading: false, success: true };
+    case USER_ADDRESS_UPDATE_FAIL:
+      return { loading: false, error: action.payload };
+    case USER_ADDRESS_UPDATE_RESET:
+      return {};
+    default:
+      return state;
+  }
+};
+
+export const userAddressDeleteReducer = (state = {}, action) => {
+  switch (action.type) {
+    case USER_ADDRESS_DELETE_REQUEST:
+      return { loading: true };
+    case USER_ADDRESS_DELETE_SUCCESS:
+      return { loading: false, success: true };
+    case USER_ADDRESS_DELETE_FAIL:
+      return { loading: false, error: action.payload };
     default:
       return state;
   }

@@ -260,17 +260,18 @@ const Product = ({ product }) => {
             </div>
 
             <Form.Group className='mb-3'>
-              <Form.Label style={{ color: 'white' }}>Quantity:</Form.Label>
+              <Form.Label className='quantity-label'>Quantity:</Form.Label>
               <Form.Control
                 as='select'
                 value={quantity}
                 onChange={(e) => setQuantity(Number(e.target.value))}
                 className='w-auto'
                 style={{
-                  backgroundColor: '#2c3e50 !important',
-                  color: 'white !important',
-                  border: '1px solid #34495e !important',
+                  backgroundColor: '#495057',
+                  color: '#000000',
+                  border: '1px solid #6c757d',
                   boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                  fontWeight: '500',
                 }}
               >
                 {[...Array(product.countInStock || 1).keys()].map((x) => (
@@ -278,8 +279,8 @@ const Product = ({ product }) => {
                     key={x + 1}
                     value={x + 1}
                     style={{
-                      backgroundColor: '#2c3e50',
-                      color: 'white',
+                      backgroundColor: '#ffffff',
+                      color: '#000000',
                     }}
                   >
                     {x + 1}
