@@ -35,6 +35,7 @@ const BannerListScreen = () => {
   // Local state for UI
   const [searchTerm, setSearchTerm] = useState('');
   const [filterActive, setFilterActive] = useState('');
+  const [filterVisibility, setFilterVisibility] = useState('');
   const [sortBy, setSortBy] = useState('order');
   const [sortOrder, setSortOrder] = useState('asc');
   const [viewMode, setViewMode] = useState('grid');
@@ -57,6 +58,7 @@ const BannerListScreen = () => {
     bgColor: '#3498db',
     isActive: true,
     order: 0,
+    visibility: 'all',
   });
 
   // Image upload state
@@ -161,6 +163,7 @@ const BannerListScreen = () => {
       bgColor: '#3498db',
       isActive: true,
       order: 0,
+      visibility: 'all',
     });
     setSelectedBanner(null);
     setImageFile(null);
@@ -184,6 +187,7 @@ const BannerListScreen = () => {
       bgColor: banner.bgColor,
       isActive: banner.isActive,
       order: banner.order,
+      visibility: banner.visibility || 'all',
     });
     setShowEditModal(true);
   };
@@ -278,8 +282,12 @@ const BannerListScreen = () => {
         filterActive === '' ||
         (filterActive === 'active' && banner.isActive) ||
         (filterActive === 'inactive' && !banner.isActive);
+      const matchesVisibility =
+        filterVisibility === '' ||
+        banner.visibility === filterVisibility ||
+        (!banner.visibility && filterVisibility === 'all');
 
-      return matchesSearch && matchesActive;
+      return matchesSearch && matchesActive && matchesVisibility;
     });
 
     // Sort
@@ -344,7 +352,7 @@ const BannerListScreen = () => {
         <Card className='filters-card mb-4'>
           <Card.Body>
             <Row className='align-items-center'>
-              <Col md={4}>
+              <Col md={3}>
                 <InputGroup>
                   <InputGroup.Text>
                     <i className='fas fa-search'></i>
@@ -369,6 +377,17 @@ const BannerListScreen = () => {
               </Col>
               <Col md={2}>
                 <Form.Select
+                  value={filterVisibility}
+                  onChange={(e) => setFilterVisibility(e.target.value)}
+                >
+                  <option value=''>All Visibility</option>
+                  <option value='all'>All Users</option>
+                  <option value='logged_in'>Logged In Only</option>
+                  <option value='logged_out'>Logged Out Only</option>
+                </Form.Select>
+              </Col>
+              <Col md={2}>
+                <Form.Select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
                 >
@@ -377,13 +396,13 @@ const BannerListScreen = () => {
                   <option value='createdAt'>Created Date</option>
                 </Form.Select>
               </Col>
-              <Col md={2}>
+              <Col md={1}>
                 <Form.Select
                   value={sortOrder}
                   onChange={(e) => setSortOrder(e.target.value)}
                 >
-                  <option value='asc'>Ascending</option>
-                  <option value='desc'>Descending</option>
+                  <option value='asc'>Asc</option>
+                  <option value='desc'>Desc</option>
                 </Form.Select>
               </Col>
               <Col md={2}>
@@ -441,6 +460,30 @@ const BannerListScreen = () => {
                       <Badge bg='info' className='order-badge'>
                         Order: {banner.order}
                       </Badge>
+                      <Badge 
+                        bg={
+                          banner.visibility === 'logged_in' 
+                            ? 'primary' 
+                            : banner.visibility === 'logged_out' 
+                            ? 'warning' 
+                            : 'light'
+                        }
+                        text={banner.visibility === 'all' || !banner.visibility ? 'dark' : undefined}
+                        className='visibility-badge'
+                      >
+                        <i className={`fas ${
+                          banner.visibility === 'logged_in' 
+                            ? 'fa-user-check' 
+                            : banner.visibility === 'logged_out' 
+                            ? 'fa-user-slash' 
+                            : 'fa-users'
+                        } me-1`}></i>
+                        {banner.visibility === 'logged_in' 
+                          ? 'Logged In' 
+                          : banner.visibility === 'logged_out' 
+                          ? 'Logged Out' 
+                          : 'All Users'}
+                      </Badge>
                     </div>
                   </div>
                   <Card.Body>
@@ -495,6 +538,7 @@ const BannerListScreen = () => {
                       <th>Banner</th>
                       <th>Title</th>
                       <th>Status</th>
+                      <th>Visibility</th>
                       <th>Order</th>
                       <th>Created</th>
                       <th>Actions</th>
@@ -525,6 +569,24 @@ const BannerListScreen = () => {
                         <td>
                           <Badge bg={banner.isActive ? 'success' : 'secondary'}>
                             {banner.isActive ? 'Active' : 'Inactive'}
+                          </Badge>
+                        </td>
+                        <td>
+                          <Badge 
+                            bg={
+                              banner.visibility === 'logged_in' 
+                                ? 'primary' 
+                                : banner.visibility === 'logged_out' 
+                                ? 'warning' 
+                                : 'light'
+                            }
+                            text={banner.visibility === 'all' || !banner.visibility ? 'dark' : undefined}
+                          >
+                            {banner.visibility === 'logged_in' 
+                              ? 'Logged In' 
+                              : banner.visibility === 'logged_out' 
+                              ? 'Logged Out' 
+                              : 'All Users'}
                           </Badge>
                         </td>
                         <td>{banner.order}</td>
@@ -699,7 +761,7 @@ const BannerListScreen = () => {
                 </Col>
               </Row>
               <Row>
-                <Col md={4}>
+                <Col md={3}>
                   <Form.Group className='mb-3'>
                     <Form.Label>Background Color</Form.Label>
                     <Form.Control
@@ -710,7 +772,7 @@ const BannerListScreen = () => {
                     />
                   </Form.Group>
                 </Col>
-                <Col md={4}>
+                <Col md={3}>
                   <Form.Group className='mb-3'>
                     <Form.Label>Order</Form.Label>
                     <Form.Control
@@ -721,7 +783,24 @@ const BannerListScreen = () => {
                     />
                   </Form.Group>
                 </Col>
-                <Col md={4}>
+                <Col md={3}>
+                  <Form.Group className='mb-3'>
+                    <Form.Label>Visibility</Form.Label>
+                    <Form.Select
+                      name='visibility'
+                      value={formData.visibility}
+                      onChange={handleInputChange}
+                    >
+                      <option value='all'>All Users</option>
+                      <option value='logged_in'>Logged In Users Only</option>
+                      <option value='logged_out'>Non-Logged In Users Only</option>
+                    </Form.Select>
+                    <Form.Text className='text-muted'>
+                      Choose who can see this banner
+                    </Form.Text>
+                  </Form.Group>
+                </Col>
+                <Col md={3}>
                   <Form.Group className='mb-3'>
                     <Form.Check
                       type='checkbox'
@@ -888,7 +967,7 @@ const BannerListScreen = () => {
                 </Col>
               </Row>
               <Row>
-                <Col md={4}>
+                <Col md={3}>
                   <Form.Group className='mb-3'>
                     <Form.Label>Background Color</Form.Label>
                     <Form.Control
@@ -899,7 +978,7 @@ const BannerListScreen = () => {
                     />
                   </Form.Group>
                 </Col>
-                <Col md={4}>
+                <Col md={3}>
                   <Form.Group className='mb-3'>
                     <Form.Label>Order</Form.Label>
                     <Form.Control
@@ -910,7 +989,24 @@ const BannerListScreen = () => {
                     />
                   </Form.Group>
                 </Col>
-                <Col md={4}>
+                <Col md={3}>
+                  <Form.Group className='mb-3'>
+                    <Form.Label>Visibility</Form.Label>
+                    <Form.Select
+                      name='visibility'
+                      value={formData.visibility}
+                      onChange={handleInputChange}
+                    >
+                      <option value='all'>All Users</option>
+                      <option value='logged_in'>Logged In Users Only</option>
+                      <option value='logged_out'>Non-Logged In Users Only</option>
+                    </Form.Select>
+                    <Form.Text className='text-muted'>
+                      Choose who can see this banner
+                    </Form.Text>
+                  </Form.Group>
+                </Col>
+                <Col md={3}>
                   <Form.Group className='mb-3'>
                     <Form.Check
                       type='checkbox'

@@ -9,11 +9,30 @@ const getAllBannersAdmin = asyncHandler(async (req, res) => {
   res.json(banners);
 });
 
-// @description  Get all active banners
-// @route        GET /api/banners
+// @description  Get all active banners filtered by user login status
+// @route        GET /api/banners?isLoggedIn=true|false
 // @access       Public
 const getBanners = asyncHandler(async (req, res) => {
-  const banners = await Banner.find({ isActive: true }).sort({ order: 1 });
+  const { isLoggedIn } = req.query;
+  
+  // Build the visibility filter based on login status
+  let visibilityFilter;
+  if (isLoggedIn === 'true') {
+    // Show banners for logged-in users: 'all' or 'logged_in'
+    visibilityFilter = { $in: ['all', 'logged_in'] };
+  } else if (isLoggedIn === 'false') {
+    // Show banners for non-logged-in users: 'all' or 'logged_out'
+    visibilityFilter = { $in: ['all', 'logged_out'] };
+  } else {
+    // No filter specified, show all active banners
+    visibilityFilter = { $in: ['all', 'logged_in', 'logged_out'] };
+  }
+
+  const banners = await Banner.find({ 
+    isActive: true,
+    visibility: visibilityFilter
+  }).sort({ order: 1 });
+  
   res.json(banners);
 });
 
@@ -45,6 +64,7 @@ const createBanner = asyncHandler(async (req, res) => {
     badge,
     bgColor,
     order,
+    visibility,
   } = req.body;
 
   const banner = new Banner({
@@ -57,6 +77,7 @@ const createBanner = asyncHandler(async (req, res) => {
     badge,
     bgColor,
     order: order || 0,
+    visibility: visibility || 'all',
   });
 
   const createdBanner = await banner.save();
@@ -78,6 +99,7 @@ const updateBanner = asyncHandler(async (req, res) => {
     bgColor,
     isActive,
     order,
+    visibility,
   } = req.body;
 
   const banner = await Banner.findById(req.params.id);
@@ -93,6 +115,7 @@ const updateBanner = asyncHandler(async (req, res) => {
     banner.bgColor = bgColor || banner.bgColor;
     banner.isActive = isActive !== undefined ? isActive : banner.isActive;
     banner.order = order !== undefined ? order : banner.order;
+    banner.visibility = visibility || banner.visibility;
 
     const updatedBanner = await banner.save();
     res.json(updatedBanner);

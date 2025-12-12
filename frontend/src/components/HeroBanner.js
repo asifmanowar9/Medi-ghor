@@ -20,6 +20,9 @@ const HeroBanner = () => {
   const bannerList = useSelector((state) => state.bannerList);
   const { loading, error, banners } = bannerList;
 
+  const userLogin = useSelector((state) => state.userLogin);
+  const { userInfo } = userLogin;
+
   const offers = [
     {
       icon: 'fas fa-shipping-fast',
@@ -44,8 +47,9 @@ const HeroBanner = () => {
   ];
 
   useEffect(() => {
-    dispatch(listBanners());
-  }, [dispatch]);
+    // Pass whether the user is logged in to fetch appropriate banners
+    dispatch(listBanners(!!userInfo));
+  }, [dispatch, userInfo]);
 
   useEffect(() => {
     // Total slides = banners length

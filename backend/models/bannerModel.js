@@ -42,6 +42,11 @@ const bannerSchema = mongoose.Schema(
       type: Number,
       default: 0,
     },
+    visibility: {
+      type: String,
+      enum: ['all', 'logged_in', 'logged_out'],
+      default: 'all',
+    },
   },
   {
     timestamps: true,

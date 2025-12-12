@@ -20,11 +20,11 @@ import {
   BANNER_DETAILS_FAIL,
 } from '../constants/bannerConstants';
 
-export const listBanners = () => async (dispatch) => {
+export const listBanners = (isLoggedIn = false) => async (dispatch) => {
   try {
     dispatch({ type: BANNER_LIST_REQUEST });
 
-    const { data } = await axios.get('/api/banners');
+    const { data } = await axios.get(`/api/banners?isLoggedIn=${isLoggedIn}`);
 
     dispatch({
       type: BANNER_LIST_SUCCESS,
