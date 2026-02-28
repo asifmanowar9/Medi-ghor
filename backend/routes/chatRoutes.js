@@ -17,10 +17,10 @@ import {
 
 const router = express.Router();
 
-// Test route to verify API functionality
-router.get('/test', (req, res) => {
-  res.json({ message: 'Chat API is working properly!' });
-});
+// // Test route to verify API functionality
+// router.get('/test', (req, res) => {
+//   res.json({ message: 'Chat API is working properly!' });
+// });
 
 // Chat CRUD routes
 router.route('/').post(protect, createChat).get(protect, getUserChats);
