@@ -107,22 +107,10 @@ app.get('/api/config/stripe', (req, res) => {
   res.send({ publishableKey: process.env.STRIPE_PUBLISHABLE_KEY });
 });
 
-if (process.env.NODE_ENV === 'production') {
-  // Serve frontend static files
-  app.use(express.static(path.join(__dirname, '../frontend/build')));
-
-  // Handle any other routes by serving the index.html file
-  app.get('*', (req, res) => {
-    res.sendFile(
-      path.resolve(__dirname, '../', 'frontend', 'build', 'index.html')
-    );
-  });
-} else {
-  // Serve frontend files in development mode
-  app.get('/', (req, res) => {
-    res.send('API is running...');
-  });
-}
+// API status route
+app.get('/', (req, res) => {
+  res.send('API is running...');
+});
 
 // Rate limiting middleware
 let lastRequestTime = 0;
