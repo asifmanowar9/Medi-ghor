@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from '../api/axios';
 import {
   PRESCRIPTION_LIST_REQUEST,
   PRESCRIPTION_LIST_SUCCESS,

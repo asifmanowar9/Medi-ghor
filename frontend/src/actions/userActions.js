@@ -54,7 +54,7 @@ import {
   clearWishlist,
 } from '../actions/wishlistActions';
 
-import axios from 'axios';
+import axios from '../api/axios';
 
 // Firebase imports
 import {

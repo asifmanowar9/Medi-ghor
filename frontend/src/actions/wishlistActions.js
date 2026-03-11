@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from '../api/axios';
 import {
   WISHLIST_ADD_ITEM,
   WISHLIST_REMOVE_ITEM,

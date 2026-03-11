@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from '../api/axios';
 import {
   CHAT_CREATE_REQUEST,
   CHAT_CREATE_SUCCESS,

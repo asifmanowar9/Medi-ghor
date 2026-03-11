@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from '../api/axios';
 import {
   HEALTH_CONDITION_LIST_REQUEST,
   HEALTH_CONDITION_LIST_SUCCESS,

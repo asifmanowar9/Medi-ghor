@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from '../api/axios';
 import {
   CATEGORY_LIST_REQUEST,
   CATEGORY_LIST_SUCCESS,

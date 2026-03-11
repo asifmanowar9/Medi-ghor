@@ -22,7 +22,7 @@ import {
   ORDER_DELIVER_FAIL,
 } from '../constants/orderConstants';
 import { CART_CLEAR_ITEMS } from '../constants/cartConstants';
-import axios from 'axios';
+import axios from '../api/axios';
 
 export const createOrder = (order) => async (dispatch, getState) => {
   try {

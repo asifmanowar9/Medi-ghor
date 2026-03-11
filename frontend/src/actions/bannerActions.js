@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from '../api/axios';
 import {
   BANNER_LIST_REQUEST,
   BANNER_LIST_SUCCESS,
