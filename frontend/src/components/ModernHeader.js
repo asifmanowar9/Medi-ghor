@@ -60,7 +60,7 @@ const ModernHeader = () => {
                 <i className='fas fa-phone'></i> +880-123-456789
               </span>
               <span>
-                <i className='fas fa-envelope'></i> info@medmart.com
+                <i className='fas fa-envelope'></i> info@medi-ghor.com
               </span>
             </div>
             <div className='top-links'>
@@ -85,7 +85,7 @@ const ModernHeader = () => {
               <Navbar.Brand className='brand-logo'>
                 <div className='logo-container'>
                   <i className='fas fa-plus-circle text-primary me-2'></i>
-                  <span className='brand-text'>MedMart</span>
+                  <span className='brand-text'>Medi-Ghor</span>
                   <small className='brand-tagline'>Your Health Partner</small>
                 </div>
               </Navbar.Brand>
