@@ -383,12 +383,10 @@ const ProductSections = () => {
               )}
 
               {/* View All Button */}
-              {getCurrentProducts().length > 6 && (
+              {getCurrentProducts().length > 0 && (
                 <Row className='mt-4'>
                   <Col className='text-center'>
-                    <LinkContainer
-                      to={`/products?type=${activeSection}&sort=name&order=asc`}
-                    >
+                    <LinkContainer to='/products'>
                       <Button
                         variant='outline-primary'
                         size='lg'
