@@ -18,6 +18,7 @@ import {
   removeFromWishlist,
   clearWishlist,
 } from '../actions/wishlistActions';
+import { resolveAssetUrl } from '../utils/resolveAssetUrl';
 import { addToCart } from '../actions/cartActions';
 import { useCartAuth } from '../hooks/useCartAuth';
 import './WishlistScreen.css';
@@ -150,15 +151,7 @@ const WishlistScreen = () => {
                   <Card className='wishlist-item-card h-100'>
                     <div className='card-image-container'>
                       <Image
-                        src={
-                          item.image?.startsWith('http')
-                            ? item.image
-                            : item.image?.startsWith('/uploads')
-                            ? item.image
-                            : item.image?.startsWith('/images')
-                            ? item.image
-                            : `/uploads/${item.image}`
-                        }
+                        src={resolveAssetUrl(item.image)}
                         alt={item.name}
                         className='wishlist-item-image'
                       />

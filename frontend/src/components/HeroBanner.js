@@ -11,6 +11,7 @@ import {
 } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import { listBanners } from '../actions/bannerActions';
+import { resolveAssetUrl } from '../utils/resolveAssetUrl';
 import '../styles/HeroBanner.css';
 
 const HeroBanner = () => {
@@ -137,7 +138,7 @@ const HeroBanner = () => {
                           </Col>
                           <Col md={6} className='banner-image'>
                             <img
-                              src={banner.image}
+                              src={resolveAssetUrl(banner.image)}
                               alt={banner.title}
                               className='img-fluid'
                             />

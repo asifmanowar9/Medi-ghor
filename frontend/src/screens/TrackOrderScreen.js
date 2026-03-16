@@ -16,6 +16,7 @@ import {
 } from 'react-bootstrap';
 import { trackOrder, resetOrderDetails } from '../actions/orderActions';
 import Loader from '../components/Loader';
+import { resolveAssetUrl } from '../utils/resolveAssetUrl';
 import './TrackOrderScreen.css';
 
 const TrackOrderScreen = () => {
@@ -739,7 +740,7 @@ const TrackOrderScreen = () => {
                         <Col xs={2}>
                           <div className='item-image'>
                             <Image
-                              src={item.image}
+                              src={resolveAssetUrl(item.image)}
                               alt={item.name}
                               fluid
                               rounded

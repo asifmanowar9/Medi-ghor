@@ -19,6 +19,7 @@ import {
   createProductReview,
 } from '../actions/productActions';
 import { PRODUCT_CREATE_REVIEW_RESET } from '../constants/productConstants';
+import { resolveAssetUrl } from '../utils/resolveAssetUrl';
 import './ProductScreen.css';
 
 const ProductScreen = () => {
@@ -63,15 +64,7 @@ const ProductScreen = () => {
   };
 
   // In your render function, fix the image path:
-  const imagePath =
-    product.image &&
-    (product.image.startsWith('http')
-      ? product.image
-      : product.image.startsWith('/uploads')
-      ? product.image
-      : product.image.startsWith('/images')
-      ? product.image
-      : `/uploads/${product.image}`);
+  const imagePath = resolveAssetUrl(product.image);
 
   return (
     <div className='product-screen-container'>

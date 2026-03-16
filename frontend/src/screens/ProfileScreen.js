@@ -23,6 +23,7 @@ import {
   deletePrescription,
 } from '../actions/prescriptionActions';
 import { LinkContainer } from 'react-router-bootstrap';
+import { resolveAssetUrl } from '../utils/resolveAssetUrl';
 import Loader from '../components/Loader';
 import { listMyOrders, resetOrderPay } from '../actions/orderActions';
 import { ORDER_DELIVER_RESET } from '../constants/orderConstants';
@@ -957,7 +958,7 @@ const ProfileScreen = () => {
                   <i className='fas fa-file-medical me-2'></i>Prescription Image
                 </h6>
                 <Image
-                  src={selectedPrescription.image}
+                  src={resolveAssetUrl(selectedPrescription.image)}
                   alt='Prescription'
                   fluid
                   rounded

@@ -18,6 +18,7 @@ import {
 import { LinkContainer } from 'react-router-bootstrap';
 import { listProducts } from '../actions/productActions';
 import { addToCart } from '../actions/cartActions';
+import { resolveAssetUrl } from '../utils/resolveAssetUrl';
 import { addToWishlist, removeFromWishlist } from '../actions/wishlistActions';
 import '../styles/ProductSections.css';
 
@@ -151,15 +152,7 @@ const ProductSections = () => {
       <div className='product-img-container position-relative'>
         <LinkContainer to={`/product/${product._id}`}>
           <Card.Img
-            src={
-              product.image?.startsWith('http')
-                ? product.image
-                : product.image?.startsWith('/uploads')
-                ? product.image
-                : product.image?.startsWith('/images')
-                ? product.image
-                : `/uploads/${product.image}`
-            }
+            src={resolveAssetUrl(product.image)}
             variant='top'
             className='product-img'
             style={{

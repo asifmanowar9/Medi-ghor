@@ -6,6 +6,7 @@ node_modules
 node_modules/
 /.pnp
 .pnp.js
+PROJECT_ARCHITECTURE_EXPLANATION.md
 
 # testing
 /coverage

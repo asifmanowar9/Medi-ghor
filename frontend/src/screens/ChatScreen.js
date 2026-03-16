@@ -34,6 +34,7 @@ import {
 import ReactMarkdown from 'react-markdown';
 import { getChatDetails, addMessage, updateChat } from '../actions/chatActions';
 import { CHAT_DETAILS_SUCCESS } from '../constants/chatConstants';
+import { resolveAssetUrl } from '../utils/resolveAssetUrl';
 import './ChatScreen.css';
 
 const ChatScreen = () => {
@@ -115,11 +116,7 @@ const ChatScreen = () => {
   }, [errorMessage, successMessage]);
 
   // Helper functions
-  const formatImageUrl = useCallback((url) => {
-    if (!url) return '';
-    if (url.startsWith('http') || url.startsWith('/')) return url;
-    return `/uploads/${url}`;
-  }, []);
+  const formatImageUrl = useCallback((url) => resolveAssetUrl(url), []);
 
   const copyToClipboard = useCallback((text) => {
     navigator.clipboard.writeText(text).then(() => {

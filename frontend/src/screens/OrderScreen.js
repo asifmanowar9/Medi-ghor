@@ -18,6 +18,7 @@ import Loader from '../components/Loader';
 import { getOrderDetails, updateOrderStatus } from '../actions/orderActions';
 import { ORDER_PAY_RESET } from '../constants/orderConstants';
 import StripeCheckoutModal from '../components/StripeCheckoutModal';
+import { resolveAssetUrl } from '../utils/resolveAssetUrl';
 import { hasAdminPrivileges } from '../utils/orderUtils';
 import './OrderScreen.css';
 
@@ -498,15 +499,7 @@ const OrderScreen = () => {
                         <Col xs={3} md={2}>
                           <div className='product-image-container'>
                             <Image
-                              src={
-                                item.image?.startsWith('http')
-                                  ? item.image
-                                  : item.image?.startsWith('/uploads')
-                                  ? item.image
-                                  : item.image?.startsWith('/images')
-                                  ? item.image
-                                  : `/uploads/${item.image}`
-                              }
+                              src={resolveAssetUrl(item.image)}
                               alt={item.name}
                               className='product-image'
                               style={{

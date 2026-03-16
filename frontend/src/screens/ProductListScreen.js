@@ -17,6 +17,7 @@ import Loader from '../components/Loader';
 import Paginate from '../components/Paginate';
 import { listProducts, deleteProduct } from '../actions/productActions';
 import { listCategories } from '../actions/categoryActions';
+import { resolveAssetUrl } from '../utils/resolveAssetUrl';
 import './ProductListScreen.css';
 
 // Low stock threshold constant
@@ -940,7 +941,7 @@ const ProductListScreen = () => {
                       <div className='position-relative'>
                         <Card.Img
                           variant='top'
-                          src={product.image}
+                          src={resolveAssetUrl(product.image)}
                           style={{
                             height: '200px',
                             objectFit: 'cover',

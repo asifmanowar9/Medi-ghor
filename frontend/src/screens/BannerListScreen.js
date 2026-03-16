@@ -16,6 +16,7 @@ import {
 } from 'react-bootstrap';
 import Message from '../components/Message';
 import Loader from '../components/Loader';
+import { resolveAssetUrl } from '../utils/resolveAssetUrl';
 import {
   listBannersAdmin,
   deleteBanner,
@@ -446,7 +447,7 @@ const BannerListScreen = () => {
                 <Card className='banner-card h-100'>
                   <div className='banner-image-container'>
                     <Image
-                      src={banner.image}
+                      src={resolveAssetUrl(banner.image)}
                       alt={banner.title}
                       className='banner-image'
                     />
@@ -549,7 +550,7 @@ const BannerListScreen = () => {
                       <tr key={banner._id}>
                         <td>
                           <Image
-                            src={banner.image}
+                            src={resolveAssetUrl(banner.image)}
                             alt={banner.title}
                             width='60'
                             height='40'
@@ -699,7 +700,7 @@ const BannerListScreen = () => {
                         </small>
                         <div className='mt-1'>
                           <Image
-                            src={formData.image}
+                            src={resolveAssetUrl(formData.image)}
                             alt='Preview'
                             thumbnail
                             style={{ maxHeight: '100px', maxWidth: '200px' }}
@@ -902,7 +903,7 @@ const BannerListScreen = () => {
                         <small className='text-muted'>Current image:</small>
                         <div className='mt-1'>
                           <Image
-                            src={formData.image}
+                            src={resolveAssetUrl(formData.image)}
                             alt='Current banner'
                             thumbnail
                             style={{ maxHeight: '100px', maxWidth: '200px' }}

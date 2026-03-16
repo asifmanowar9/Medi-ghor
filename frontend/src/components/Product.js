@@ -5,6 +5,7 @@ import { Card, Button, Badge, Row, Col, Modal, Form } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import { addToCart } from '../actions/cartActions';
 import { addToWishlist, removeFromWishlist } from '../actions/wishlistActions';
+import { resolveAssetUrl } from '../utils/resolveAssetUrl';
 import './Product.css';
 
 const Product = ({ product }) => {
@@ -20,15 +21,7 @@ const Product = ({ product }) => {
   const { wishlistItems } = wishlist;
 
   // Fix the image path handling (keeping existing logic):
-  const imagePath =
-    product.image &&
-    (product.image.startsWith('http')
-      ? product.image // Use as is if it's an absolute URL
-      : product.image.startsWith('/uploads')
-      ? product.image // Use as is if it already has /uploads prefix
-      : product.image.startsWith('/images')
-      ? product.image // Use as is if it already has /images prefix (from demo data)
-      : `/uploads/${product.image}`); // Add /uploads prefix for relative paths
+  const imagePath = resolveAssetUrl(product.image);
 
   // Render stars function
   const renderStars = (rating) => {

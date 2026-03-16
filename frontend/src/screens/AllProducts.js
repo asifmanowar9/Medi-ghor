@@ -20,6 +20,7 @@ import { addToCart } from '../actions/cartActions';
 import { addToWishlist, removeFromWishlist } from '../actions/wishlistActions';
 import Loader from '../components/Loader';
 import Message from '../components/Message';
+import { resolveAssetUrl } from '../utils/resolveAssetUrl';
 import '../styles/AllProducts.css';
 
 const AllProducts = () => {
@@ -488,15 +489,7 @@ const AllProducts = () => {
                   <div className='product-img-container position-relative'>
                     <LinkContainer to={`/product/${product._id}`}>
                       <Card.Img
-                        src={
-                          product.image?.startsWith('http')
-                            ? product.image
-                            : product.image?.startsWith('/uploads')
-                            ? product.image
-                            : product.image?.startsWith('/images')
-                            ? product.image
-                            : `/uploads/${product.image}`
-                        }
+                        src={resolveAssetUrl(product.image)}
                         variant='top'
                         className='product-img'
                         style={{
@@ -681,15 +674,7 @@ const AllProducts = () => {
           {selectedProduct && (
             <div className='text-center'>
               <img
-                src={
-                  selectedProduct.image?.startsWith('http')
-                    ? selectedProduct.image
-                    : selectedProduct.image?.startsWith('/uploads')
-                    ? selectedProduct.image
-                    : selectedProduct.image?.startsWith('/images')
-                    ? selectedProduct.image
-                    : `/uploads/${selectedProduct.image}`
-                }
+                src={resolveAssetUrl(selectedProduct.image)}
                 alt={selectedProduct.name}
                 className='img-fluid mb-3'
                 style={{ maxHeight: '150px', borderRadius: '8px' }}

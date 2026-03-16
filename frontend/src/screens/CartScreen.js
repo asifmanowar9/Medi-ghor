@@ -16,6 +16,7 @@ import {
 import { addToCart, removeFromCart } from '../actions/cartActions';
 import { resetOrderCreate } from '../actions/orderActions';
 import { useCartAuth } from '../hooks/useCartAuth';
+import { resolveAssetUrl } from '../utils/resolveAssetUrl';
 import '../styles/CartScreen.css';
 
 const CartScreen = () => {
@@ -84,12 +85,7 @@ const CartScreen = () => {
   };
 
   // Update the image source logic:
-  const getImagePath = (image) => {
-    if (image.startsWith('http')) return image;
-    if (image.startsWith('/uploads')) return image;
-    if (image.startsWith('/images')) return image;
-    return `/uploads/${image}`;
-  };
+  const getImagePath = (image) => resolveAssetUrl(image);
 
   const subtotal = cartItems.reduce(
     (acc, item) => acc + item.qty * item.price,

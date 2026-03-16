@@ -6,6 +6,7 @@ import Message from '../components/Message';
 import CheckoutSteps from '../components/CheckoutSteps';
 import { createOrder, resetOrderCreate } from '../actions/orderActions';
 import { useNavigate } from 'react-router-dom';
+import { resolveAssetUrl } from '../utils/resolveAssetUrl';
 import './PlaceOrderScreen.css';
 
 const PlaceOrderScreen = () => {
@@ -191,15 +192,7 @@ const PlaceOrderScreen = () => {
                         <div key={index} className='order-item'>
                           <div className='item-image'>
                             <Image
-                              src={
-                                item.image.startsWith('http')
-                                  ? item.image
-                                  : item.image.startsWith('/uploads')
-                                  ? item.image
-                                  : item.image.startsWith('/images')
-                                  ? item.image
-                                  : `/uploads/${item.image}`
-                              }
+                              src={resolveAssetUrl(item.image)}
                               alt={item.name}
                               className='product-image'
                             />

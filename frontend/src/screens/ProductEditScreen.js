@@ -23,6 +23,7 @@ import {
   PRODUCT_UPDATE_RESET,
   PRODUCT_CREATE_RESET,
 } from '../constants/productConstants';
+import { resolveAssetUrl } from '../utils/resolveAssetUrl';
 import { CATEGORY_CREATE_RESET } from '../constants/categoryConstants';
 import '../styles/ProductEditScreen.css';
 
@@ -662,15 +663,7 @@ const ProductEditScreen = () => {
                     </Form.Label>
                     <div className='d-flex align-items-center gap-3'>
                       <img
-                        src={
-                          image.startsWith('http')
-                            ? image
-                            : image.startsWith('/uploads')
-                            ? image
-                            : image.startsWith('/images')
-                            ? image
-                            : `/uploads/products/${image}`
-                        }
+                        src={resolveAssetUrl(image, 'uploads/products')}
                         alt='Product preview'
                         style={{
                           maxWidth: '150px',
